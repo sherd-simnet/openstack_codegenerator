@@ -1,0 +1,22 @@
+jinja2
+jsonref
+openapi_core
+pydantic
+sphinx
+ruamel.yaml
+jsonschema
+bs4[spec]
+# convert html into markdown
+markdownify[spec]
+# wrap markdown when rendering
+mdformat # MIT
+wsgi_intercept[spec]
+oslotest[spec]
+nova[spec]
+openstack-placement[spec]
+glance[spec]
+neutron[spec]
+neutron-vpnaas[spec]
+keystone[spec]
+cinder[spec]
+octavia[spec]
