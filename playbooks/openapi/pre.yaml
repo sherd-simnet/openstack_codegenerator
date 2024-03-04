@@ -1,0 +1,21 @@
+---
+- hosts: all
+  roles:
+    - ensure-pip
+    - ensure-virtualenv
+
+  tasks:
+    - name: Install openstack-codegenerator from sources
+      ansible.builtin.pip:
+        chdir: "{{ zuul.projects['opendev.org/openstack/codegenerator'].src_dir }}"
+        name: "."
+        virtualenv: "{{ ansible_user_dir }}/.venv"
+
+    - name: Install additional dependencies from sources
+      ansible.builtin.pip:
+        chdir: "{{ zuul.projects[zj_dep.project].src_dir }}"
+        name: "{{ zj_dep.name }}"
+        virtualenv: "{{ ansible_user_dir }}/.venv"
+      loop: "{{ install_additional_projects }}"
+      loop_control:
+        loop_var: zj_dep
