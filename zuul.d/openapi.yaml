@@ -1,0 +1,49 @@
+---
+- job:
+    name: openstackcodegenerator-openapi-tips-base
+    parent: unittests
+    description: |
+      Base job for generation of the OpenAPI spec
+
+      The job expects following variables to be set:
+
+      .. zuul:jobvar:: openapi_service
+
+         OpenStack service to generate OpenAPI spec for.
+         Supported are:
+           - block-storage
+           - compute
+           - identity
+           - image
+           - load-balancing
+           - network
+           - placement
+    required-projects:
+      - name: openstack/codegenerator
+
+    attempts: 1
+    timeout: 600
+    pre-run:
+      - playbooks/openapi/pre.yaml
+    run:
+      - playbooks/openapi/run.yaml
+    post-run:
+      - playbooks/openapi/post.yaml
+    vars:
+      codegenerator_work_dir: "wrk"
+      install_additional_projects: []
+
+- job:
+    name: openstackcodegenerator-openapi-nova-tips
+    parent: openstackcodegenerator-openapi-tips-base
+    description: |
+      Generate OpenAPI spec for nova
+    required-projects:
+      - name: openstack/nova
+
+    voting: false
+    vars:
+      openapi_service: compute
+      install_additional_projects:
+        - project: "opendev.org/openstack/nova"
+          name: "."
