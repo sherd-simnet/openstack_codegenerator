@@ -1,0 +1,10 @@
+---
+- hosts: all
+  roles:
+    - ensure-pip
+
+  tasks:
+    - name: Install openstack-codegenerator with dependencies
+      ansible.builtin.pip:
+        name: "."
+        virtualenv: "{{ ansible_user_dir }}/.venv"
