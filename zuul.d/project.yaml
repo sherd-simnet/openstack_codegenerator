@@ -6,3 +6,4 @@
       jobs:
         - openstack-tox-pep8
         - openstack-tox-py311
+        - codegenerator-openapi-compute-tips-with-api-ref
