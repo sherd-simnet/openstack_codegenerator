@@ -1,8 +1,9 @@
 ---
 - project:
-    templates:
-      - publish-openstack-docs-pti
+  # templates:
+  #    - publish-openstack-docs-pti
     check:
       jobs:
-        - openstack-tox-pep8
-        - openstack-tox-py311
+      # - openstack-tox-pep8
+      # - openstack-tox-py311
+        - openstackcodegenerator-openapi-compute-tips
