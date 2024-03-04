@@ -1,0 +1,19 @@
+---
+- job:
+    name: openstackcodegenerator-openapi-nova
+    parent: unittests
+    description: |
+      Generate OpenAPI spec for nova
+    required-projects:
+      - name: openstack/codegenerator
+      - name: openstack/nova
+
+    attempts: 1
+    voting: false
+    timeout: 3600
+    pre-run:
+      - playbooks/openapi/pre.yaml
+    run:
+      - playbooks/openapi/run.yaml
+    vars:
+      openapi_service: compute

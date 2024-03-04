@@ -1,0 +1,10 @@
+---
+- hosts: all
+  tasks:
+    - name: generate spec
+      args:
+        chdir: "{{ ansible_user_dir }}/.venv"
+        executable: /bin/bash
+      ansible.builtin.shell: |
+        source {{ ansible_user_dir }}/.venv/bin/activate; openstack-codegenerator --work-dir wrk --target openapi-spec --service-type {{ openapi_service }}
+
