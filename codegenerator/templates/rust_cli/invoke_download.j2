@@ -1,0 +1,15 @@
+        let (headers, data) = ep.download_async(client).await?;
+
+        let size: u64 = headers
+            .get("content-length")
+            .map(|x| x.to_str().expect("Header is a string"))
+            .unwrap_or("0")
+            .parse()
+            .unwrap();
+        download_file(
+            self.file.clone().unwrap_or(self.{{ last_path_parameter.name }}.clone()),
+            size,
+            data,
+        )
+        .await?;
+

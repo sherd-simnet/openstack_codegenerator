@@ -1,0 +1,14 @@
+---
+- project:
+    templates:
+      - openstack-python3-jobs
+      - publish-openstack-docs-pti
+      - check-requirements
+      - release-notes-jobs-python3
+    check:
+      jobs:
+        - osc-functional-devstack
+        - osc-functional-devstack-tips:
+            # The functional-tips job only tests the latest and shouldn't be run
+            # on the stable branches
+            branches: ^master$
