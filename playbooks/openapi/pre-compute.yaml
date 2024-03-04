@@ -1,0 +1,9 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Install nova with dependencies
+      ansible.builtin.pip:
+        chdir: "{{ zuul.projects['openstack/nova'].src_dir }}"
+        name: "."
+        virtualenv: "{{ ansible_user_dir }}/.venv"
