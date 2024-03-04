@@ -1,0 +1,15 @@
+---
+- hosts: all
+  tasks:
+    - name: Update openapi-core
+      ansible.builtin.pip:
+        name: "openapi-core"
+        state: "latest"
+        virtualenv: "{{ ansible_user_dir }}/.venv"
+
+    - name: Generate OpenAPI spec
+      args:
+        chdir: "{{ ansible_user_dir }}/.venv"
+        executable: /bin/bash
+      ansible.builtin.shell: |
+        source {{ ansible_user_dir }}/.venv/bin/activate; openstack-codegenerator --work-dir {{ ansible_user_dir }}/{{ codegenerator_work_dir }} --target openapi-spec --service-type {{ openapi_service }} {{ codegenerator_additional_options }}
