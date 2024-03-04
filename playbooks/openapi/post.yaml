@@ -1,0 +1,37 @@
+---
+- hosts: all
+  tasks:
+    - name: Ensure local output dirs
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "{{ zj_output_dir }}"
+        state: directory
+        mode: 0755
+      with_items:
+        - "{{ zuul.executor.work_root }}/artifacts"
+      loop_control:
+        loop_var: zj_output_dir
+
+    - name: Collect OpenAPI specs
+      synchronize:
+        dest: "{{ zj_output.dest }}/"
+        mode: pull
+        src: "{{ ansible_user_dir }}/{{ codegenerator_work_dir }}/{{ zj_output.src }}"
+        verify_host: true
+        owner: false
+        group: false
+      loop:
+        - dest: "{{ zuul.executor.work_root }}/artifacts"
+          src: "openapi_specs"
+      loop_control:
+        loop_var: zj_output
+
+    - name: Return artifact to Zuul
+      zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: "OpenAPI specs"
+                url: "artifacts/openapi_specs"
+                metadata:
+                  type: openapi
