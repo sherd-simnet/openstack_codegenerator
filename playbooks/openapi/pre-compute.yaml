@@ -1,0 +1,10 @@
+---
+- hosts: all
+  roles:
+    - ensure-tox
+
+  tasks:
+    - name: Build Compute api-ref
+      ansible.builtin.command: "tox -e api-ref"
+      args:
+        chdir: "{{ zuul.projects['opendev.org/openstack/nova'].src_dir }}"
