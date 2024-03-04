@@ -1,0 +1,171 @@
+{%- import 'rust_macros.j2' as macros with context -%}
+{%- with data_type = response_type_manager.get_root_data_type() %}
+{%- if data_type.__class__.__name__ == "StructResponse" %}
+  {%- if data_type.fields %}
+    /// {{ target_class_name }} response representation
+    #[derive(Deserialize, Serialize)]
+    #[derive(Clone, StructTable)]
+    struct ResponseData {
+      {%- for k, v in data_type.fields.items() %}
+        {% if not (operation_type == "list" and k in ["links"]) %}
+          {{ macros.docstring(v.description, indent=4) }}
+          {{ v.serde_macros }}
+          {{ v.get_structable_macros(data_type, sdk_service_name, resource_name, operation_type) }}
+          {{ v.local_name }}: {{ v.type_hint }},
+        {%- endif %}
+      {%- endfor %}
+
+    }
+  {%- else %}
+    {#- No response data at all #}
+    /// {{ target_class_name }} response representation
+    #[derive(Deserialize, Serialize)]
+    #[derive(Clone, StructTable)]
+    struct ResponseData {}
+  {%- endif %}
+
+{%- elif data_type.__class__.__name__ == "TupleStruct" %}
+    {#- tuple struct requires custom implementation of StructTable #}
+    /// {{ target_class_name }} response representation
+    #[derive(Deserialize, Serialize)]
+    #[derive(Clone)]
+    struct ResponseData(
+      {%- for field in data_type.tuple_fields %}
+        {{ field.type_hint }},
+      {%- endfor %}
+    );
+
+    impl StructTable for ResponseData {
+        fn build(&self, _: &OutputConfig) -> (Vec<String>,
+    Vec<Vec<String>>) {
+            let headers: Vec<String> = Vec::from(["Value".to_string()]);
+            let res: Vec<Vec<String>> = Vec::from([Vec::from([self.0.
+    to_string()])]);
+            (headers, res)
+        }
+    }
+
+    impl StructTable for Vec<ResponseData> {
+        fn build(&self, _: &OutputConfig) -> (Vec<String>,
+    Vec<Vec<String>>) {
+            let headers: Vec<String> = Vec::from(["Values".to_string()]);
+            let res: Vec<Vec<String>> =
+                Vec::from([Vec::from([self.into_iter().map(|v| v.0.
+    to_string()).collect::<Vec<_>>().join(", ")])]);
+            (headers, res)
+        }
+    }
+
+{%- elif data_type.__class__.__name__ == "HashMapResponse" %}
+    /// Response data as HashMap type
+    #[derive(Deserialize, Serialize)]
+    struct ResponseData(HashMap<String, {{ data_type.value_type.type_hint }}>);
+
+    impl StructTable for ResponseData {
+        fn build(&self, _options: &OutputConfig) -> (Vec<String>, Vec<Vec<String>>) {
+            let headers: Vec<String> = Vec::from(["Name".to_string(), "Value".to_string()]);
+            let mut rows: Vec<Vec<String>> = Vec::new();
+            rows.extend(
+                self.0
+                    .iter()
+                  {%- if data_type.value_type.type_hint == "Value" %}
+                    .map(|(k, v)| Vec::from([k.clone(), serde_json::to_string(&v).expect("Is a valid data")])),
+                  {%- elif data_type.value_type.type_hint == "String" %}
+                    .map(|(k, v)| Vec::from([k.clone(), v.clone()])),
+                  {%- elif data_type.value_type.__class__.__name__ == "Option" %}
+                    .map(|(k, v)| Vec::from([k.clone(), v.clone().unwrap_or("".to_string()).to_string()])),
+                  {%- else %}
+                    .map(|(k, v)| Vec::from([k.clone(), v.to_string()])),
+                  {%- endif %}
+            );
+            (headers, rows)
+        }
+    }
+
+{%- endif %}
+{%- endwith %}
+
+{%- for subtype in response_type_manager.get_subtypes() %}
+{%- if subtype["fields"] is defined %}
+/// `{{ subtype.base_type }}` response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
+{{ subtype.base_type }} {{ subtype.name }} {
+  {%- for k, v in subtype.fields.items() %}
+    {{ v.local_name }}: {{ v.type_hint }},
+  {%- endfor %}
+}
+
+impl fmt::Display for {{ subtype.name }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let data = Vec::from([
+         {%- for k, v in subtype.fields.items() %}
+            format!(
+                "{{v.local_name}}={}",
+                self
+                    .{{ v.local_name }}
+                  {%- if v.type_hint.startswith("Option") %}
+                   {%- if v.type_hint not in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
+                    .clone()
+                   {%- endif %}
+                    .map(|v| v.to_string())
+                    .unwrap_or("".to_string())
+                  {%- endif %}
+                ),
+         {%- endfor %}
+        ]);
+        write!(
+            f,
+            "{}",
+            data
+            .join(";")
+        )
+    }
+}
+
+{%- elif subtype.base_type == "vec" %}
+/// Vector of `{{ subtype.item_type.type_hint}}` response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
+struct Vec{{ subtype.item_type.type_hint}}(Vec<{{subtype.item_type.type_hint}}>);
+impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "[{}]",
+            self.0
+                .iter()
+                .map(|v| v.to_string() )
+                .collect::<Vec<String>>()
+                .join(",")
+        )
+    }
+}
+
+{%- elif subtype.base_type == "dict"  %}
+/// HashMap of `{{ subtype.value_type.type_hint }}` response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
+struct {{ subtype.type_hint }}(HashMap<String, {{ subtype.value_type.type_hint }}>);
+impl fmt::Display for {{ subtype.type_hint }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{{ '{{{}}}' }}",
+            self.0
+            .iter()
+           {%- if subtype.value_type.__class__.__name__ == "Option" %}
+            .map(|v| format!("{}={}", v.0, v.1.clone().unwrap_or("".to_string())))
+           {%- else %}
+            .map(|v| format!("{}={}", v.0, v.1))
+           {%- endif %}
+            .collect::<Vec<String>>()
+            .join("\n")
+            )
+    }
+}
+{%- endif %}
+{%- endfor %}
