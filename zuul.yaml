@@ -1,0 +1,7 @@
+---
+- project:
+    templates:
+      - publish-openstack-docs-pti
+    check:
+      jobs:
+        - openstack-tox-py311

@@ -1,0 +1,26 @@
+{%- with type = type_manager.get_root_data_type() %}
+{%- if type["fields"] is defined %}
+{#- Structure #}
+  {%- for field in type.fields.values() %}
+   {%- if operation_type == "set" and field.local_name == "id" %}
+   {%- else %}
+    {{ field.clap_macros }}
+    {{ field.local_name }}: {{ field.type_hint }},
+   {%- endif %}
+  {%- endfor %}
+  {%- if type.additional_fields_type %}
+    /// Additional properties to be sent with the request
+    #[arg(long="property", value_name="key=value", value_parser=parse_key_val::<String, {{ type.additional_fields_type.type_hint }}>)]
+    properties: Option<Vec<(String, {{ type.additional_fields_type.type_hint }})>>,
+  {%- endif %}
+
+{%- elif type.__class__.__name__ == "DictionaryInput" %}
+  {%- if type.value_type.__class__.__name__ != "Option" %}
+    #[arg(long="property", value_name="key=value", value_parser=parse_key_val::<String, {{ type.value_type.type_hint }}>)]
+  {%- else %}
+    #[arg(long="property", value_name="key=value", value_parser=parse_key_val_opt::<String, {{ type.value_type.item_type.type_hint }}>)]
+  {%- endif %}
+    properties: Option<Vec<(String, {{ type.value_type.type_hint }})>>,
+
+{%- endif %}
+{%- endwith %}

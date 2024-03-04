@@ -1,0 +1,70 @@
+{% import 'rust_macros.j2' as macros with context -%}
+{% if not is_json_patch -%}
+      // Set body parameters
+{%- with root = type_manager.get_root_data_type() %}
+{%- if root.__class__.__name__ == "StructInput" %}
+ {%- for root_attr, root_field in root.fields.items() %}
+  // Set Request.{{ root_field.remote_name }} data
+  {%- if root_field.is_optional %}
+    if let Some(args) = &self.{{ root_field.local_name }} {
+  {%- else %}
+    let args = &self.{{ root_field.local_name }};
+  {%- endif %}
+
+  {%- if root_field.data_type.__class__.__name__ == "StructInput" %}
+    {%- set builder_name = root_field.local_name + "_builder" %}
+    let mut {{ builder_name }} = {{ sdk_mod_path[-1] }}::{{ root_field.data_type.name }}Builder::default();
+
+    {%- for k, v in root_field.data_type.fields.items() %}
+      {%- if v.is_optional %}
+        if let Some(val) = &args.{{ v.local_name }} {
+          {{ macros.set_request_data_from_input(builder_name, v, "val") }}
+        }
+      {%- elif v.data_type.format is defined and v.data_type.format == "password" %}
+        if let Some(val) = &args.{{ v.local_name }} {
+            {{ builder_name }}.{{ v.remote_name }}(val);
+        } else {
+            let secret = Password::new()
+              {%- if v.description %}
+                .with_prompt("{{ v.description|trim |trim('.')}}")
+              {%- else %}
+                .with_prompt("{{ k }}")
+              {%- endif %}
+                .interact()
+                .unwrap();
+            {{ builder_name }}.{{ v.remote_name }}(secret.to_string());
+      }
+      {%- else %}
+          {{ macros.set_request_data_from_input(builder_name, v, "&args." + v.local_name) }}
+      {%- endif %}
+
+    {% endfor %}
+    ep_builder.{{ root_field.remote_name }}({{ builder_name }}.build().unwrap());
+
+  {%- else %}
+    {{ macros.set_request_data_from_input("ep_builder", root_field, "args") }}
+  {%- endif %}
+
+  {% if root_field.is_optional %}
+    }
+  {%- endif %}
+ {% endfor %}
+  {%- if root.additional_fields_type %}
+    if let Some(properties) = &self.properties {
+        ep_builder.properties(properties.iter().cloned());
+    }
+  {%- endif %}
+{%- elif root.__class__.__name__ == "DictionaryInput" %}
+    if let Some(properties) = &self.properties {
+      {%- if root.value_type.__class__.__name__ == "Option" %}
+        ep_builder.properties(properties
+            .into_iter()
+            .map(|(k, v)| (k, v.as_ref().map(Into::into))),
+        );
+      {%- else %}
+        ep_builder.properties(properties.iter().cloned());
+      {%- endif %}
+    }
+{%- endif %}
+{%- endwith %}
+{%- endif %}
