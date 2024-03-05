@@ -121,6 +121,35 @@
         path: "/api-ref/build/html/v3/index.html"
 
 - job:
+    name: codegenerator-openapi-image-tips
+    parent: codegenerator-openapi-tips-base
+    description: |
+      Generate OpenAPI spec for Glance
+    required-projects:
+      - name: openstack/glance
+
+    vars:
+      openapi_service: image
+      install_additional_projects:
+        - project: "opendev.org/openstack/glance"
+          name: "."
+
+- job:
+    name: codegenerator-openapi-image-tips-with-api-ref
+    parent: codegenerator-openapi-image-tips
+    description: |
+      Generate OpenAPI spec for Glance consuming API-REF
+    required-projects:
+      - name: openstack/glance
+
+    pre-run:
+      - playbooks/openapi/pre-api-ref.yaml
+    vars:
+      codegenerator_api_ref:
+        project: "opendev.org/openstack/glance"
+        path: "/api-ref/build/html/v2/index.html"
+
+- job:
     name: codegenerator-openapi-network-tips
     parent: codegenerator-openapi-tips-base
     description: |
