@@ -150,6 +150,35 @@
         path: "/api-ref/build/html/v2/index.html"
 
 - job:
+    name: codegenerator-openapi-load-balancing-tips
+    parent: codegenerator-openapi-tips-base
+    description: |
+      Generate OpenAPI spec for Octavia
+    required-projects:
+      - name: openstack/octavia
+
+    vars:
+      openapi_service: load-balancing
+      install_additional_projects:
+        - project: "opendev.org/openstack/octavia"
+          name: "."
+
+- job:
+    name: codegenerator-openapi-load-balancing-tips-with-api-ref
+    parent: codegenerator-openapi-load-balancing-tips
+    description: |
+      Generate OpenAPI spec for Octavia consuming API-REF
+    required-projects:
+      - name: openstack/octavia
+
+    pre-run:
+      - playbooks/openapi/pre-api-ref.yaml
+    vars:
+      codegenerator_api_ref:
+        project: "opendev.org/openstack/octavia"
+        path: "/api-ref/build/html/v2/index.html"
+
+- job:
     name: codegenerator-openapi-network-tips
     parent: codegenerator-openapi-tips-base
     description: |
