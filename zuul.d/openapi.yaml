@@ -61,3 +61,35 @@
       codegenerator_api_ref:
         project: "opendev.org/openstack/nova"
         path: "/api-ref/build/html/v2/index.html"
+
+- job:
+    name: codegenerator-openapi-network-tips
+    parent: codegenerator-openapi-tips-base
+    description: |
+      Generate OpenAPI spec for Neutron
+    required-projects:
+      - name: openstack/neutron
+      - name: openstack/neutron-vpnaas
+
+    vars:
+      openapi_service: network
+      install_additional_projects:
+        - project: "opendev.org/openstack/neutron"
+          name: "."
+        - project: "opendev.org/openstack/neutron-vpnaas"
+          name: "."
+
+- job:
+    name: codegenerator-openapi-network-tips-with-api-ref
+    parent: codegenerator-openapi-network-tips
+    description: |
+      Generate OpenAPI spec for Neutron consuming API-REF
+    required-projects:
+      - name: openstack/neutron-lib
+
+    pre-run:
+      - playbooks/openapi/pre-api-ref.yaml
+    vars:
+      codegenerator_api_ref:
+        project: "opendev.org/openstack/neutron-lib"
+        path: "/api-ref/build/html/v2/index.html"
