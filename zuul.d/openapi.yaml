@@ -92,6 +92,35 @@
         path: "/api-ref/build/html/index.html"
 
 - job:
+    name: codegenerator-openapi-identity-tips
+    parent: codegenerator-openapi-tips-base
+    description: |
+      Generate OpenAPI spec for Keystone
+    required-projects:
+      - name: openstack/keystone
+
+    vars:
+      openapi_service: identity
+      install_additional_projects:
+        - project: "opendev.org/openstack/keystone"
+          name: "."
+
+- job:
+    name: codegenerator-openapi-identity-tips-with-api-ref
+    parent: codegenerator-openapi-identity-tips
+    description: |
+      Generate OpenAPI spec for Keystone consuming API-REF
+    required-projects:
+      - name: openstack/keystone
+
+    pre-run:
+      - playbooks/openapi/pre-api-ref.yaml
+    vars:
+      codegenerator_api_ref:
+        project: "opendev.org/openstack/keystone"
+        path: "/api-ref/build/html/v3/index.html"
+
+- job:
     name: codegenerator-openapi-network-tips
     parent: codegenerator-openapi-tips-base
     description: |
