@@ -60,10 +60,11 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
 
 class NeutronGenerator(OpenStackServerSourceBase):
     URL_TAG_MAP = {
+        "/agents/{agent_id}/l3-routers": "l3-agent-scheduler",
         "/agents/{agent_id}/dhcp-networks": "dhcp-agent-scheduler",
         "/agents": "networking-agents",
         "/ports/{port_id}/bindings": "port-bindings",
-        "/routers/{router_id}/conntrack_helpers/": "routers-conntrack-helper",
+        "/routers/{router_id}/conntrack_helpers": "routers-conntrack-helper",
         "/floatingips/{floatingip_id}/port_forwardings/": "floatingips-port-forwardings",
     }
 
@@ -249,7 +250,13 @@ class NeutronGenerator(OpenStackServerSourceBase):
 
     def _read_spec(self, work_dir):
         """Read the spec from file or create an empty one"""
-        impl_path = Path(work_dir, "openapi_specs", "network", "v2.yaml")
+        from neutron import version as neutron_version
+
+        nv = neutron_version.version_info.semantic_version().version_tuple()
+        self.api_version = f"2.{nv[0]}"
+        impl_path = Path(
+            work_dir, "openapi_specs", "network", f"v{self.api_version}.yaml"
+        )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
         openapi_spec = self.load_openapi(Path(impl_path))
         if not openapi_spec:
@@ -278,6 +285,10 @@ class NeutronGenerator(OpenStackServerSourceBase):
                     schemas={},
                 ),
             )
+        lnk = Path(impl_path.parent, "v2.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
+
         return (impl_path, openapi_spec)
 
     def generate(self, target_dir, args):
@@ -512,14 +523,31 @@ class NeutronGenerator(OpenStackServerSourceBase):
         # Build path parameters (/foo/{foo_id}/bar/{id} => $foo_id, $foo_bar_id)
         # Since for same path we are here multiple times check presence of
         # parameter before adding new params
+        collection = getattr(controller, "_collection", None)
+        resource = getattr(controller, "_resource", None)
+        # Some backup locations for non extension like controller
+        if not collection:
+            collection = getattr(controller, "collection", None)
+        if not resource:
+            resource = getattr(controller, "resource", None)
+        global_param_name_prefix: str
+        if collection and resource:
+            global_param_name_prefix = f"{collection}_{resource}"
+        else:
+            global_param_name_prefix = "_".join(
+                filter(lambda el: not el.startswith("{"), path_elements)
+            )
         path_params: list[ParameterSchema] = []
         path_resource_names: list[str] = []
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
                 global_param_name = (
-                    "_".join(path_resource_names) + f"_{param_name}"
+                    f"{global_param_name_prefix}_{param_name}".replace(
+                        ":", "_"
+                    )
                 )
+
                 if global_param_name == "_project_id":
                     global_param_name = "project_id"
                 param_ref_name = f"#/components/parameters/{global_param_name}"
@@ -750,6 +778,12 @@ class NeutronGenerator(OpenStackServerSourceBase):
         resource_key=None,
         operation=None,
     ):
+        (ref, mime_type, matched) = neutron_schemas._get_schema_ref(
+            openapi_spec, name, description, schema_def
+        )
+        if matched:
+            return ref
+
         schema = openapi_spec.components.schemas.setdefault(
             name,
             TypeSchema(
@@ -757,7 +791,6 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 description=LiteralScalarString(description),
             ),
         )
-
         # Here come schemas that are not present in Neutron
         if name == "ExtensionsIndexResponse":
             schema.properties = {
@@ -813,27 +846,21 @@ class NeutronGenerator(OpenStackServerSourceBase):
             # PUT tag does not have request body
             return None
 
+        elif name in [
+            # L3 routers
+            "AgentsL3_RouterShowResponse",
+            "AgentsL3_RouterUpdateRequest",
+            "AgentsL3_RouterUpdateResponse",
+            "RoutersL3_AgentShowResponse",
+            "RoutersL3_AgentUpdateRequest",
+            "RoutersL3_AgentUpdateResponse" "RoutersL3_AgentsCreateRequest",
+            "RoutersL3_AgentsCreateResponse",
+        ]:
+            return None
         # ...
         elif name in [
-            # Routers
-            "RoutersAdd_Router_InterfaceAdd_Router_InterfaceRequest",
-            "RoutersAdd_Router_InterfaceAdd_Router_InterfaceResponse",
-            "RoutersRemove_Router_InterfaceRemove_Router_InterfaceRequest",
-            "RoutersRemove_Router_InterfaceRemove_Router_InterfaceResponse",
-            "RoutersAdd_ExtraroutesAdd_ExtraroutesRequest",
-            "RoutersAdd_ExtraroutesAdd_ExtraroutesResponse",
-            "RoutersRemove_ExtraroutesRemove_ExtraroutesRequest",
-            "RoutersRemove_ExtraroutesRemove_ExtraroutesResponse",
-            "RoutersAdd_External_GatewaysAdd_External_GatewaysRequest",
-            "RoutersAdd_External_GatewaysAdd_External_GatewaysResponse",
-            "RoutersUpdate_External_GatewaysUpdate_External_GatewaysRequest",
-            "RoutersUpdate_External_GatewaysUpdate_External_GatewaysResponse",
-            "RoutersRemove_External_GatewaysRemove_External_GatewaysRequest",
-            "RoutersRemove_External_GatewaysRemove_External_GatewaysResponse",
             # L3 routers
             "RoutersL3_AgentsIndexResponse",
-            "RoutersL3_AgentsCreateRequest",
-            "RoutersL3_AgentsCreateResponse",
             "RoutersL3_AgentShowResponse",
             "RoutersL3_AgentUpdateRequest",
             "RoutersL3_AgentUpdateResponse"
@@ -1077,7 +1104,6 @@ def get_schema(param_data):
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "format": "uuid",
                 },
             }
         elif "type:service_plugin_type" in validate:

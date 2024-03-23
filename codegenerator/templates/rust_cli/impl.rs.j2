@@ -87,7 +87,7 @@ enum {{ type.name }} {
 
 {%- elif type["base_type"] == "struct" %}
 /// {{ type.name }} Body data
-#[derive(Args)]
+#[derive(Args, Clone)]
 {%- if type["is_group"] is defined and type.is_group %}
 #[group(required={{ type.is_required | lower }}, multiple={{ "true" if type.__class__.__name__ != "EnumGroupStruct" else "false" }})]
 {%- endif %}
@@ -99,7 +99,7 @@ struct {{ type.name }} {
     {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
  {%- else %}
-  {%- for field in type.fields.values() %}
+  {%- for _, field in type.fields | dictsort %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.clap_macros_ext(is_group=type.is_group) }}
     {{ field.local_name }}: {{ field.type_hint }},
@@ -124,7 +124,7 @@ impl {{ target_class_name }}Command {
         op.validate_args(parsed_args)?;
 
   {%- if operation_type == "download" and is_image_download %}
-      {%- include 'rust_cli/impl_image_download.j2' %}
+        {%- include 'rust_cli/impl_image_download.j2' %}
   {%- else %}
 
     {% if find_present and operation_type in ["show", "set", "download"] %}
@@ -141,13 +141,14 @@ impl {{ target_class_name }}Command {
     {%- endif %}
 
     {%- if not is_json_patch and (operation_type != "show" or not find_present) %}
-        let mut ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
+      {% set builder_mutable = type_manager.is_operation_supporting_params() %}
+        let {{ "mut" if builder_mutable }} ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
       {%- if microversion %}
         ep_builder.header("OpenStack-API-Version", "{{ "volume" if service_type == "block-storage" else service_type }} {{ microversion }}");
       {%- endif %}
-      {{ macros.set_cli_path_parameters(type_manager, "ep_builder") }}
-      {% include 'rust_cli/set_query_parameters.j2' %}
-      {% include 'rust_cli/set_body_parameters.j2' %}
+        {{ macros.set_cli_path_parameters(type_manager, "ep_builder") }}
+        {% include 'rust_cli/set_query_parameters.j2' %}
+        {% include 'rust_cli/set_body_parameters.j2' %}
 
       {%- if operation_type == "upload" and body_types|length == 1 and body_types[0] != "*/*" %}
         // The only supported media type
@@ -162,12 +163,13 @@ impl {{ target_class_name }}Command {
     {# Response #}
     {%- with data_type = response_type_manager.get_root_data_type() %}
 
-
     {%- if (data_type.__class__.__name__ == "StructResponse" and data_type.fields) or data_type.__class__.__name__ == "TupleStruct" or data_type.__class__.__name__ == "HashMapResponse" %}
     {#- there is result structure meand we can render response #}
 
       {%- if operation_type == "list" %}
         {% include 'rust_cli/invoke_list.j2' %}
+      {%- elif operation_type == "list_from_struct" %}
+        {% include 'rust_cli/invoke_list_from_struct.j2' %}
 
       {%- elif operation_type in ["show"] %}
        {#- Show/get implementation #}
@@ -186,11 +188,11 @@ impl {{ target_class_name }}Command {
         {% include 'rust_cli/invoke_patch.j2' %}
       {%- else %}
          {%- if result_is_list %}
-          let data: Vec<serde_json::Value> = ep.query_async(client).await?;
-          op.output_list::<ResponseData>(data)?;
+        let data: Vec<serde_json::Value> = ep.query_async(client).await?;
+        op.output_list::<ResponseData>(data)?;
          {%- else %}
-          let data = ep.query_async(client).await?;
-          op.output_single::<ResponseData>(data)?;
+        let data = ep.query_async(client).await?;
+        op.output_single::<ResponseData>(data)?;
          {%- endif %}
       {%- endif %}
     {%- elif operation_type not in ["delete", "download", "upload", "json"] %}
