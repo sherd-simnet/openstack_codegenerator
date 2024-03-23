@@ -28,6 +28,7 @@ from codegenerator.common import BaseCompoundType
 BASIC_FIELDS = [
     "id",
     "name",
+    "title",
     "created_at",
     "updated_at",
     "uuid",
@@ -157,6 +158,8 @@ class StructInputField(common_rust.StructField):
             macros.update(self.additional_clap_macros)
         except Exception as ex:
             logging.exception("Error getting clap_macros for %s: %s", self, ex)
+
+        macros.add('help_heading = "Body parameters"')
         return f"#[arg({', '.join(sorted(macros))})]"
 
     def clap_macros_ext(self, is_group: bool | None = None):
@@ -174,6 +177,7 @@ class StructInputField(common_rust.StructField):
             macros.update(self.additional_clap_macros)
         except Exception as ex:
             logging.exception("Error getting clap_macros for %s: %s", self, ex)
+        macros.add('help_heading = "Body parameters"')
         return f"#[arg({', '.join(sorted(macros))})]"
 
 
@@ -248,7 +252,7 @@ class StructFieldResponse(common_rust.StructField):
         ).lower()
         # Check the known alias of the field by FQAN
         alias = common.FQAN_ALIAS_MAP.get(fqan)
-        if operation_type == "list":
+        if operation_type in ["list", "list_from_struct"]:
             if (
                 "id" in struct.fields.keys()
                 and not (
@@ -257,6 +261,9 @@ class StructFieldResponse(common_rust.StructField):
             ) or (
                 "id" not in struct.fields.keys()
                 and (self.local_name not in list(struct.fields.keys())[-10:])
+                and not (
+                    self.local_name in BASIC_FIELDS or alias in BASIC_FIELDS
+                )
             ):
                 # Only add "wide" flag if field is not in the basic fields AND
                 # there is at least "id" field existing in the struct OR the
@@ -403,8 +410,10 @@ class RequestParameter(common_rust.RequestParameter):
             # the value_name is turned back to the expected value
             macros.add(f'id = "path_param_{self.local_name}"')
             macros.add(f'value_name = "{self.local_name.upper()}"')
+            macros.add('help_heading = "Path parameters"')
         elif self.location == "query":
             macros.update(self.data_type.clap_macros)
+            macros.add('help_heading = "Query parameters"')
         if hasattr(self.data_type, "enum") and self.data_type.enum:
             values = ",".join(f'"{x}"' for x in sorted(self.data_type.enum))
             macros.add(f"value_parser = [{values}]")
@@ -443,7 +452,7 @@ class RequestTypeManager(common_rust.TypeManager):
         attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
         )
-        if attr_name in ["type", "self", "enum", "ref"]:
+        if attr_name in ["type", "self", "enum", "ref", "default"]:
             attr_name = f"_{attr_name}"
         return attr_name
 
@@ -626,6 +635,32 @@ class RequestTypeManager(common_rust.TypeManager):
                     field_data_type = field_data_type.item_type
             elif isinstance(field_data_type, EnumGroupStruct):
                 field_data_type.is_required = field.is_required
+            elif isinstance(field_data_type, DictionaryInput) and isinstance(
+                field_data_type.value_type, common_rust.BaseCompoundType
+            ):
+                dict_type_model = self._get_adt_by_reference(field.data_type)
+                simplified_data_type = JsonValue()
+                simplified_data_type.original_data_type = (
+                    field_data_type.value_type
+                )
+                field_data_type.value_type = simplified_data_type
+                self.ignored_models.append(
+                    dict_type_model.value_type.reference
+                )
+            elif isinstance(field_data_type, StructInput):
+                # Check if one of the sub fields has same attribute name as in the current struct.
+                # Ideally this should not ever happen, but i.e. image.namespace.property has the case
+                intersect = set(type_model.fields.keys()).intersection(
+                    set(field_data_type.fields.keys())
+                )
+                if intersect:
+                    # Na well, it is such a rare case that it does not make
+                    # much sense to start renaming fields. Instead conver
+                    # substruct to be a JsonValue
+                    simplified_data_type = JsonValue()
+                    simplified_data_type.original_data_type = field_data_type
+                    field_data_type = simplified_data_type
+                    self.ignored_models.append(field.data_type)
             f = field_class(
                 local_name=self.get_local_attribute_name(field_name),
                 remote_name=self.get_remote_attribute_name(field_name),
@@ -849,6 +884,7 @@ class ResponseTypeManager(common_rust.TypeManager):
                     field_data_type = field_data_type.item_type
             elif isinstance(field_data_type, struct_class):
                 field_data_type = JsonValue(**field_data_type.model_dump())
+                self.ignored_models.append(field.data_type)
             f = field_class(
                 local_name=self.get_local_attribute_name(field_name),
                 remote_name=self.get_remote_attribute_name(field_name),
@@ -943,6 +979,12 @@ class RustCliGenerator(BaseGenerator):
             help="Mod path (dot separated) of the corresponding SDK command (when non standard)",
         )
 
+        parser.add_argument(
+            "--tests",
+            action="store_true",
+            help="Generate tests",
+        )
+
         return parser
 
     def _render_command(
@@ -1006,7 +1048,7 @@ class RustCliGenerator(BaseGenerator):
                 operation_params.append(param_)
 
         # List of operation variants (based on the body)
-        operation_variants = common_rust.get_operation_variants(
+        operation_variants = common.get_operation_variants(
             spec, args.operation_name
         )
 
@@ -1108,10 +1150,17 @@ class RustCliGenerator(BaseGenerator):
                 )
 
                 if response:
+                    response_key: str
+                    if args.response_key:
+                        response_key = (
+                            args.response_key
+                            if args.response_key != "null"
+                            else None
+                        )
+                    else:
+                        response_key = resource_name
                     response_def, _ = common.find_resource_schema(
-                        response,
-                        None,
-                        args.response_key or resource_name,
+                        response, None, response_key
                     )
 
                     if response_def:
@@ -1125,6 +1174,7 @@ class RustCliGenerator(BaseGenerator):
                                 response_def
                             )
                             response_type_manager.set_models(response_types)
+
                             if method == "patch" and not request_types:
                                 # image patch is a jsonpatch based operation
                                 # where there is no request. For it we need to
@@ -1368,6 +1418,31 @@ class RustCliGenerator(BaseGenerator):
                     "rust_cli/impl.rs.j2",
                     impl_path,
                 )
+                self._format_code(impl_path)
+
+                if args.cli_full_command and True:  # args.tests:
+                    impl_path = Path(
+                        work_dir.parent,
+                        "tests",
+                        "/".join(cli_mod_path),
+                        f"{mod_name}_autogen.rs",
+                    )
+                    cmd = args.cli_full_command
+                    if microversion:
+                        cmd = args.cli_full_command + microversion.replace(
+                            ".", ""
+                        )
+
+                    test_context = {
+                        "service_type": args.service_type,
+                        "command": cmd.split(" "),
+                    }
+
+                    self._render_command(
+                        test_context,
+                        "rust_cli/functional_test_impl.rs.j2",
+                        impl_path,
+                    )
 
                 self._format_code(impl_path)
 
