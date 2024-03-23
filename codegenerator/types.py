@@ -18,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 OPERATION_TYPE = Literal[
     "list",
+    "list_from_struct",
     "show",
     "get",
     "create",
@@ -61,6 +62,8 @@ class OperationTargetParams(BaseModel):
     name_filter_supported: bool | None = None
     #: List module for the find
     list_mod: str | None = None
+    #: full CLI command (i.e. "image metadef namespace property list")
+    cli_full_command: str | None = None
 
 
 class OperationModel(BaseModel):

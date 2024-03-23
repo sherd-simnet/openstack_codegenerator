@@ -104,6 +104,7 @@ class NovaGenerator(OpenStackServerSourceBase):
             )
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)
+
         lnk = Path(impl_path.parent, "v2.yaml")
         lnk.unlink(missing_ok=True)
         lnk.symlink_to(impl_path.name)

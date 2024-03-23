@@ -137,7 +137,8 @@ IDENTITY_PROVIDER_PROTOCOL_UPDATE_SCHEMA: dict[str, Any] = {
 }
 
 MAPPING_PROPERTIES = replace_refs(
-    federation_mapping_schema.IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0, proxies=False
+    federation_mapping_schema.IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0
+    proxies=False,
 )
 MAPPING_PROPERTIES.pop("definitions", None)
 MAPPING_SCHEMA: dict[str, Any] = {
