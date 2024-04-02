@@ -42,7 +42,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         proc.start()
         proc.join()
         if proc.exitcode != 0:
-            raise RuntimeError("Error generating Cinder OpenAPI schma")
+            raise RuntimeError("Error generating Cinder OpenAPI schema")
 
     def _generate(self, target_dir, args, *pargs, **kwargs):
         from cinder import objects, rpc
@@ -60,7 +60,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
 
         rpc.init(CONF)
 
-        CONF.set_default("connection", "sqlite:///", "database")
+        CONF.set_default("connection", "sqlite://", "database")
         CONF.set_default("sqlite_synchronous", False, "database")
 
         self.useFixture(db_fixture())
@@ -172,6 +172,19 @@ class CinderV3Generator(OpenStackServerSourceBase):
             "project_id/types:get",
         ]:
             for key, val in cinder_schemas.VOLUME_TYPE_LIST_PARAMETERS.items():
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+        elif operationId in [
+            "project_id/backups:get",
+            "backups:get",
+            "project_id/backups/detail:get",
+            "backups/detail:get",
+        ]:
+            for key, val in cinder_schemas.BACKUP_LIST_PARAMETERS.items():
                 openapi_spec.components.parameters.setdefault(
                     key, ParameterSchema(**val)
                 )
@@ -345,6 +358,48 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
+        # ### Backups
+        elif name == "BackupsDetailResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.BACKUPS_DETAIL_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "BackupsListResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.BACKUPS_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "BackupsCreateResponse",
+            "BackupShowResponse",
+            "BackupUpdateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.BACKUP_CONTAINER_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "BackupsImport_RecordResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.BACKUP_SHORT_CONTAINER_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "BackupsRestoreResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.BACKUP_RESTORE_RESPONSE_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "BackupsExport_RecordResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.BACKUP_RECORD_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "BackupsActionOs-Reset_StatusResponse",
+            "BackupsActionOs-Force_DeleteResponse",
+        ]:
+            return (None, None)
 
         # Default
         else:
