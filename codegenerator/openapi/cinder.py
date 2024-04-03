@@ -84,7 +84,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         if not openapi_spec:
             openapi_spec = SpecSchema(
                 info=dict(
-                    title="OpenStack Volume API",
+                    title="OpenStack Block Storage API",
                     description=LiteralScalarString(
                         "Volume API provided by Cinder service"
                     ),
@@ -101,6 +101,10 @@ class CinderV3Generator(OpenStackServerSourceBase):
                         }
                     },
                 ),
+                tags=[
+                    {"name": k, "description": LiteralScalarString(v)}
+                    for (k, v) in cinder_schemas.CINDER_TAGS.items()
+                ],
             )
 
         # Set global parameters
@@ -191,6 +195,9 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 ref = f"#/components/parameters/{key}"
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+        if path and ("/consistencygroups" in path or "/cgsnapshots" in path):
+            operation_spec.deprecated = True
 
     def _get_schema_ref(
         self,
