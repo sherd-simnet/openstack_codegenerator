@@ -604,6 +604,8 @@ class TypeManager:
                     typ = self.primitive_type_mapping[
                         model.ConstraintInteger
                     ]()
+                elif base_type is model.ConstraintNumber:
+                    typ = self.primitive_type_mapping[model.ConstraintNumber]()
                 elif base_type is model.PrimitiveBoolean:
                     typ = self.primitive_type_mapping[model.PrimitiveBoolean]()
 
@@ -808,28 +810,57 @@ class TypeManager:
             kinds.append(bck)
 
     def set_models(self, models):
-        """Process (translate) ADT models into Rust SDK style"""
+        """Process (translate) ADT models into Rust models"""
         self.models = models
         self.refs = {}
         self.ignored_models = []
         # A dictionary of model names to references to assign unique names
         unique_models: dict[str, model.Reference] = {}
+        # iterate over all incoming models
         for model_ in models:
+            # convert ADT based model into rust saving the result under self.refs
             model_data_type = self.convert_model(model_)
+            # post process conversion results
             if not isinstance(model_data_type, BaseCompoundType):
                 continue
             name = getattr(model_data_type, "name", None)
             if (
                 name
                 and name in unique_models
-                and unique_models[name] != model_.reference
+                and unique_models[name].hash_ != model_.reference.hash_
             ):
-                # There is already a model with this name. Try adding suffix from datatype name
-                new_name = name + model_data_type.__class__.__name__
+                # There is already a model with this name.
+                if model_.reference and model_.reference.parent:
+                    # Try adding parent_name as prefix
+                    new_name = (
+                        "".join(
+                            x.title()
+                            for x in model_.reference.parent.name.split("_")
+                        )
+                        + name
+                    )
+                else:
+                    # Try adding suffix from datatype name
+                    new_name = name + model_data_type.__class__.__name__
+                logging.debug(f"rename {name} to {new_name}")
+
                 if new_name not in unique_models:
                     # New name is still unused
                     model_data_type.name = new_name
                     unique_models[new_name] = model_.reference
+                    # rename original model to the same naming scheme
+                    other_model = unique_models.get(name)
+                    if other_model and other_model.parent:
+                        # Try adding parent_name as prefix
+                        new_other_name = (
+                            "".join(
+                                x.title()
+                                for x in other_model.parent.name.split("_")
+                            )
+                            + name
+                        )
+                        other_model.name = new_other_name
+                        unique_models[new_other_name] = other_model
                 elif isinstance(model_data_type, Struct):
                     # This is already an exceptional case (identity.mapping
                     # with remote being oneOf with multiple structs)
@@ -867,6 +898,13 @@ class TypeManager:
                     raise RuntimeError(
                         "Model name %s is already present" % new_name
                     )
+            elif (
+                name
+                and name in unique_models
+                and unique_models[name].hash_ == model_.reference.hash_
+            ):
+                # Ignore duplicated (or more precisely same) model
+                self.ignored_models.append(model_.reference)
             elif name:
                 unique_models[name] = model_.reference
 

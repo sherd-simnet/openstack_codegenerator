@@ -339,8 +339,11 @@ class RustSdkGenerator(BaseGenerator):
             ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
                 param_ = openapi_parser.parse_parameter(param)
-                if param_.name == f"{res_name}_id":
-                    path = path.replace(f"{res_name}_id", "id")
+                if param_.name in [
+                    f"{res_name}_id",
+                    f"{res_name.replace('_', '')}_id",
+                ]:
+                    path = path.replace(param_.name, "id")
                     # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
                     param_.name = "id"
                 operation_params.append(param_)
@@ -539,8 +542,11 @@ class RustSdkGenerator(BaseGenerator):
             if ("{" + param["name"] + "}") in path and param["in"] == "path":
                 # Respect path params that appear in path and not in path params
                 param_ = openapi_parser.parse_parameter(param)
-                if param_.name == f"{res_name}_id":
-                    path = path.replace(f"{res_name}_id", "id")
+                if param_.name in [
+                    f"{res_name}_id",
+                    f"{res_name.replace('_', '')}_id",
+                ]:
+                    path = path.replace(param_.name, "id")
                     # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
                     param_.name = "id"
                 operation_path_params.append(param_)

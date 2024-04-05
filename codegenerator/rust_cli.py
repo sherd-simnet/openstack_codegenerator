@@ -215,6 +215,7 @@ class EnumGroupStruct(common_rust.Struct):
     sdk_enum_name: str
     is_group: bool = True
     is_required: bool = False
+    reference: model.Reference | None = None
 
 
 class StructFieldResponse(common_rust.StructField):
@@ -493,11 +494,13 @@ class RequestTypeManager(common_rust.TypeManager):
                 # On the SDK side where this method is not overriden there
                 # would be a naming conflict resulting in `set_models` call
                 # adding type name as a suffix.
-                sdk_enum_name = result.name + result.__class__.__name__
+                # sdk_enum_name = result.name + result.__class__.__name__
+                sdk_enum_name = self.get_model_name(type_model.reference)
                 obj = EnumGroupStruct(
                     name=self.get_model_name(type_model.reference),
                     kinds={},
                     sdk_enum_name=sdk_enum_name,
+                    reference=type_model.reference,
                 )
                 field_class = obj.field_type_class_
                 if not type_model.reference:
@@ -509,7 +512,7 @@ class RequestTypeManager(common_rust.TypeManager):
                             field = field_class(
                                 local_name=f"{x.lower()}_{name}",
                                 remote_name=f"{v.data_type.name}::{x}",
-                                sdk_parent_enum_variant=f"{sdk_enum_name}::{k}",
+                                sdk_parent_enum_variant=f"{k}",
                                 data_type=BooleanFlag(),
                                 is_optional=False,
                                 is_nullable=False,
@@ -518,7 +521,7 @@ class RequestTypeManager(common_rust.TypeManager):
                     else:
                         field = field_class(
                             local_name=f"{name}",
-                            remote_name=f"{sdk_enum_name}::{k}",
+                            remote_name=f"{k}",
                             data_type=v.data_type,
                             is_optional=True,
                             is_nullable=False,
@@ -1042,7 +1045,10 @@ class RustCliGenerator(BaseGenerator):
             ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
                 param_ = openapi_parser.parse_parameter(param)
-                if param_.name == f"{resource_name}_id":
+                if param_.name in [
+                    f"{resource_name}_id",
+                    f"{resource_name.replace('_', '')}_id",
+                ]:
                     # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
                     param_.name = "id"
                 operation_params.append(param_)
