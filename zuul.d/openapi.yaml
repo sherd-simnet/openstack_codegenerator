@@ -15,7 +15,7 @@
            - compute
            - identity
            - image
-           - load-balancing
+           - load-balancer
            - network
            - placement
     required-projects:
@@ -158,7 +158,7 @@
       - name: openstack/octavia
 
     vars:
-      openapi_service: load-balancing
+      openapi_service: load-balancer
       install_additional_projects:
         - project: "opendev.org/openstack/octavia"
           name: "."

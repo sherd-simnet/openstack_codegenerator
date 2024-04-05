@@ -148,7 +148,7 @@ class OctaviaGenerator(OpenStackServerSourceBase):
         proc.start()
         proc.join()
         if proc.exitcode != 0:
-            raise RuntimeError("Error generating Octavia OpenAPI schma")
+            raise RuntimeError("Error generating Octavia OpenAPI schema")
 
     def _generate(self, target_dir, args):
         from octavia.api import root_controller
@@ -172,7 +172,7 @@ class OctaviaGenerator(OpenStackServerSourceBase):
         impl_path = Path(
             work_dir,
             "openapi_specs",
-            "load-balancing",
+            "load-balancer",
             f"v{self.api_version}.yaml",
         )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
@@ -360,13 +360,13 @@ class OctaviaGenerator(OpenStackServerSourceBase):
             action="status",
             conditions={"method": ["GET"]},
         )
-        mapper.connect(
-            None,
-            "/v2/lbaas/loadbalancers/{loadbalancer_id}/statuses",
-            controller=load_balancer.StatusController.get,
-            action="status",
-            conditions={"method": ["GET"]},
-        )
+        # mapper.connect(
+        #     None,
+        #     "/v2/lbaas/loadbalancers/{loadbalancer_id}/statuses",
+        #     controller=load_balancer.StatusController.get,
+        #     action="status",
+        #     conditions={"method": ["GET"]},
+        # )
         mapper.connect(
             None,
             "/v2/lbaas/loadbalancers/{loadbalancer_id}/failover",

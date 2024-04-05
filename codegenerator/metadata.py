@@ -194,6 +194,13 @@ class MetadataGenerator(BaseGenerator):
                         and method == "get"
                     ):
                         operation_key = "list"
+                    elif (
+                        args.service_type == "load-balancer"
+                        and len(path_elements) > 1
+                        and path_elements[-1]
+                        in ["stats", "status", "failover", "config"]
+                    ):
+                        operation_key = path_elements[-1]
 
                     elif response_schema and (
                         method == "get"
@@ -550,7 +557,7 @@ class MetadataGenerator(BaseGenerator):
 def get_operation_type_by_key(operation_key):
     if operation_key in ["list", "list_detailed"]:
         return "list"
-    elif operation_key == "get":
+    elif operation_key in ["get", "stats", "status"]:
         return "get"
     elif operation_key == "check":
         return "get"
