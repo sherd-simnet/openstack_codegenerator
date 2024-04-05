@@ -79,7 +79,7 @@ class OpenApiSchemaGenerator(BaseGenerator):
             self.generate_glance(target_dir, args)
         elif args.service_type == "identity":
             self.generate_keystone(target_dir, args)
-        elif args.service_type == "load-balancing":
+        elif args.service_type == "load-balancer":
             self.generate_octavia(target_dir, args)
         elif args.service_type == "network":
             self.generate_neutron(target_dir, args)

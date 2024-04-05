@@ -1209,9 +1209,9 @@ def _convert_wsme_to_jsonschema(body_spec):
     elif wtypes.isdict(body_spec):
         res = {
             "type": "object",
-            "additionalProperties": {
-                "type": _convert_wsme_to_jsonschema(body_spec.value_type)
-            },
+            "additionalProperties": _convert_wsme_to_jsonschema(
+                body_spec.value_type
+            ),
         }
     elif wtypes.isusertype(body_spec):
         basetype = body_spec.basetype

@@ -446,6 +446,7 @@ def get_resource_names_from_url(path: str):
                 el[-1] == "s"
                 and el[-3:] != "dns"
                 and el[-6:] != "access"
+                and el[-6:] != "status"
                 and el != "qos"
                 # quota/details
                 and el != "details"
@@ -456,20 +457,21 @@ def get_resource_names_from_url(path: str):
             if part.startswith("os_"):
                 # We should remove `os_` prefix from resource name
                 part = part[3:]
+            if part == "availabilityzone":
+                part = "availability_zone"
+            elif part == "availabilityzoneprofile":
+                part = "availability_zone_profile"
+            elif part == "flavorprofile":
+                part = "flavor_profile"
             path_resource_names.append(part)
     if len(path_resource_names) > 1 and (
         path_resource_names[-1]
-        in [
-            "action",
-            "detail",
-        ]
+        in ["action", "detail", "stat", "status", "failover", "config"]
         or "add" in path_resource_names[-1]
         or "remove" in path_resource_names[-1]
         or "update" in path_resource_names[-1]
     ):
         path_resource_names.pop()
-    if len(path_resource_names) == 0:
-        return ["version"]
     if path.startswith("/v2/schemas/"):
         # Image schemas should not be singularized (schema/images,
         # schema/image)
@@ -482,6 +484,12 @@ def get_resource_names_from_url(path: str):
         path_resource_names = ["volume_transfer"]
     if path == "/v2.0/ports/{port_id}/bindings/{id}/activate":
         path_resource_names = ["port", "binding"]
+    if path.startswith("/v2/lbaas"):
+        path_resource_names.remove("lbaa")
+    if path.startswith("/v2/octavia/amphorae"):
+        path_resource_names.remove("octavia")
+    if len(path_resource_names) == 0:
+        return ["version"]
 
     return path_resource_names
 
@@ -522,6 +530,8 @@ def get_rust_service_type_from_str(xtype: str):
             return "Network"
         case "object-store":
             return "ObjectStore"
+        case "load-balancer":
+            return "LoadBalancer"
         case _:
             return xtype
 
