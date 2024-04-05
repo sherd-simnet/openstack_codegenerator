@@ -141,6 +141,10 @@ MAPPING_PROPERTIES = replace_refs(
     proxies=False,
 )
 MAPPING_PROPERTIES.pop("definitions", None)
+MAPPING_PROPERTIES["properties"]["schema_version"] = {
+    "type": "string",
+    "description": "Mapping schema version",
+}
 MAPPING_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
