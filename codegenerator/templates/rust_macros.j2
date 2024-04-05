@@ -126,7 +126,7 @@ Some({{ val }})
 {%- endmacro %}
 
 {#- Macros to render setting Request data from CLI input #}
-{%- macro set_request_data_from_input(dst_var, param, val_var) %}
+{%- macro set_request_data_from_input(manager, dst_var, param, val_var) %}
 {%- set is_nullable = param.is_nullable if param.is_nullable is defined else False %}
 
 {%- if param.type_hint in ["Option<Option<bool>>", "Option<Option<i32>>", "Option<Option<i64>>"] %}
@@ -173,7 +173,7 @@ Some({{ val }})
   {%- if v.data_type.__class__.__name__ in ["Boolean", "BooleanFlag"] %}
     if {{ val_var | replace("&", "") }}.{{ v.local_name }} {
         {{ dst_var }}.{{ param.remote_name }}(
-            {{ sdk_mod_path[-1] }}::{{ v.sdk_parent_enum_variant }}(
+            {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}::{{ v.sdk_parent_enum_variant }}(
               {{ sdk_mod_path[-1] }}::{{ v.remote_name }}
             )
         );
@@ -181,7 +181,7 @@ Some({{ val }})
    {%- elif v.data_type.__class__.__name__ == "ArrayInput" %}
     {% set original_type = v.data_type.original_item_type %}
     if let Some(data) = {{ val_var }}.{{ v.local_name }} {
-        {{ sdk_enum_array_setter(param, v, "data", dst_var) }}
+        {{ sdk_enum_array_setter(manager, param, v, "data", dst_var) }}
     }
   {%- endif %}
   {%- endfor %}
@@ -192,10 +192,10 @@ Some({{ val }})
     {%- for k, v in param.data_type.fields.items() %}
       {%- if v.is_optional %}
         if let Some(val) = &{{ val_var }}.{{ v.local_name }} {
-          {{ set_request_data_from_input(builder_name, v, "val") }}
+          {{ set_request_data_from_input(manager, builder_name, v, "val") }}
         }
       {%- else %}
-          {{ set_request_data_from_input(builder_name, v, "&" + val_var + "." + v.local_name) }}
+          {{ set_request_data_from_input(manager, builder_name, v, "&" + val_var + "." + v.local_name) }}
       {%- endif %}
 
     {%- endfor %}
@@ -220,10 +220,10 @@ Some({{ val }})
     {%- for k, v in param.data_type.item_type.fields.items() %}
       {%- if v.is_optional %}
         if let Some(val) = &l{{ param.local_name }}.{{ v.local_name }} {
-          {{ set_request_data_from_input(builder_name, v, "val") }}
+          {{ set_request_data_from_input(manager, builder_name, v, "val") }}
         }
       {%- else %}
-          {{ set_request_data_from_input(builder_name, v, "&l" + param.local_name + "." + v.local_name) }}
+          {{ set_request_data_from_input(manager, builder_name, v, "&l" + param.local_name + "." + v.local_name) }}
       {%- endif %}
 
     {%- endfor %}
@@ -261,7 +261,7 @@ Some({{ val }})
     {%- endif %}
 {%- endmacro %}
 
-{%- macro sdk_enum_array_setter(param, field, val_var, dst_var) %}
+{%- macro sdk_enum_array_setter(manager, param, field, val_var, dst_var) %}
 {#- Set sdk array from cli input -#}
     {%- set original_type = field.data_type.original_data_type %}
     {%- if field.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
@@ -272,7 +272,7 @@ Some({{ val }})
             serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.to_owned()))
         .collect();
     {{ dst_var }}.{{ param.remote_name }}(
-        {{ sdk_mod_path[-1] }}::{{ field.remote_name }}({{ builder_name }})
+        {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}::{{ field.remote_name }}({{ builder_name }})
     );
     {%- else %}
     {#- Normal array #}

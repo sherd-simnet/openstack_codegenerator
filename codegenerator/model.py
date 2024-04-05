@@ -15,10 +15,12 @@ import hashlib
 import json
 import logging
 from typing import Any
+from typing import Self
 from typing import Type
 import typing as ty
 
 from pydantic import BaseModel
+from pydantic import ConfigDict
 
 from codegenerator import common
 
@@ -34,10 +36,13 @@ def dicthash_(data: dict[str, Any]) -> str:
 class Reference(BaseModel):
     """Reference of the complex type to the occurence instance"""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     #: Name of the object that uses the type under reference
     name: str
     type: Type | None = None
     hash_: str | None = None
+    parent: Self | None = None
 
     def __hash__(self):
         return hash((self.name, self.type, self.hash_))
@@ -188,7 +193,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
-        parent_name: str | None = None,
+        parent: Reference | None = None,
         min_ver: str | None = None,
         max_ver: str | None = None,
         ignore_read_only: bool | None = False,
@@ -199,7 +204,7 @@ class JsonSchemaParser:
                 schema,
                 results,
                 name=name,
-                parent_name=parent_name,
+                parent=parent,
                 ignore_read_only=ignore_read_only,
             )
         if isinstance(type_, list):
@@ -207,7 +212,7 @@ class JsonSchemaParser:
                 schema,
                 results,
                 name=name,
-                parent_name=parent_name,
+                parent=parent,
                 ignore_read_only=ignore_read_only,
             )
         if isinstance(type_, str):
@@ -216,7 +221,7 @@ class JsonSchemaParser:
                     schema,
                     results,
                     name=name,
-                    parent_name=parent_name,
+                    parent=parent,
                     min_ver=min_ver,
                     max_ver=max_ver,
                     ignore_read_only=ignore_read_only,
@@ -226,7 +231,7 @@ class JsonSchemaParser:
                     schema,
                     results,
                     name=name,
-                    parent_name=parent_name,
+                    parent=parent,
                     ignore_read_only=ignore_read_only,
                 )
             if type_ == "string":
@@ -253,7 +258,7 @@ class JsonSchemaParser:
                 schema,
                 results,
                 name=name,
-                parent_name=parent_name,
+                parent=parent,
                 ignore_read_only=ignore_read_only,
             )
         if "allOf" in schema:
@@ -261,7 +266,7 @@ class JsonSchemaParser:
                 schema,
                 results,
                 name=name,
-                parent_name=parent_name,
+                parent=parent,
                 ignore_read_only=ignore_read_only,
             )
         if not type_ and "properties" in schema:
@@ -270,7 +275,7 @@ class JsonSchemaParser:
                 schema,
                 results,
                 name=name,
-                parent_name=parent_name,
+                parent=parent,
                 min_ver=min_ver,
                 max_ver=max_ver,
                 ignore_read_only=ignore_read_only,
@@ -287,7 +292,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
-        parent_name: str | None = None,
+        parent: Reference | None = None,
         min_ver: str | None = None,
         max_ver: str | None = None,
         ignore_read_only: bool | None = False,
@@ -321,6 +326,14 @@ class JsonSchemaParser:
         if properties:
             # `"type": "object", "properties": {...}}`
             obj = Struct()
+            if name:
+                obj.reference = Reference(
+                    name=name,
+                    type=obj.__class__,
+                    hash_=dicthash_(schema),
+                    parent=parent,
+                )
+
             for k, v in properties.items():
                 if k == "additionalProperties" and isinstance(v, bool):
                     # Some schemas (in keystone) are Broken
@@ -331,7 +344,7 @@ class JsonSchemaParser:
                     v,
                     results,
                     name=k,
-                    parent_name=name,
+                    parent=obj.reference,
                     min_ver=min_ver,
                     max_ver=max_ver,
                     ignore_read_only=ignore_read_only,
@@ -409,7 +422,7 @@ class JsonSchemaParser:
                         schema,
                         results,
                         name=name,
-                        parent_name=parent_name,
+                        parent=parent,
                         ignore_read_only=ignore_read_only,
                     )
                 elif "allOf" in schema:
@@ -418,7 +431,7 @@ class JsonSchemaParser:
                         schema,
                         results,
                         name=name,
-                        parent_name=parent_name,
+                        parent=parent,
                         ignore_read_only=ignore_read_only,
                     )
 
@@ -427,9 +440,12 @@ class JsonSchemaParser:
         if not obj:
             raise RuntimeError("Object %s is not supported", schema)
 
-        if name:
+        if name and not obj.reference:
             obj.reference = Reference(
-                name=name, type=obj.__class__, hash_=dicthash_(schema)
+                name=name,
+                type=obj.__class__,
+                hash_=dicthash_(schema),
+                parent=parent,
             )
 
         if obj:
@@ -443,8 +459,8 @@ class JsonSchemaParser:
                     if x.reference
                 ]
             ):
-                if obj.reference in [
-                    x.reference for x in results if x.reference
+                if obj.reference.__hash__() in [
+                    x.reference.__hash__() for x in results if x.reference
                 ]:
                     # This is already same object - we have luck and can
                     # de-duplicate structures. It is at the moment the case in
@@ -452,10 +468,11 @@ class JsonSchemaParser:
                     # object present few times
                     pass
                 else:
+                    logging.error(f"replace {obj.reference.name}")
                     # Structure with the same name is already present. Prefix the
                     # new one with the parent name
-                    if parent_name and name:
-                        new_name = parent_name + "_" + name
+                    if parent and name:
+                        new_name = parent.name + "_" + name
 
                         if Reference(
                             name=new_name, type=obj.reference.type
@@ -471,7 +488,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
-        parent_name: str | None = None,
+        parent: Reference | None = None,
         ignore_read_only: bool | None = False,
     ):
         obj = OneOfType()
@@ -494,7 +511,10 @@ class JsonSchemaParser:
                 obj.kinds.append(kind_type)
         if name:
             obj.reference = Reference(
-                name=name, type=obj.__class__, hash_=dicthash_(schema)
+                name=name,
+                type=obj.__class__,
+                hash_=dicthash_(schema),
+                parent=parent,
             )
         results.append(obj)
         return obj
@@ -504,7 +524,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
-        parent_name: str | None = None,
+        parent: Reference | None = None,
         ignore_read_only: bool | None = False,
     ):
         if len(schema.get("type")) == 1:
@@ -536,7 +556,10 @@ class JsonSchemaParser:
                 obj.kinds.append(kind_type)
         if name:
             obj.reference = Reference(
-                name=name, type=obj.__class__, hash_=dicthash_(schema)
+                name=name,
+                type=obj.__class__,
+                hash_=dicthash_(schema),
+                parent=parent,
             )
         results.append(obj)
         return obj
@@ -546,7 +569,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
-        parent_name: str | None = None,
+        parent: Reference | None = None,
         ignore_read_only: bool | None = False,
     ):
         # todo: decide whether some constraints can be under items
@@ -555,6 +578,7 @@ class JsonSchemaParser:
             results,
             name=name,
             ignore_read_only=ignore_read_only,
+            parent=parent,
         )
         ref = getattr(item_type, "reference", None)
         if ref:
@@ -563,7 +587,10 @@ class JsonSchemaParser:
             obj = Array(item_type=item_type)
         if name:
             obj.reference = Reference(
-                name=name, type=obj.__class__, hash_=dicthash_(schema)
+                name=name,
+                type=obj.__class__,
+                hash_=dicthash_(schema),
+                parent=parent,
             )
         results.append(obj)
         return obj
@@ -573,7 +600,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
-        parent_name: str | None = None,
+        parent: Reference | None = None,
         ignore_read_only: bool | None = False,
     ):
         # todo: decide whether some constraints can be under items
@@ -585,12 +612,17 @@ class JsonSchemaParser:
                 obj.base_types.append(ConstraintString)
             elif literal_type is int:
                 obj.base_types.append(ConstraintInteger)
+            elif literal_type is float:
+                obj.base_types.append(ConstraintNumber)
             elif literal_type is bool:
                 obj.base_types.append(PrimitiveBoolean)
 
         if name:
             obj.reference = Reference(
-                name=name, type=obj.__class__, hash_=dicthash_(schema)
+                name=name,
+                type=obj.__class__,
+                hash_=dicthash_(schema),
+                parent=parent,
             )
         results.append(obj)
         return obj
@@ -600,7 +632,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
-        parent_name: str | None = None,
+        parent: Reference | None = None,
         ignore_read_only: bool | None = False,
     ):
         sch = copy.deepcopy(schema)
