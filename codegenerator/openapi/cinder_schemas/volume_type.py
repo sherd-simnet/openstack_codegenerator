@@ -214,6 +214,34 @@ VOLUME_TYPE_ENCRYPTION_SHOW_SCHEMA: dict[str, Any] = {
     },
 }
 
+DEFAULT_TYPE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the project.",
+        },
+        "volume_type_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID for an existing volume type.",
+        },
+    },
+}
+
+DEFAULT_TYPES_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "default_types": {"type": "array", "items": DEFAULT_TYPE_SCHEMA}
+    },
+}
+
+DEFAULT_TYPE_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"default_type": DEFAULT_TYPE_SCHEMA},
+}
+
 
 def _post_process_operation_hook(
     openapi_spec, operation_spec, path: str | None = None
@@ -313,6 +341,22 @@ def _get_schema_ref(
         openapi_spec.components.schemas.setdefault(
             name,
             TypeSchema(**VOLUME_TYPE_ENCRYPTION_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "Default_TypesListResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**DEFAULT_TYPES_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+
+    elif name in [
+        "Default_TypeCreate_UpdateResponse",
+        "Default_TypeDetailResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**DEFAULT_TYPE_CONTAINER_SCHEMA),
         )
         ref = f"#/components/schemas/{name}"
 
