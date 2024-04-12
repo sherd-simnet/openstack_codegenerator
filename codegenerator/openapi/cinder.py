@@ -19,7 +19,10 @@ from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
-from codegenerator.openapi import cinder_schemas
+from codegenerator.openapi.cinder_schemas import backup
+from codegenerator.openapi.cinder_schemas import common
+from codegenerator.openapi.cinder_schemas import volume
+from codegenerator.openapi.cinder_schemas import volume_type
 from codegenerator.openapi.utils import merge_api_ref_doc
 
 
@@ -27,6 +30,8 @@ class CinderV3Generator(OpenStackServerSourceBase):
     URL_TAG_MAP = {
         "/versions": "version",
     }
+
+    RESOURCE_MODULES = [backup, volume, volume_type]
 
     def _api_ver_major(self, ver):
         return ver._ver_major
@@ -103,12 +108,12 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 ),
                 tags=[
                     {"name": k, "description": LiteralScalarString(v)}
-                    for (k, v) in cinder_schemas.CINDER_TAGS.items()
+                    for (k, v) in common.OPENAPI_TAGS.items()
                 ],
             )
 
         # Set global parameters
-        for name, definition in cinder_schemas.VOLUME_PARAMETERS.items():
+        for name, definition in volume.VOLUME_PARAMETERS.items():
             openapi_spec.components.parameters[name] = ParameterSchema(
                 **definition
             )
@@ -138,63 +143,10 @@ class CinderV3Generator(OpenStackServerSourceBase):
         self, openapi_spec, operation_spec, path: str | None = None
     ):
         """Hook to allow service specific generator to modify details"""
-        operationId = operation_spec.operationId
-
-        if operationId in [
-            "project_id/volumes:get",
-            "volumes:get",
-            "project_id/volumes/detail:get",
-            "volumes/detail:get",
-        ]:
-            for pname in [
-                "all_tenants",
-                "sort",
-                "sort_key",
-                "sort_dir",
-                "limit",
-                "offset",
-                "marker",
-                "with_count",
-                "created_at",
-                "updated_at",
-                "consumes_quota",
-            ]:
-                ref = f"#/components/parameters/{pname}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-        elif operationId in [
-            "project_id/volumes/summary:get",
-        ]:
-            for pname in [
-                "all_tenants",
-            ]:
-                ref = f"#/components/parameters/{pname}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-
-        elif operationId in [
-            "project_id/types:get",
-        ]:
-            for key, val in cinder_schemas.VOLUME_TYPE_LIST_PARAMETERS.items():
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-        elif operationId in [
-            "project_id/backups:get",
-            "backups:get",
-            "project_id/backups/detail:get",
-            "backups/detail:get",
-        ]:
-            for key, val in cinder_schemas.BACKUP_LIST_PARAMETERS.items():
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+        for resource_mod in self.RESOURCE_MODULES:
+            hook = getattr(resource_mod, "_post_process_operation_hook", None)
+            if hook:
+                hook(openapi_spec, operation_spec, path=path)
 
         if path and ("/consistencygroups" in path or "/cgsnapshots" in path):
             operation_spec.deprecated = True
@@ -208,209 +160,20 @@ class CinderV3Generator(OpenStackServerSourceBase):
         action_name=None,
     ):
         mime_type: str = "application/json"
-        # ### Volume
-        if name == "VolumesListResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.VOLUMES_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        if name == "VolumesDetailResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.VOLUMES_DETAIL_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "VolumeShowResponse",
-            "VolumeUpdateResponse",
-            "VolumesCreateResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.VOLUME_CONTAINER_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        # ### Volume Metadata
-        elif name in [
-            "VolumesMetadataListResponse",
-            "VolumesMetadataUpdate_All",
-            "VolumesMetadataUpdate_AllResponse",
-            "VolumesMetadataCreateResponse",
-            "VolumesActionOs-Set_Image_MetadataResponse",
-            "VolumesActionOs-Show_Image_MetadataResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.METADATA_CONTAINER_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "VolumesMetadataShowResponse",
-            "VolumesMetadataUpdate",
-            "VolumesMetadataUpdateResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.METADATA_ITEM_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        # Volume Actions
-        elif name == "VolumesActionRevertResponse":
-            return (None, None)
-        elif name == "VolumesActionOs-Reset_StatusRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.VOLUME_RESET_STATUS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "VolumesActionOs-Reset_StatusResponse",
-            "VolumesActionOs-Force_DeleteResponse",
-            "VolumesActionOs-Force_DetachResponse",
-            "VolumesActionOs-Migrate_VolumeResponse",
-            "VolumesActionOs-Migrate_Volume_CompletionResponse",
-            "VolumesActionOs-AttachResponse",
-            "VolumesActionOs-DetachResponse",
-            "VolumesActionOs-ReserveResponse",
-            "VolumesActionOs-UnreserveResponse",
-            "VolumesActionOs-Begin_DetachingResponse",
-            "VolumesActionOs-Roll_DetachingResponse",
-            "VolumesActionOs-Initialize_ConnectionResponse",
-            "VolumesActionOs-Terminate_ConnectionResponse",
-            "VolumesActionOs-ExtendResponse",
-            "VolumesActionOs-Update_Readonly_FlagResponse",
-            "VolumesActionOs-RetypeResponse",
-            "VolumesActionOs-Set_BootableResponse",
-            "VolumesActionOs-ReimageResponse",
-            "VolumesActionOs-Unset_Image_MetadataResponse",
-            "VolumesActionOs-UnmanageResponse",
-        ]:
-            return (None, None)
-        elif name == "VolumesActionOs-Volume_Upload_ImageResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **cinder_schemas.VOLUME_UPLOAD_IMAGE_RESPONSE_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        # ### Volume Type
-        elif name == "TypesListResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.VOLUME_TYPES_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "TypesCreateResponse",
-            "TypeShowResponse",
-            "TypeUpdateResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.VOLUME_TYPE_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "TypesExtra_SpecsListResponse",
-            "TypesExtra_SpecsCreateResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.VOLUME_TYPE_EXTRA_SPECS_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
 
-        elif name in [
-            "TypesExtra_SpecShowResponse",
-            "TypesExtra_SpecUpdateResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.VOLUME_TYPE_EXTRA_SPEC_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-
-        elif name == "TypesOs_Volume_Type_AccessListResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.VOLUME_TYPE_ACCESS_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "TypesActionAddprojectaccessResponse",
-            "TypesActionRemoveprojectaccessResponse",
-        ]:
-            return (None, None)
-
-        # ### Volume Type Encryption
-        # this is not really a list operation, but who cares
-        elif name == "TypesEncryptionListResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.VOLUME_TYPE_ENCRYPTION_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "TypesEncryptionShowResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **cinder_schemas.VOLUME_TYPE_ENCRYPTION_SHOW_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "TypesEncryptionCreateResponse",
-            "TypesEncryptionUpdateResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **cinder_schemas.VOLUME_TYPE_ENCRYPTION_CONTAINER_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        # ### Backups
-        elif name == "BackupsDetailResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.BACKUPS_DETAIL_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "BackupsListResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.BACKUPS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "BackupsCreateResponse",
-            "BackupShowResponse",
-            "BackupUpdateResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.BACKUP_CONTAINER_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "BackupsImport_RecordResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.BACKUP_SHORT_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "BackupsRestoreResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**cinder_schemas.BACKUP_RESTORE_RESPONSE_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "BackupsExport_RecordResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**cinder_schemas.BACKUP_RECORD_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "BackupsActionOs-Reset_StatusResponse",
-            "BackupsActionOs-Force_DeleteResponse",
-        ]:
-            return (None, None)
+        # Invoke modularized schema _get_schema_ref
+        for resource_mod in self.RESOURCE_MODULES:
+            hook = getattr(resource_mod, "_get_schema_ref", None)
+            if hook:
+                (ref, mime_type, matched) = hook(
+                    openapi_spec, name, description, schema_def, action_name
+                )
+                if matched:
+                    return (ref, mime_type)
 
         # Default
-        else:
-            (ref, mime_type) = super()._get_schema_ref(
-                openapi_spec, name, description, action_name=action_name
-            )
+        (ref, mime_type) = super()._get_schema_ref(
+            openapi_spec, name, description, action_name=action_name
+        )
+
         return (ref, mime_type)
