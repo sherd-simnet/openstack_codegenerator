@@ -176,3 +176,25 @@ METADATA_ITEM_SCHEMA: dict[str, Any] = {
     "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
     "properties": {"meta": {"maxProperties": 1, **METADATA_SCHEMA}},
 }
+
+AVAILABILITY_ZONES_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "availabilityZoneInfo": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "zoneName": {
+                        "type": "string",
+                        "description": "The availability zone name.",
+                    },
+                    "zoneState": {
+                        "type": "object",
+                        "properties": {"available": {"type": "boolean"}},
+                    },
+                },
+            },
+        }
+    },
+}

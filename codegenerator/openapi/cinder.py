@@ -173,6 +173,12 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 if matched:
                     return (ref, mime_type)
 
+        if name == "Os_Availability_ZoneListResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**common.AVAILABILITY_ZONES_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+
         # Default
         (ref, mime_type) = super()._get_schema_ref(
             openapi_spec, name, description, action_name=action_name
