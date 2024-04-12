@@ -26,14 +26,23 @@ from codegenerator.common.schema import TypeSchema
 ATTACHMENT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "server_id": {"type": "string", "format": "uuid"},
+        "server_id": {"type": ["string", "null"], "format": "uuid"},
         "attachment_id": {"type": "string", "format": "uuid"},
         "attached_at": {"type": "string", "format": "date-time"},
-        "host_name": {"type": "string"},
+        "host_name": {"type": ["string", "null"]},
         "volume_id": {"type": "string", "format": "uuid"},
-        "device": {"type": "string"},
+        "device": {"type": ["string", "null"]},
         "id": {"type": "string", "format": "uuid"},
     },
+    "additionalProperties": False,
+    "required": [
+        "server_id",
+        "attachment_id",
+        "host_name",
+        "volume_id",
+        "device",
+        "id",
+    ],
 }
 
 ATTACHMENTS_SCHEMA: dict[str, Any] = {

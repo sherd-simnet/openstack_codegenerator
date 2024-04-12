@@ -19,6 +19,7 @@ from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi.cinder_schemas import attachment
 from codegenerator.openapi.cinder_schemas import backup
 from codegenerator.openapi.cinder_schemas import common
 from codegenerator.openapi.cinder_schemas import volume
@@ -31,7 +32,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         "/versions": "version",
     }
 
-    RESOURCE_MODULES = [backup, volume, volume_type]
+    RESOURCE_MODULES = [attachment, backup, volume, volume_type]
 
     def _api_ver_major(self, ver):
         return ver._ver_major
