@@ -169,12 +169,16 @@ METADATA_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
     "properties": {"metadata": METADATA_SCHEMA},
+    "required": ["metadata"],
+    "additionalProperties": False,
 }
 
 METADATA_ITEM_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
     "properties": {"meta": {"maxProperties": 1, **METADATA_SCHEMA}},
+    "required": ["meta"],
+    "additionalProperties": False,
 }
 
 AVAILABILITY_ZONES_SCHEMA: dict[str, Any] = {
