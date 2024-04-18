@@ -15,12 +15,7 @@ from typing import Any
 
 from codegenerator.openapi.cinder_schemas import common
 
-from cinder.api.schemas import admin_actions
-from cinder.api.validation import parameter_types
-
 from codegenerator.common.schema import ParameterSchema
-from codegenerator.common.schema import PathSchema
-from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 
 SNAPSHOT_STATUS_ENUM: list[str] = [

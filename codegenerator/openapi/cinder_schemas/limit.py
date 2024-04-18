@@ -12,8 +12,8 @@
 #
 from typing import Any
 
-
 from codegenerator.common.schema import TypeSchema
+
 
 LIMITS_SCHEMA: dict[str, Any] = {
     "type": "object",

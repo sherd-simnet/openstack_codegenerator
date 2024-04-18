@@ -10,15 +10,11 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import copy
 from typing import Any
 
-from cinder.api.schemas import admin_actions
 from cinder.api.validation import parameter_types
 
 from codegenerator.common.schema import ParameterSchema
-from codegenerator.common.schema import PathSchema
-from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 
 VOLUME_TYPE_SCHEMA: dict[str, Any] = {

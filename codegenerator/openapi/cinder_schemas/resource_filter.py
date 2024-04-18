@@ -14,6 +14,7 @@ from typing import Any
 
 from codegenerator.common.schema import TypeSchema
 
+
 RESOURCE_FILTERS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {

@@ -13,13 +13,8 @@
 import copy
 from typing import Any
 
-from cinder.api.schemas import admin_actions
-from cinder.api.validation import parameter_types
-
 from codegenerator.openapi.cinder_schemas import common
 from codegenerator.common.schema import ParameterSchema
-from codegenerator.common.schema import PathSchema
-from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 
 BACKUP_LIST_PARAMETERS: dict[str, Any] = {

@@ -13,9 +13,6 @@
 import copy
 from typing import Any
 
-from cinder.api.schemas import admin_actions
-from cinder.api.validation import parameter_types
-
 # NOTE(gtema): This is a temporary location for schemas not currently defined
 # in Cinder. Once everything is stabilized those must be moved directly to Cinder
 
