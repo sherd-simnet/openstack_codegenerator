@@ -62,7 +62,7 @@ MANAGEABLE_VOLUME_DETAIL_SCHEMA: dict[str, Any] = {
             "type": ["string", "null"],
             "description": "More information about the resource.",
         },
-        **MANAGEABLE_VOLUME_SCHEMA,
+        **MANAGEABLE_VOLUME_SCHEMA["properties"],
     },
 }
 
