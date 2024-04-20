@@ -35,7 +35,7 @@ LIMITS_SCHEMA: dict[str, Any] = {
                         },
                         "maxTotalVolumeGigabytes": {
                             "type": "integer",
-                            "type": "int64",
+                            "format": "int64",
                             "description": "The maximum total amount of volumes, in gibibytes (GiB).",
                         },
                         "maxTotalSnapshots": {
@@ -44,7 +44,7 @@ LIMITS_SCHEMA: dict[str, Any] = {
                         },
                         "maxTotalBackupGigabytes": {
                             "type": "integer",
-                            "type": "int64",
+                            "format": "int64",
                             "description": "The maximum total amount of backups, in gibibytes (GiB).",
                         },
                         "totalBackupGigabytesUsed": {
