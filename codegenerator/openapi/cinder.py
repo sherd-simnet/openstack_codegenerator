@@ -23,6 +23,7 @@ from codegenerator.openapi.cinder_schemas import attachment
 from codegenerator.openapi.cinder_schemas import backup
 from codegenerator.openapi.cinder_schemas import common
 from codegenerator.openapi.cinder_schemas import limit
+from codegenerator.openapi.cinder_schemas import message
 from codegenerator.openapi.cinder_schemas import resource_filter
 from codegenerator.openapi.cinder_schemas import snapshot
 from codegenerator.openapi.cinder_schemas import volume
@@ -40,6 +41,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         attachment,
         backup,
         limit,
+        message,
         resource_filter,
         snapshot,
         volume,
