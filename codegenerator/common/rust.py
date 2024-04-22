@@ -23,6 +23,9 @@ from codegenerator import model
 from codegenerator import common
 
 
+CODEBLOCK_RE = re.compile(r"```(\w*)$")
+
+
 class Boolean(BasePrimitiveType):
     """Basic Boolean"""
 
@@ -1089,12 +1092,14 @@ def sanitize_rust_docstrings(doc: str | None) -> str | None:
     code_block_open: bool = False
     lines: list[str] = []
     for line in doc.split("\n"):
-        if line.endswith("```"):
+        m = re.search(CODEBLOCK_RE, line)
+        if m and m.groups():
             if not code_block_open:
+                code_block_open = True
                 # Rustdoc defaults to rust code for code blocks. To prevent
                 # this explicitly add `text`
-                code_block_open = True
-                line = line + "text"
+                if m.group(1) == "":
+                    line = line + "text"
             else:
                 code_block_open = False
         lines.append(line)
