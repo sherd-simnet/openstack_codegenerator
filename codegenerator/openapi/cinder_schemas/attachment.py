@@ -84,13 +84,23 @@ ATTACHMENT_CONTAINER_SCHEMA: dict[str, Any] = {
 }
 
 ATTACHMENTS_SCHEMA: dict[str, Any] = {
-    "type": "array",
-    "items": copy.deepcopy(ATTACHMENT_SCHEMA),
+    "type": "object",
+    "properties": {
+        "attachments": {
+            "type": "array",
+            "items": copy.deepcopy(ATTACHMENT_SCHEMA),
+        }
+    },
 }
 
 ATTACHMENTS_DETAIL_SCHEMA: dict[str, Any] = {
-    "type": "array",
-    "items": copy.deepcopy(ATTACHMENT_DETAIL_SCHEMA),
+    "type": "object",
+    "properties": {
+        "attachments": {
+            "type": "array",
+            "items": copy.deepcopy(ATTACHMENT_DETAIL_SCHEMA),
+        }
+    },
 }
 
 
