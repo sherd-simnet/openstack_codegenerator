@@ -37,4 +37,5 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - types-decorator
+          - types-docutils
           - types-PyYAML

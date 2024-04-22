@@ -24,6 +24,7 @@ from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi.utils import rst_to_md
 from openapi_core import Spec
 from ruamel.yaml.scalarstring import LiteralScalarString
 from ruamel.yaml import YAML
@@ -547,6 +548,7 @@ class OpenStackServerSourceBase:
         if mode != "action":
             doc = inspect.getdoc(func)
             if doc and not operation_spec.description:
+                doc = rst_to_md(doc)
                 operation_spec.description = LiteralScalarString(doc)
         if operation_spec.description:
             # Reading spec from yaml file it was converted back to regular
