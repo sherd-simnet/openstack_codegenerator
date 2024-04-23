@@ -932,6 +932,14 @@ def post_process_block_storage_operation(
                 "rust-cli"
             ].cli_full_command.replace("show", "check")
 
+    if resource_name == "snapshot":
+        if "update-snapshot-status" in operation_name:
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace(
+                "update-snapshot-status", "update-status"
+            )
+
     if resource_name == "limit" and operation_name == "list":
         # Limits API return object and not a list
         operation.targets["rust-cli"].operation_type = "show"

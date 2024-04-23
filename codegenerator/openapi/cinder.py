@@ -22,6 +22,7 @@ from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.cinder_schemas import attachment
 from codegenerator.openapi.cinder_schemas import backup
 from codegenerator.openapi.cinder_schemas import common
+from codegenerator.openapi.cinder_schemas import group
 from codegenerator.openapi.cinder_schemas import limit
 from codegenerator.openapi.cinder_schemas import message
 from codegenerator.openapi.cinder_schemas import resource_filter
@@ -40,6 +41,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
     RESOURCE_MODULES = [
         attachment,
         backup,
+        group,
         limit,
         message,
         resource_filter,
