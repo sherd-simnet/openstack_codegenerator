@@ -13,7 +13,6 @@
 import copy
 from typing import Any
 
-from codegenerator.openapi.cinder_schemas import common
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import TypeSchema
 
@@ -249,7 +248,7 @@ def _get_schema_ref(
         ref = f"#/components/schemas/{name}"
     elif name in [
         "GroupsCreateResponse",
-        "GroupsShowResponse",
+        "GroupShowResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**GROUP_CONTAINER_SCHEMA)
