@@ -14,6 +14,7 @@ import logging
 import re
 
 from bs4 import BeautifulSoup
+from docutils.core import publish_parts
 from codegenerator.common.schema import TypeSchema
 from markdownify import markdownify as md
 from ruamel.yaml.scalarstring import LiteralScalarString
@@ -538,6 +539,19 @@ def _get_schema_candidates(
                 schema_specs.append(res)
 
     return (schema_specs, action_name)
+
+
+def rst_to_md(content: str) -> str:
+    """Convert RST string to Markdown"""
+    # Sadly the only reasonably usable library to do direct conversion is now
+    # also abandoned (rst-to-myst). The only alternative known at the moment of
+    # writing is to use docutils/sphinx directly and convert rst to html to
+    # convert it then to md. Since I do not know how to involve sphinx from the
+    # python code the only remaining way seem to be docutils (but with it certain
+    # sphinx specifics are lost)
+    html = publish_parts(content, writer_name="html")["html_body"]
+    res = get_sanitized_description(html)
+    return res
 
 
 def get_sanitized_description(descr: str) -> LiteralScalarString:
