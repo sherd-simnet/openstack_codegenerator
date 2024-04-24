@@ -444,8 +444,8 @@ class RustSdkGenerator(BaseGenerator):
                 operation_type=spec.get(
                     "x-openstack-operation-type", args.operation_type
                 ),
-                command_description=common.make_ascii_string(
-                    spec.get("description")
+                command_description=common_rust.sanitize_rust_docstrings(
+                    common.make_ascii_string(spec.get("description"))
                 ),
                 class_name=class_name,
                 sdk_service_name=common.get_rust_service_type_from_str(
