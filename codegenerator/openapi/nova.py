@@ -156,7 +156,7 @@ class NovaGenerator(OpenStackServerSourceBase):
         schema_def=None,
         action_name=None,
     ):
-        from nova.api.openstack.compute.schemas import flavor_manage
+        from nova.api.openstack.compute.schemas import flavors
 
         schema = None
         mime_type: str = "application/json"
@@ -372,7 +372,7 @@ class NovaGenerator(OpenStackServerSourceBase):
             ref = f"#/components/schemas/{name}"
         elif name == "FlavorUpdateRequest":
             schema = openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**flavor_manage.update_v2_55)
+                name, TypeSchema(**flavors.update_v2_55)
             )
             ref = f"#/components/schemas/{name}"
         elif name in [
