@@ -25,6 +25,17 @@ from codegenerator.types import OperationModel
 from codegenerator.types import OperationTargetParams
 from codegenerator.types import ResourceModel
 
+OPERATION_ID_BLACKLIST: set[str] = set(
+    [
+        # # BlockStorage
+        # ## Host put has no schema
+        "project_id/os-hosts:put",
+        "os-hosts:put",
+        "project_id/os-hosts/id:put",
+        "os-hosts/id:put",
+    ]
+)
+
 
 class MetadataGenerator(BaseGenerator):
     """Generate metadata from OpenAPI spec"""
@@ -122,6 +133,10 @@ class MetadataGenerator(BaseGenerator):
                     if not operation.operationId:
                         # Every operation must have operationId
                         continue
+                    if operation.operationId in OPERATION_ID_BLACKLIST:
+                        # For blacklisted operationIds were are not producing anything
+                        continue
+
                     op_model = OperationModel(
                         operation_id=operation.operationId, targets=dict()
                     )
