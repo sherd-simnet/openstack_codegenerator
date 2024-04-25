@@ -25,6 +25,7 @@ from codegenerator.openapi.cinder_schemas import common
 from codegenerator.openapi.cinder_schemas import group
 from codegenerator.openapi.cinder_schemas import group_snapshot
 from codegenerator.openapi.cinder_schemas import group_type
+from codegenerator.openapi.cinder_schemas import host
 from codegenerator.openapi.cinder_schemas import limit
 from codegenerator.openapi.cinder_schemas import message
 from codegenerator.openapi.cinder_schemas import resource_filter
@@ -46,6 +47,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         group,
         group_snapshot,
         group_type,
+        host,
         limit,
         message,
         resource_filter,
