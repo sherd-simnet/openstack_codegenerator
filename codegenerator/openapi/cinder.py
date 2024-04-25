@@ -22,6 +22,7 @@ from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.cinder_schemas import attachment
 from codegenerator.openapi.cinder_schemas import backup
 from codegenerator.openapi.cinder_schemas import common
+from codegenerator.openapi.cinder_schemas import extension
 from codegenerator.openapi.cinder_schemas import group
 from codegenerator.openapi.cinder_schemas import group_snapshot
 from codegenerator.openapi.cinder_schemas import group_type
@@ -44,6 +45,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
     RESOURCE_MODULES = [
         attachment,
         backup,
+        extension,
         group,
         group_snapshot,
         group_type,
@@ -147,6 +149,16 @@ class CinderV3Generator(OpenStackServerSourceBase):
             #    continue
             if route.routepath.endswith(".:(format)"):
                 continue
+
+            if route.routepath.startswith(
+                "/extensions"
+            ) or route.routepath.startswith(
+                "/{project_id:[0-9a-f\-]+}/extensions"
+            ):
+                if route.defaults.get("action") != "index":
+                    # Extensions controller is broken as one exposing CRUD
+                    # methods but returning 404
+                    continue
 
             self._process_route(route, openapi_spec, ver_prefix="/v3")
 
