@@ -13,7 +13,6 @@
 import copy
 from typing import Any
 
-from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import TypeSchema
 
 EXTENSION_SCHEMA: dict[str, Any] = {

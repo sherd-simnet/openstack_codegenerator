@@ -31,6 +31,7 @@ from codegenerator.openapi.cinder_schemas import limit
 from codegenerator.openapi.cinder_schemas import message
 from codegenerator.openapi.cinder_schemas import resource_filter
 from codegenerator.openapi.cinder_schemas import snapshot
+from codegenerator.openapi.cinder_schemas import snapshot_manage
 from codegenerator.openapi.cinder_schemas import volume
 from codegenerator.openapi.cinder_schemas import volume_manage
 from codegenerator.openapi.cinder_schemas import volume_type
@@ -54,6 +55,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         message,
         resource_filter,
         snapshot,
+        snapshot_manage,
         volume,
         volume_manage,
         volume_type,

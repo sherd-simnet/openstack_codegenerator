@@ -230,6 +230,11 @@ Some({{ val }})
     {{ dst_var }}.{{ param.remote_name }}({{ builder_name }}.build().expect("A valid object"));
     }
 
+  {%- elif param.data_type.item_type.__class__.__name__ == "JsonValue" %}
+  {#- atm it is not possible to pass ownership of Option<Json> #}
+    if let Some(val) = {{ val_var }} {
+      {{ dst_var }}.{{ param.remote_name }}(val.clone());
+    }
   {%- else %}
     {{ dst_var }}.{{ param.remote_name }}(*{{ val_var }});
   {%- endif %}
