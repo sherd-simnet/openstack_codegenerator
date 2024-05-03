@@ -245,8 +245,8 @@ class MetadataGenerator(BaseGenerator):
                         operation_key = "reactivate"
                     elif (
                         args.service_type == "block-storage"
-                        and "volume-transfers" in path
-                        and path.endswith("}/accept")
+                        and "volume-transfer" in path
+                        and path.endswith("/accept")
                     ):
                         operation_key = "accept"
                     elif (
@@ -954,6 +954,13 @@ def post_process_block_storage_operation(
             ].cli_full_command.replace(
                 "update-snapshot-status", "update-status"
             )
+
+    if resource_name in ["os_volume_transfer", "volume_transfer"]:
+        if operation_name in ["list", "list_detailed"]:
+            operation.targets["rust-cli"].response_key = "transfers"
+            operation.targets["rust-sdk"].response_key = "transfers"
+        elif operation_name in ["accept", "create", "show"]:
+            operation.targets["rust-cli"].response_key = "transfer"
 
     if resource_name == "limit" and operation_name == "list":
         # Limits API return object and not a list

@@ -34,6 +34,7 @@ from codegenerator.openapi.cinder_schemas import snapshot
 from codegenerator.openapi.cinder_schemas import snapshot_manage
 from codegenerator.openapi.cinder_schemas import volume
 from codegenerator.openapi.cinder_schemas import volume_manage
+from codegenerator.openapi.cinder_schemas import volume_transfer
 from codegenerator.openapi.cinder_schemas import volume_type
 from codegenerator.openapi.utils import merge_api_ref_doc
 
@@ -58,6 +59,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         snapshot_manage,
         volume,
         volume_manage,
+        volume_transfer,
         volume_type,
     ]
 

@@ -456,7 +456,10 @@ def get_resource_names_from_url(path: str):
                 part = el
             if part.startswith("os_"):
                 # We should remove `os_` prefix from resource name
-                part = part[3:]
+                # - cinder.os_volume_transfer exists at the same time with
+                #   volume_transfers and we want them both
+                if part not in ["os_volume_transfer"]:
+                    part = part[3:]
             if part == "availabilityzone":
                 part = "availability_zone"
             elif part == "availabilityzoneprofile":
@@ -482,6 +485,8 @@ def get_resource_names_from_url(path: str):
         path_resource_names = ["image"]
     if path_resource_names == ["volume_transfer", "accept"]:
         path_resource_names = ["volume_transfer"]
+    if path_resource_names == ["os_volume_transfer", "accept"]:
+        path_resource_names = ["os_volume_transfer"]
     if path == "/v2.0/ports/{port_id}/bindings/{id}/activate":
         path_resource_names = ["port", "binding"]
     if path.startswith("/v2/lbaas"):
