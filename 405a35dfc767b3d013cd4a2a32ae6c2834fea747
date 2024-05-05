@@ -1,0 +1,8 @@
+Verified+2: Zuul
+Workflow+1: Artem Goncharov <artem.goncharov@gmail.com>
+Code-Review+2: Artem Goncharov <artem.goncharov@gmail.com>
+Submitted-by: Zuul
+Submitted-at: Sun, 05 May 2024 14:31:19 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/codegenerator/+/917129
+Project: openstack/codegenerator
+Branch: refs/heads/master
