@@ -962,6 +962,21 @@ def post_process_block_storage_operation(
         elif operation_name in ["accept", "create", "show"]:
             operation.targets["rust-cli"].response_key = "transfer"
 
+    if resource_name == "availability_zone":
+        if operation_name == "get":
+            operation.operation_type = "list"
+            operation.targets["rust-sdk"].operation_name = "list"
+            operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-sdk"].module_name = "list"
+            operation.targets["rust-cli"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-cli"].module_name = "list"
+            operation.targets["rust-cli"].sdk_mod_name = "list"
+            operation.targets["rust-cli"].operation_name = "list"
+            operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-cli"].cli_full_command = (
+                "availability-zone list"
+            )
+
     if resource_name == "limit" and operation_name == "list":
         # Limits API return object and not a list
         operation.targets["rust-cli"].operation_type = "show"

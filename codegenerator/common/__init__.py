@@ -24,8 +24,15 @@ VERSION_RE = re.compile(r"[Vv][0-9.]*")
 # RE to split name from camelCase or by [`:`,`_`,`-`]
 SPLIT_NAME_RE = re.compile(r"(?<=[a-z])(?=[A-Z])|:|_|-")
 
-# FullyQualifiedAttributeName alias map
-FQAN_ALIAS_MAP = {"network.floatingip.floating_ip_address": "name"}
+# FullyQualifiedAttributeName alias map (service_name + resource_name +
+# remote_name).lower()
+FQAN_ALIAS_MAP = {
+    "blockstorage.availability_zone.zonename": "name",
+    "blockstorage.availability_zone.zonestate": "state",
+    "compute.availability_zone.zonename": "name",
+    "compute.availability_zone.zonestate": "state",
+    "network.floatingip.floating_ip_address": "name",
+}
 
 
 def _deep_merge(
