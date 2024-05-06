@@ -77,6 +77,7 @@ class MetadataGenerator(BaseGenerator):
                     resource_name = "container"
                 if path == "/v1/{account}/{object}":
                     resource_name = "object"
+
             if args.service_type == "compute" and resource_name in [
                 "agent",
                 "baremetal_node",
@@ -249,6 +250,18 @@ class MetadataGenerator(BaseGenerator):
                         and path.endswith("/accept")
                     ):
                         operation_key = "accept"
+                    elif (
+                        args.service_type == "block-storage"
+                        and "qos-specs" in path
+                        and path_elements[-1]
+                        in [
+                            "associate",
+                            "disassociate",
+                            "disassociate_all",
+                            "delete_keys",
+                        ]
+                    ):
+                        operation_key = path_elements[-1]
                     elif (
                         len(
                             [
@@ -592,6 +605,9 @@ def get_operation_type_by_key(operation_key):
         return "download"
     elif operation_key == "upload":
         return "upload"
+    elif operation_key in ["associate", "disassociate", "disassociate_all"]:
+        # Cinder XXXssociate are GET actions not accepting body - crazy
+        return "get"
     else:
         return "action"
 
@@ -976,6 +992,18 @@ def post_process_block_storage_operation(
             operation.targets["rust-cli"].cli_full_command = (
                 "availability-zone list"
             )
+    if resource_name == "qos_spec/association":
+        operation.operation_type = "list"
+        operation.targets["rust-sdk"].operation_name = "list"
+        operation.targets["rust-sdk"].module_name = "list"
+        operation.targets["rust-cli"].operation_name = "list"
+        operation.targets["rust-cli"].module_name = "list"
+        operation.targets["rust-cli"].sdk_mod_name = "list"
+        operation.targets["rust-sdk"].response_key = "qos_associations"
+        operation.targets["rust-cli"].response_key = "qos_associations"
+        operation.targets["rust-cli"].cli_full_command = (
+            "qos-spec association list"
+        )
 
     if resource_name == "limit" and operation_name == "list":
         # Limits API return object and not a list

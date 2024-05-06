@@ -494,6 +494,14 @@ def get_resource_names_from_url(path: str):
         path_resource_names = ["volume_transfer"]
     if path_resource_names == ["os_volume_transfer", "accept"]:
         path_resource_names = ["os_volume_transfer"]
+    if "qos-specs" in path and path_resource_names[-1] in [
+        "associate",
+        "disassociate",
+        "disassociate_all",
+        "delete_key",
+    ]:
+        path_resource_names = ["qos_spec"]
+
     if path == "/v2.0/ports/{port_id}/bindings/{id}/activate":
         path_resource_names = ["port", "binding"]
     if path.startswith("/v2/lbaas"):
