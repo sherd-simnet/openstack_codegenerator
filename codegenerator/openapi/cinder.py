@@ -21,6 +21,7 @@ from codegenerator.common.schema import TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.cinder_schemas import attachment
 from codegenerator.openapi.cinder_schemas import backup
+from codegenerator.openapi.cinder_schemas import cluster
 from codegenerator.openapi.cinder_schemas import common
 from codegenerator.openapi.cinder_schemas import extension
 from codegenerator.openapi.cinder_schemas import group
@@ -47,6 +48,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
     RESOURCE_MODULES = [
         attachment,
         backup,
+        cluster,
         extension,
         group,
         group_snapshot,

@@ -111,7 +111,7 @@ def _post_process_operation_hook(
     operationId = operation_spec.operationId
     if operationId in [
         "project_id/attachments:get",
-        "attachmets:get",
+        "attachments:get",
         "project_id/attachments/detail:get",
         "attachments/detail:get",
     ]:
