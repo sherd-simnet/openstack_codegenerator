@@ -17,3 +17,4 @@ wsgi-intercept>=1.13 # MIT
 wsme>=0.12 # MIT
 oslotest>=5.0.0 # Apache-2.0
 openstacksdk>=2.0 # Apache-2.0
+# Force requirements rebuild: 
