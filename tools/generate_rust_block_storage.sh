@@ -5,9 +5,27 @@ WRK_DIR=wrk
 METADATA=metadata
 DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
+  "availability_zone"
+  "attachment"
   "backup"
-  "volume"
+  "cluster"
+  "default_type"
+  "extension"
+  "group"
+  "group_snapshot"
+  "group_type"
+  "host"
+  "limit"
+  "message"
+  "qos_spec"
+  "resource_filter"
+  "snapshot"
+  "snapshot_manage"
   "type"
+  "volume"
+  "volume_manage"
+  "os_volume_transfer"
+  "volume_transfer"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/block-storage_metadata.yaml --service block-storage
