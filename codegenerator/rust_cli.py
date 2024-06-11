@@ -97,11 +97,21 @@ class VecString(common.BasePrimitiveType):
 class JsonValue(common_rust.JsonValue):
     """Arbitrary JSON value"""
 
-    imports: set[str] = set(["crate::common::parse_json", "serde_json::Value"])
     clap_macros: set[str] = set(
         ['value_name="JSON"', "value_parser=parse_json"]
     )
-    original_data_type: BaseCompoundType | BaseCompoundType | None = None
+    original_data_type: BaseCombinedType | BaseCompoundType | None = None
+
+    @property
+    def imports(self):
+        imports: set[str] = set(
+            ["crate::common::parse_json", "serde_json::Value"]
+        )
+        if self.original_data_type and isinstance(
+            self.original_data_type, common_rust.Dictionary
+        ):
+            imports.update(["std::collections::BTreeMap", "anyhow::Context"])
+        return imports
 
 
 class StructInputField(common_rust.StructField):
@@ -602,6 +612,15 @@ class RequestTypeManager(common_rust.TypeManager):
                     original_data_type=original_data_type,
                     item_type=String(),
                 )
+        elif isinstance(type_model, model.Dictionary) and isinstance(
+            type_model.value_type, model.Dictionary
+        ):
+            original_data_type = self.convert_model(type_model.value_type)
+            typ = JsonValue(
+                original_data_type=DictionaryInput(
+                    value_type=original_data_type
+                )
+            )
 
         if typ:
             if model_ref:
@@ -638,8 +657,10 @@ class RequestTypeManager(common_rust.TypeManager):
                     field_data_type = field_data_type.item_type
             elif isinstance(field_data_type, EnumGroupStruct):
                 field_data_type.is_required = field.is_required
-            elif isinstance(field_data_type, DictionaryInput) and isinstance(
-                field_data_type.value_type, common_rust.BaseCompoundType
+            elif isinstance(
+                field_data_type, DictionaryInput
+            ) and not isinstance(
+                field_data_type.value_type, common_rust.BasePrimitiveType
             ):
                 dict_type_model = self._get_adt_by_reference(field.data_type)
                 simplified_data_type = JsonValue()
@@ -1176,29 +1197,49 @@ class RustCliGenerator(BaseGenerator):
                             isinstance(response_def.get("type"), list)
                             and "object" in response_def["type"]
                         ):
-                            (_, response_types) = openapi_parser.parse(
+                            (root, response_types) = openapi_parser.parse(
                                 response_def
                             )
-                            response_type_manager.set_models(response_types)
+                            if isinstance(root, model.Dictionary):
+                                value_type = (
+                                    response_type_manager.convert_model(
+                                        root.value_type
+                                    )
+                                )
+                                # if not isinstance(value_type, common_rust.BasePrimitiveType):
+                                #    value_type = JsonValue(original_data_type=value_type)
+                                root_dict = HashMapResponse(
+                                    value_type=value_type
+                                )
+                                response_type_manager.refs[
+                                    model.Reference(
+                                        name="Body", type=HashMapResponse
+                                    )
+                                ] = root_dict
 
-                            if method == "patch" and not request_types:
-                                # image patch is a jsonpatch based operation
-                                # where there is no request. For it we need to
-                                # look at the response and get writable
-                                # parameters as a base
-                                is_json_patch = True
-                                if not args.find_implemented_by_sdk:
-                                    raise NotImplementedError
-                                additional_imports.update(
-                                    [
-                                        "json_patch::{Patch, diff}",
-                                        "serde_json::json",
-                                    ]
+                            else:
+                                response_type_manager.set_models(
+                                    response_types
                                 )
-                                (_, response_types) = openapi_parser.parse(
-                                    response_def, ignore_read_only=True
-                                )
-                                type_manager.set_models(response_types)
+
+                                if method == "patch" and not request_types:
+                                    # image patch is a jsonpatch based operation
+                                    # where there is no request. For it we need to
+                                    # look at the response and get writable
+                                    # parameters as a base
+                                    is_json_patch = True
+                                    if not args.find_implemented_by_sdk:
+                                        raise NotImplementedError
+                                    additional_imports.update(
+                                        [
+                                            "json_patch::{Patch, diff}",
+                                            "serde_json::json",
+                                        ]
+                                    )
+                                    (_, response_types) = openapi_parser.parse(
+                                        response_def, ignore_read_only=True
+                                    )
+                                    type_manager.set_models(response_types)
 
                         elif response_def["type"] == "string":
                             (root_dt, _) = openapi_parser.parse(response_def)

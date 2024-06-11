@@ -103,11 +103,15 @@ class String(BasePrimitiveType):
 
 class JsonValue(BasePrimitiveType):
     type_hint: str = "Value"
-    imports: set[str] = set(["serde_json::Value"])
     builder_macros: set[str] = set(["setter(into)"])
 
     def get_sample(self):
         return "json!({})"
+
+    @property
+    def imports(self):
+        imports: set[str] = set(["serde_json::Value"])
+        return imports
 
 
 class Option(BaseCombinedType):

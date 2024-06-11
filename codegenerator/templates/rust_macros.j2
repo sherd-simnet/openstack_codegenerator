@@ -70,12 +70,19 @@ Option
 {%- macro sdk_builder_setter_btreemap(field) %}
   {%- set is_opt = False if field.data_type.__class__.__name__ != "Option" else True %}
   {%- set dt = field.data_type if not is_opt else field.data_type.item_type %}
+  {%- set val_type = field.data_type.value_type %}
     {{ docstring(field.description, indent=4) }}
-    pub fn {{ field.local_name }}<I, K, V>(&mut self, iter: I) -> &mut Self
+    pub fn {{ field.local_name }}<I, K, V{{ ",K1, V1" if val_type.__class__.__name__ == "BTreeMap" else ""}}>(&mut self, iter: I) -> &mut Self
       where
           I: Iterator<Item = (K, V)>,
           K: Into<Cow<'a, str>>,
-          V: Into<{{ dt.value_type.type_hint }}>,
+          {%- if val_type.__class__.__name__ != "BTreeMap" %}
+            V: Into<{{ dt.value_type.type_hint }}>,
+          {% else %}
+            V: Iterator<Item = (K1, V1)>,
+            K1: Into<Cow<'a, str>>,
+            V1: Into<{{ val_type.value_type.type_hint }}>,
+          {% endif%}
       {
           self.{{ field.local_name }}
             {%- if field.is_optional %}
@@ -85,7 +92,17 @@ Option
               .get_or_insert(None)
             {%- endif %}
               .get_or_insert_with(BTreeMap::new)
-              .extend(iter.map(|(k, v)| (k.into(), v.into())));
+              .extend(iter.map(|(k, v)| (
+                  k.into(),
+                  {%- if val_type.__class__.__name__ != "BTreeMap" %}
+                    v.into()
+                  {%- else %}
+                    BTreeMap::from_iter(
+                        v.into_iter()
+                        .map(|(k1, v1)| {(k1.into(), v1.into())})
+                    )
+                  {%- endif %}
+              )));
           self
       }
 {%- endmacro %}
@@ -149,6 +166,13 @@ Some({{ val }})
     {{ dst_var }}.{{ param.remote_name }}(
         serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>({{ val_var }}.to_owned())?
     );
+    {%- elif original_type and original_type.__class__.__name__ == "DictionaryInput" and original_type.value_type and original_type.value_type.__class__.__name__ == "DictionaryInput" %}
+        {{ dst_var }}.{{ param.remote_name }}(
+            serde_json::from_value::<BTreeMap<String, BTreeMap<String, {{ original_type.value_type.value_type.type_hint }}>>>({{ val_var | replace("&", "") }}.clone())
+            .with_context(|| "Failed to parse `{{ param.local_name }}` as dict of dicts of {{ original_type.value_type.value_type.type_hint }}")?
+            .into_iter()
+            .map(|(k, v)| (k, v.into_iter())),
+        );
     {%- else %}
         {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "" )}}.clone());
     {%- endif %}

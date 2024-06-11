@@ -39,7 +39,10 @@ from codegenerator.openapi.utils import merge_api_ref_doc
 
 class KeystoneGenerator(OpenStackServerSourceBase):
     URL_TAG_MAP = {
-        "/versions": "version",
+        "/domains/config": "domain-configuration",
+        "/domains/{domain_id}/config": "domain-configuration",
+        "/domains/{domain_id}/groups/{group_id}/roles": "roles",
+        "/domains/{domain_id}/users/{user_id}/roles": "roles",
     }
 
     RESOURCE_MODULES = [
@@ -178,10 +181,9 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         if hasattr(view, "view_class"):
             controller = view.view_class
 
-        path = ""
-        path_elements = []
+        path: str = ""
+        path_elements: list[str] = []
         operation_spec = None
-        tag_name = None
 
         for part in route.rule.split("/"):
             if not part:
@@ -190,18 +192,9 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 param = part.strip("<>").split(":")
                 path_elements.append("{" + param[-1] + "}")
             else:
-                if not tag_name and part != "" and part != "v3":
-                    tag_name = part
                 path_elements.append(part)
 
-        if not tag_name:
-            tag_name = "versions"
-
         path = "/" + "/".join(path_elements)
-        if tag_name not in [x["name"] for x in openapi_spec.tags]:
-            openapi_spec.tags.append(
-                {"name": tag_name, "description": LiteralScalarString("")}
-            )
         # Get rid of /v3 for further processing
         path_elements = path_elements[1:]
 
@@ -210,14 +203,13 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         # parameter before adding new params
         path_params: list[ParameterSchema] = []
         path_resource_names: list[str] = []
+        operation_tags = self._get_tags_for_url(path)
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
                 global_param_name = (
                     "_".join(path_resource_names) + f"_{param_name}"
                 )
-                #                if global_param_name == "_project_id":
-                #                    global_param_name = "project_id"
                 param_ref_name = f"#/components/parameters/{global_param_name}"
                 # Ensure reference to the param is in the path_params
                 if param_ref_name not in [
@@ -249,12 +241,17 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             else:
                 rn = rn.rstrip("s")
             path_resource_names[-1] = rn
-        if path == "/v3/domains/{domain_id}/config/{group}":
-            path_resource_names.append("group")
-        elif path == "/v3/domains/config/{group}/{option}/default":
-            path_resource_names.append("group")
-        elif path == "/v3/domains/{domain_id}/config/{group}/{option}":
-            path_resource_names.extend(["group", "option"])
+        # Hack resource element names for domain configs
+        if path in [
+            "/v3/domains/config/{group}/default",
+            "/v3/domains/{domain_id}/config/{group}",
+        ]:
+            path_resource_names = ["domains", "config", "group"]
+        elif path in [
+            "/v3/domains/config/{group}/{option}/default",
+            "/v3/domains/{domain_id}/config/{group}/{option}",
+        ]:
+            path_resource_names = ["domains", "config", "group", "option"]
 
         path_spec = openapi_spec.paths.setdefault(
             path, PathSchema(parameters=path_params)
@@ -332,8 +329,8 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 operation_spec.description = LiteralScalarString(
                     doc or f"{method} operation on {path}"
                 )
-            if tag_name and tag_name not in operation_spec.tags:
-                operation_spec.tags.append(tag_name)
+            operation_spec.tags.extend(operation_tags)
+            operation_spec.tags = list(set(operation_spec.tags))
 
             self.process_operation(
                 func,
@@ -450,6 +447,11 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                     "X-Subject-Token",
                     {"$ref": "#/components/headers/X-Subject-Token"},
                 )
+
+        # Ensure operation tags are existing
+        for tag in operation_spec.tags:
+            if tag not in [x["name"] for x in openapi_spec.tags]:
+                openapi_spec.tags.append({"name": tag, "description": None})
 
         self._post_process_operation_hook(
             openapi_spec, operation_spec, path=path

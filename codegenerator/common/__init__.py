@@ -152,13 +152,14 @@ def find_resource_schema(
     """
     try:
         if "type" not in schema:
-            # Response of server create is a server or reservation_id
-            # if "oneOf" in schema:
-            #    kinds = {}
-            #    for kind in schema["oneOf"]:
-            #        kinds.update(kind)
-            #    schema["type"] = kinds["type"]
-            if "allOf" in schema:
+            # Response of server create is a server or reservation_id,
+            # identity.domain.group[config] is oneOf also
+            if "oneOf" in schema:
+                kinds = {}
+                for kind in schema["oneOf"]:
+                    kinds.update(kind)
+                schema["type"] = kinds["type"]
+            elif "allOf" in schema:
                 # {'allOf': [
                 #   {'type': 'integer', 'minimum': 0},
                 #   {'default': 0}]
@@ -501,6 +502,18 @@ def get_resource_names_from_url(path: str):
         "delete_key",
     ]:
         path_resource_names = ["qos_spec"]
+    if path == "/v3/domains/{domain_id}/config":
+        path_resource_names = ["domain", "config"]
+    elif path == "/v3/domains/{domain_id}/config/{group}":
+        path_resource_names = ["domain", "config", "group"]
+    elif path == "/v3/domains/{domain_id}/config/{group}/{option}":
+        path_resource_names = ["domain", "config", "group", "option"]
+    elif path == "/v3/domains/config/default":
+        path_resource_names = ["domain", "config"]
+    elif path == "/v3/domains/config/{group}/default":
+        path_resource_names = ["domain", "config", "group"]
+    elif path == "/v3/domains/config/{group}/{option}/default":
+        path_resource_names = ["domain", "config", "group", "option"]
 
     if path == "/v2.0/ports/{port_id}/bindings/{id}/activate":
         path_resource_names = ["port", "binding"]

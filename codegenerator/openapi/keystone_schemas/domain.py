@@ -13,53 +13,54 @@
 
 from typing import Any
 
-from keystone.resource import schema as ks_schema
-
+from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import TypeSchema
 
 
 DOMAIN_SCHEMA: dict[str, Any] = {
     "type": "object",
+    "description": "A domain object",
     "properties": {
         "id": {"type": "string", "format": "uuid", "readOnly": True},
-        **ks_schema._domain_properties,
+        "name": {
+            "type": "string",
+            "description": "The name of the domain.",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": r"[\S]+",
+        },
+        "description": {
+            "type": "string",
+            "description": "The description of the domain.",
+        },
+        "enabled": {
+            "type": "boolean",
+            "description": "If set to true, domain is enabled. If set to false, domain is disabled.",
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "pattern": "^[^,/]*$",
+                "minLength": 1,
+                "maxLength": 255,
+            },
+        },
+        "options": {
+            "type": "object",
+            "description": "The resource options for the domain. Available resource options are immutable.",
+        },
     },
-    "additionalProperties": True,
+}
+
+DOMAIN_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"domain": DOMAIN_SCHEMA},
 }
 
 DOMAINS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"domains": {"type": "array", "items": DOMAIN_SCHEMA}},
-}
-
-
-DOMAIN_CONFIG_GROUP_LDAP = {
-    "type": "object",
-    "description": "An ldap object. Required to set the LDAP group configuration options.",
-    "properties": {
-        "url": {
-            "type": "string",
-            "format": "uri",
-            "description": "The LDAP URL.",
-        },
-        "user_tree_dn": {
-            "type": "string",
-            "description": "The base distinguished name (DN) of LDAP, from where all users can be reached. For example, ou=Users,dc=root,dc=org.",
-        },
-    },
-    "additionalProperties": True,
-}
-
-DOMAIN_CONFIG_GROUP_IDENTITY = {
-    "type": "object",
-    "description": "An identity object.",
-    "properties": {
-        "driver": {
-            "type": "string",
-            "description": "The Identity backend driver.",
-        },
-    },
-    "additionalProperties": True,
 }
 
 DOMAIN_CONFIGS_SCHEMA: dict[str, Any] = {
@@ -68,19 +69,53 @@ DOMAIN_CONFIGS_SCHEMA: dict[str, Any] = {
         "config": {
             "type": "object",
             "description": "A config object.",
-            "properties": {
-                "identity": DOMAIN_CONFIG_GROUP_IDENTITY,
-                "ldap": DOMAIN_CONFIG_GROUP_LDAP,
+            "additionalProperties": {
+                "type": "object",
+                "additionalProperties": True,
             },
         }
     },
 }
 
-DOMAIN_CONFIG_SCHEMA: dict[str, Any] = {
-    "oneOf": [
-        DOMAIN_CONFIG_GROUP_IDENTITY,
-        DOMAIN_CONFIG_GROUP_LDAP,
-    ]
+DOMAIN_CONFIG_GROUP_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "config": {
+            "type": "object",
+            "description": "A config object.",
+            "additionalProperties": {
+                "type": "object",
+                "additionalProperties": True,
+            },
+            "maxProperties": 1,
+        }
+    },
+}
+
+DOMAIN_CONFIG_GROUP_OPTION_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "config": {
+            "type": "object",
+            "additionalProperties": True,
+            "maxProperties": 1,
+        }
+    },
+}
+
+DOMAIN_LIST_PARAMETERS: dict[str, dict] = {
+    "domain_name": {
+        "in": "query",
+        "name": "name",
+        "description": "Filters the response by a domain name.",
+        "schema": {"type": "string"},
+    },
+    "domain_enabled": {
+        "in": "query",
+        "name": "enabled",
+        "description": "If set to true, then only domains that are enabled will be returned, if set to false only that are disabled will be returned. Any value other than 0, including no value, will be interpreted as true.",
+        "schema": {"type": "boolean"},
+    },
 }
 
 
@@ -88,7 +123,19 @@ def _post_process_operation_hook(
     openapi_spec, operation_spec, path: str | None = None
 ):
     """Hook to allow service specific generator to modify details"""
-    pass
+
+    operationId = operation_spec.operationId
+    if operationId == "domains:get":
+        for (
+            key,
+            val,
+        ) in DOMAIN_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
@@ -102,24 +149,16 @@ def _get_schema_ref(
     ref: str
     # Domains
     if name in [
+        "DomainsPostRequest",
         "DomainsPostResponse",
         "DomainGetResponse",
+        "DomainPatchRequest",
         "DomainPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            "Domain", TypeSchema(**DOMAIN_SCHEMA)
+            "Domain", TypeSchema(**DOMAIN_CONTAINER_SCHEMA)
         )
         ref = "#/components/schemas/Domain"
-    elif name == "DomainsPostRequest":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ks_schema.domain_create)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "DomainPatchRequest":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ks_schema.domain_update)
-        )
-        ref = f"#/components/schemas/{name}"
     elif name == "DomainsGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**DOMAINS_SCHEMA)
@@ -143,21 +182,31 @@ def _get_schema_ref(
         )
         ref = "#/components/schemas/DomainConfig"
     elif name in [
+        "DomainsConfigDefaultGroupGetResponse",
         "DomainsConfigGroupGetResponse",
         "DomainsConfigGroupPatchRequest",
         "DomainsConfigGroupPatchResponse",
         "DomainsConfigGroupPatchResponse",
         "DomainsConfigGroupPatchResponse",
-        "DomainsConfigDefaultGroupGetResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            "DomainConfigGroup",
+            TypeSchema(**DOMAIN_CONFIG_GROUP_SCHEMA),
+        )
+        ref = "#/components/schemas/DomainConfigGroup"
+
+    elif name in [
+        "DomainsConfigDefaultGroupOptionGetResponse",
+        "DomainsConfigGroupOptionPatchRequest",
         "DomainsConfigGroupOptionPatchResponse",
         "DomainsConfigGroupOptionGetResponse",
         "DomainsConfigGroupOptionPatchRequest",
     ]:
         openapi_spec.components.schemas.setdefault(
-            "DomainConfigGroup",
-            TypeSchema(**DOMAIN_CONFIG_SCHEMA),
+            "DomainConfigGroupOption",
+            TypeSchema(**DOMAIN_CONFIG_GROUP_OPTION_SCHEMA),
         )
-        ref = "#/components/schemas/DomainConfigGroup"
+        ref = "#/components/schemas/DomainConfigGroupOption"
 
     else:
         return (None, None, False)
