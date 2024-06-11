@@ -176,7 +176,13 @@ class BTreeMap(common_rust.Dictionary):
                 ".map(|(k, v)| (k, v.map(Into::into)))"
             )
         else:
-            return "BTreeMap::<String, String>::new().into_iter()"
+            if isinstance(self.value_type, BTreeMap):
+                return (
+                    f"BTreeMap::<String, BTreeMap<String, {self.value_type.value_type.type_hint}>>::new().into_iter()"
+                    f".map(|(k, v)| (k, v.into_iter()))"
+                )
+            else:
+                return f"BTreeMap::<String, {self.value_type.type_hint}>::new().into_iter()"
 
     def get_mandatory_init(self):
         return ""

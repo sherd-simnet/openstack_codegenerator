@@ -31,7 +31,7 @@ from ruamel.yaml import YAML
 from wsme import types as wtypes
 
 
-VERSION_RE = re.compile(r"[Vv][0-9.]*")
+VERSION_RE = re.compile(r"[Vv][0-9\.]*")
 
 
 def get_referred_type_data(func, name: str):
@@ -1129,7 +1129,7 @@ class OpenStackServerSourceBase:
     def _get_tags_for_url(self, url):
         """Return Tag (group) name based on the URL"""
         # Drop version prefix
-        url = re.sub(r"^(/v[0-9.]*/)", "/", url)
+        url = re.sub(r"^(/v[0-9\.]*/)", "/", url)
 
         for k, v in self.URL_TAG_MAP.items():
             if url.startswith(k):

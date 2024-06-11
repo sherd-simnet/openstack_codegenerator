@@ -326,6 +326,32 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "create"
                         elif method == "patch":
                             operation_key = "update"
+                    if (
+                        args.service_type == "identity"
+                        and resource_name
+                        in [
+                            "domain/config",
+                            "domain/config/group",
+                            "domain/config/group/option",
+                        ]
+                        and path.endswith("/default")
+                        and method == "get"
+                    ):
+                        operation_key = "default"
+
+                    if (
+                        args.service_type == "identity"
+                        and resource_name
+                        in [
+                            "domain/config",
+                            "domain/config/group",
+                            "domain/config/group/option",
+                        ]
+                        and path.endswith("/default")
+                        and method == "head"
+                    ):
+                        # No need in HEAD defaults
+                        continue
 
                     if operation_key in resource_model:
                         raise RuntimeError("Operation name conflict")
@@ -837,6 +863,15 @@ def post_process_identity_operation(
         if operation_name == "list":
             operation.targets["rust-cli"].response_key = "role_inferences"
             operation.targets["rust-sdk"].response_key = "role_inferences"
+
+    if resource_name == "domain/config/group":
+        operation.targets["rust-sdk"].response_key = "config"
+        if "rust-cli" in operation.targets:
+            operation.targets["rust-cli"].response_key = "config"
+    elif resource_name == "domain/config/group/option":
+        operation.targets["rust-sdk"].response_key = "config"
+        if "rust-cli" in operation.targets:
+            operation.targets["rust-cli"].response_key = "config"
 
     if "rust-cli" in operation.targets:
         if "auth/catalog" == resource_name:
