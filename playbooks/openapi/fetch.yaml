@@ -1,0 +1,30 @@
+---
+- hosts: all
+  vars:
+    dest: "{{ zuul.project.src_dir }}/doc/build/html"
+  tasks:
+    - name: Precreate directories
+      ansible.builtin.file:
+        path: "{{ dest }}/specs/{{ zj_artifact.metadata.service_type }}"
+        state: "directory"
+      loop: "{{ zuul.artifacts }}"
+      loop_control:
+        loop_var: zj_artifact
+      when:
+        - "'metadata' in zj_artifact"
+        - "'type' in zj_artifact.metadata"
+        - "'service_type' in zj_artifact.metadata"
+        - "zj_artifact.metadata.type == 'openapi'"
+
+    - name: Download specs
+      ansible.builtin.uri:
+        url: "{{ zj_artifact.url }}"
+        dest: "{{ dest }}/specs/{{ zj_artifact.metadata.service_type }}"
+      loop: "{{ zuul.artifacts }}"
+      loop_control:
+        loop_var: zj_artifact
+      when:
+        - "'metadata' in zj_artifact"
+        - "'type' in zj_artifact.metadata"
+        - "'service_type' in zj_artifact.metadata"
+        - "zj_artifact.metadata.type == 'openapi'"

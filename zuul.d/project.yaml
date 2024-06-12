@@ -1,7 +1,7 @@
 ---
 - project:
     templates:
-      - publish-openstack-docs-pti
+       - publish-openstack-docs-pti
     check:
       jobs:
         - openstack-tox-pep8
@@ -13,6 +13,7 @@
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
         - codegenerator-openapi-placement-tips-with-api-ref
+        - publish-openapi-specs
     gate:
       jobs:
         - openstack-tox-pep8
@@ -24,3 +25,4 @@
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
         - codegenerator-openapi-placement-tips-with-api-ref
+        - publish-openapi-specs
