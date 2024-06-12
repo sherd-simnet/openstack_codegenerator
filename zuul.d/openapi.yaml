@@ -238,3 +238,29 @@
       codegenerator_api_ref:
         project: "opendev.org/openstack/placement"
         path: "/api-ref/build/html/index.html"
+
+- job:
+    name: publish-openapi-specs
+    parent: opendev-tox-docs
+    description: |
+      Collect built OpenAPI specs
+    dependencies:
+      - name: codegenerator-openapi-block-storage-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-compute-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-identity-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-image-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-load-balancing-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-network-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-placement-tips-with-api-ref
+        soft: true
+    pre-run:
+      - playbooks/openapi/fetch.yaml
+    vars:
+      tox_envlist: publish
+
