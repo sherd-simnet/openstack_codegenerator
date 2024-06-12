@@ -26,12 +26,24 @@
       loop_control:
         loop_var: zj_output
 
+    - name: Find all generated specs
+      ansible.builtin.find:
+        paths: "{{ zuul.executor.work_root }}/artifacts"
+        patterns: "*.yaml"
+        recurse: true
+      register: openapi_specs
+      
     - name: Return artifact to Zuul
       zuul_return:
         data:
           zuul:
             artifacts:
-              - name: "OpenAPI specs"
-                url: "artifacts/openapi_specs"
+              - name: "{{ openapi_service }} OpenAPI spec {{ zj_item.path | basename | split('.') | first }}"
+                url: "artifacts/openapi_specs/{{ zj_item.path }}"
                 metadata:
                   type: openapi
+                  service_type: "{{ openapi_service }}"
+                  version: "{{ zj_item.path | basename | split('.') | first }}"
+      loop: "{{ openapi_specs.files }}"
+      loop_control:
+        loop_var: zj_item

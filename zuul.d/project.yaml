@@ -6,13 +6,14 @@
       jobs:
         - openstack-tox-pep8
         - openstack-tox-py311
-        - codegenerator-openapi-block-storage-tips-with-api-ref
-        - codegenerator-openapi-compute-tips-with-api-ref
-        - codegenerator-openapi-identity-tips-with-api-ref
-        - codegenerator-openapi-image-tips-with-api-ref
+      #  - codegenerator-openapi-block-storage-tips-with-api-ref
+      #  - codegenerator-openapi-compute-tips-with-api-ref
+      #  - codegenerator-openapi-identity-tips-with-api-ref
+      #  - codegenerator-openapi-image-tips-with-api-ref
         - codegenerator-openapi-load-balancing-tips-with-api-ref
-        - codegenerator-openapi-network-tips-with-api-ref
+      #  - codegenerator-openapi-network-tips-with-api-ref
         - codegenerator-openapi-placement-tips-with-api-ref
+        - publish-openapi-specs
     gate:
       jobs:
         - openstack-tox-pep8
