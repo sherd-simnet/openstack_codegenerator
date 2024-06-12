@@ -1,5 +1,7 @@
 ---
 - hosts: all
+  vars:
+    specs_src: "{{ ansible_user_dir }}/{{ codegenerator_work_dir }}/openapi_specs"
   tasks:
     - name: Ensure local output dirs
       delegate_to: localhost
@@ -14,24 +16,36 @@
 
     - name: Collect OpenAPI specs
       synchronize:
-        dest: "{{ zj_output.dest }}/"
+        dest: "{{ zj_output.dest }}"
         mode: pull
-        src: "{{ ansible_user_dir }}/{{ codegenerator_work_dir }}/{{ zj_output.src }}"
+        src: "{{ zj_output.src }}"
         verify_host: true
         owner: false
         group: false
       loop:
         - dest: "{{ zuul.executor.work_root }}/artifacts"
-          src: "openapi_specs"
+          src: "{{ openapi_specs.files }}"
       loop_control:
         loop_var: zj_output
+
+    - name: Find all generated specs
+      ansible.builtin.find:
+        paths: "{{ specs_src }}"
+        patterns: "*.yaml"
+        recurse: true
+      register: openapi_specs
 
     - name: Return artifact to Zuul
       zuul_return:
         data:
           zuul:
             artifacts:
-              - name: "OpenAPI specs"
-                url: "artifacts/openapi_specs"
+              - name: "{{ openapi_service }} OpenAPI spec {{ zj_item.path | basename | splitext | first }}"
+                url: "artifacts/openapi_specs{{ zj_item.path | regex_replace(specs_src) }}"
                 metadata:
                   type: openapi
+                  service_type: "{{ openapi_service }}"
+                  version: "{{ zj_item.path | basename | splitext | first }}"
+      loop: "{{ openapi_specs.files }}"
+      loop_control:
+        loop_var: zj_item
