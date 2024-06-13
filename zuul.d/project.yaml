@@ -13,7 +13,7 @@
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
         - codegenerator-openapi-placement-tips-with-api-ref
-        - publish-openapi-specs
+        - codegenerator-tox-publish-openapi-specs
     gate:
       jobs:
         - openstack-tox-pep8
@@ -25,4 +25,4 @@
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
         - codegenerator-openapi-placement-tips-with-api-ref
-        - publish-openapi-specs
+        - codegenerator-tox-publish-openapi-specs

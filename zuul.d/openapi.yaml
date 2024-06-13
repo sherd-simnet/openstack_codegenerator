@@ -240,7 +240,7 @@
         path: "/api-ref/build/html/index.html"
 
 - job:
-    name: publish-openapi-specs
+    name: codegenerator-tox-publish-openapi-specs
     parent: opendev-tox-docs
     description: |
       Published OpenAPI specs
@@ -262,4 +262,4 @@
     pre-run:
       - playbooks/openapi/fetch.yaml
     vars:
-      tox_envlist: publish
+      tox_envlist: publish-openapi-specs
