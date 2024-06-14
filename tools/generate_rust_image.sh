@@ -5,6 +5,7 @@ METADATA=metadata
 DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
   "image"
+  "metadef"
   "schema"
 )
 

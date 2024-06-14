@@ -352,6 +352,34 @@ class MetadataGenerator(BaseGenerator):
                     ):
                         # No need in HEAD defaults
                         continue
+                    if args.service_type == "object-store":
+                        if resource_name == "object":
+                            mapping_obj: dict[str, str] = {
+                                "head": "head",
+                                "get": "get",
+                                "delete": "delete",
+                                "put": "put",
+                                "post": "update",
+                            }
+                            operation_key = mapping_obj[method]
+                        elif resource_name == "container":
+                            mapping_cont: dict[str, str] = {
+                                "head": "head",
+                                "get": "get",
+                                "delete": "delete",
+                                "put": "create",
+                                "post": "update",
+                            }
+                            operation_key = mapping_cont[method]
+                        elif resource_name == "account":
+                            mapping_account: dict[str, str] = {
+                                "head": "head",
+                                "get": "get",
+                                "delete": "delete",
+                                "put": "create",
+                                "post": "update",
+                            }
+                            operation_key = mapping_account[method]
 
                     if operation_key in resource_model:
                         raise RuntimeError("Operation name conflict")
@@ -740,6 +768,10 @@ def post_process_operation(
         operation = post_process_network_operation(
             resource_name, operation_name, operation
         )
+    elif service_type == "object-store":
+        operation = post_process_object_store_operation(
+            resource_name, operation_name, operation
+        )
     return operation
 
 
@@ -1090,5 +1122,31 @@ def post_process_network_operation(
         operation.targets["rust-cli"].cli_full_command = operation.targets[
             "rust-cli"
         ].cli_full_command.replace("delete-all", "purge")
+
+    return operation
+
+
+def post_process_object_store_operation(
+    resource_name: str, operation_name: str, operation
+):
+    if resource_name == "account":
+        if operation_name == "get":
+            operation.targets["rust-cli"].cli_full_command = "container list"
+        elif operation_name == "head":
+            operation.targets["rust-cli"].cli_full_command = "account show"
+    elif resource_name == "container":
+        if operation_name == "get":
+            operation.targets["rust-cli"].cli_full_command = "object list"
+        elif operation_name == "head":
+            operation.targets["rust-cli"].cli_full_command = "container show"
+    elif resource_name == "object":
+        if operation_name == "get":
+            operation.targets["rust-cli"].cli_full_command = "object download"
+            operation.operation_type = "download"
+        elif operation_name == "head":
+            operation.targets["rust-cli"].cli_full_command = "object show"
+        elif operation_name == "put":
+            operation.targets["rust-cli"].cli_full_command = "object upload"
+            operation.operation_type = "upload"
 
     return operation

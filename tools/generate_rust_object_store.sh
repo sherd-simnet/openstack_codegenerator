@@ -6,6 +6,8 @@ METADATA=metadata
 DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
   "account"
+  "container"
+  "object"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/object-store_metadata.yaml --service object-store

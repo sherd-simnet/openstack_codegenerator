@@ -273,12 +273,15 @@ mod tests {
     #![allow(unused_imports)]
     use super::*;
 {%- if method.upper() == "HEAD" %}
+    #[cfg(feature = "sync")]
     use crate::api::RawQuery;
 {%- else %}
+    #[cfg(feature = "sync")]
     use crate::api::Query;
     use serde_json::json;
 {%- endif %}
     use crate::types::ServiceType;
+    #[cfg(feature = "sync")]
     use crate::test::client::MockServerClient;
     use http::{HeaderName, HeaderValue};
     {%- if is_json_patch %}
@@ -312,6 +315,7 @@ mod tests {
 {%- endif %}
     }
 
+    #[cfg(feature = "sync")]
     #[test]
     fn endpoint() {
         let client = MockServerClient::new();
@@ -343,6 +347,7 @@ mod tests {
         mock.assert();
     }
 
+    #[cfg(feature = "sync")]
     #[test]
     fn endpoint_headers() {
         let client = MockServerClient::new();

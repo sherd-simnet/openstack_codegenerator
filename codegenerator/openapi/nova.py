@@ -640,8 +640,6 @@ class NovaGenerator(OpenStackServerSourceBase):
                 schema.openstack = {}
             schema.openstack.setdefault("action-name", action_name)
 
-        if schema:
-            print(schema.model_dump())
         return (ref, mime_type)
 
     def _post_process_operation_hook(

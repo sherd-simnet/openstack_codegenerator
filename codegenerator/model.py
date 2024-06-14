@@ -673,8 +673,9 @@ class OpenAPISchemaParser(JsonSchemaParser):
         param_schema = schema.get("schema")
         param_typ = param_schema.get("type")
         dt: PrimitiveType | ADT | None = None
-        if isinstance(param_typ, list) and "null" in param_typ:
-            param_typ.remove("null")
+        if isinstance(param_typ, list):
+            if "null" in param_typ:
+                param_typ.remove("null")
             if len(param_typ) == 1:
                 param_typ = param_typ[0]
         if param_typ == "string":

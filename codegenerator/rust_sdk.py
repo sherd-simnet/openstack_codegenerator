@@ -176,13 +176,20 @@ class BTreeMap(common_rust.Dictionary):
                 ".map(|(k, v)| (k, v.map(Into::into)))"
             )
         else:
+            type_hint: str
             if isinstance(self.value_type, BTreeMap):
+                type_hint = self.value_type.value_type.type_hint.replace(
+                    "Cow<'a, str>", "String"
+                )
                 return (
-                    f"BTreeMap::<String, BTreeMap<String, {self.value_type.value_type.type_hint}>>::new().into_iter()"
+                    f"BTreeMap::<String, BTreeMap<String, {type_hint}>>::new().into_iter()"
                     f".map(|(k, v)| (k, v.into_iter()))"
                 )
             else:
-                return f"BTreeMap::<String, {self.value_type.type_hint}>::new().into_iter()"
+                type_hint = self.value_type.type_hint.replace(
+                    "Cow<'a, str>", "String"
+                )
+                return f"BTreeMap::<String, {type_hint}>::new().into_iter()"
 
     def get_mandatory_init(self):
         return ""

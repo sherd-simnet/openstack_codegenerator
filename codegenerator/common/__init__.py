@@ -427,6 +427,9 @@ def get_operation_variants(spec: dict, operation_name: str):
         elif "application/json-patch+json" in content:
             mime_type = "application/json-patch+json"
             operation_variants.append({"mime_type": mime_type})
+        elif "*" in content:
+            mime_type = "*"
+            operation_variants.append({"mime_type": mime_type})
         elif content == {}:
             operation_variants.append({"body": None})
     else:
@@ -521,6 +524,12 @@ def get_resource_names_from_url(path: str):
         path_resource_names.remove("lbaa")
     if path.startswith("/v2/octavia/amphorae"):
         path_resource_names.remove("octavia")
+    if path == "/v1/{account}":
+        return ["account"]
+    elif path == "/v1/{account}/{container}":
+        return ["container"]
+    elif path == "/v1/{account}/{container}/{object}":
+        return ["object"]
     if len(path_resource_names) == 0:
         return ["version"]
 

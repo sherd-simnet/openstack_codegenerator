@@ -909,6 +909,8 @@ class TypeManager:
                 name
                 and name in unique_models
                 and unique_models[name].hash_ == model_.reference.hash_
+                # image.metadef.namespace have weird occurences of itself
+                and model_.reference != unique_models[name]
             ):
                 # Ignore duplicated (or more precisely same) model
                 self.ignored_models.append(model_.reference)

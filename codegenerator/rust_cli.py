@@ -657,10 +657,23 @@ class RequestTypeManager(common_rust.TypeManager):
                     field_data_type = field_data_type.item_type
             elif isinstance(field_data_type, EnumGroupStruct):
                 field_data_type.is_required = field.is_required
-            elif isinstance(
-                field_data_type, DictionaryInput
-            ) and not isinstance(
-                field_data_type.value_type, common_rust.BasePrimitiveType
+            elif (
+                # is Dictionary
+                isinstance(field_data_type, DictionaryInput)
+                # of Primitives
+                and not isinstance(
+                    field_data_type.value_type, common_rust.BasePrimitiveType
+                )
+                and not (
+                    # and not Option<Primitive>
+                    isinstance(
+                        field_data_type.value_type, self.option_type_class
+                    )
+                    and isinstance(
+                        field_data_type.value_type.item_type,
+                        common_rust.BasePrimitiveType,
+                    )
+                )
             ):
                 dict_type_model = self._get_adt_by_reference(field.data_type)
                 simplified_data_type = JsonValue()
@@ -1201,11 +1214,25 @@ class RustCliGenerator(BaseGenerator):
                                 response_def
                             )
                             if isinstance(root, model.Dictionary):
-                                value_type = (
-                                    response_type_manager.convert_model(
-                                        root.value_type
+                                value_type: (
+                                    common_rust.BasePrimitiveType
+                                    | common_rust.BaseCombinedType
+                                    | common_rust.BaseCompoundType
+                                    | None
+                                ) = None
+                                try:
+                                    value_type = (
+                                        response_type_manager.convert_model(
+                                            root.value_type
+                                        )
                                     )
-                                )
+                                except Exception:
+                                    # In rare cases we can not conter
+                                    # value_type since it depends on different
+                                    # types. We are here in the output
+                                    # simplification, so just downcast it to
+                                    # JsonValue (what is anyway our goal)
+                                    value_type = JsonValue()
                                 # if not isinstance(value_type, common_rust.BasePrimitiveType):
                                 #    value_type = JsonValue(original_data_type=value_type)
                                 root_dict = HashMapResponse(
