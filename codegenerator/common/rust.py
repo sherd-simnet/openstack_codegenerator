@@ -978,6 +978,8 @@ class TypeManager:
         """Return static lifetimes of the Structure"""
         lifetimes = request_model.lifetimes
         for param in self.parameters.values():
+            if param.location == "header":
+                continue
             lt = param.lifetimes
             if lt:
                 lifetimes.update(lt)

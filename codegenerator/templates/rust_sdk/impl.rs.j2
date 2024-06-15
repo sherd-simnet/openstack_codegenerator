@@ -261,6 +261,13 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
     fn request_headers(&self) -> Option<&HeaderMap> {
         self._headers.as_ref()
     }
+{%- if api_ver %}
+
+    /// Returns required API version
+    fn api_version(&self) -> Option<ApiVersion> {
+        Some(ApiVersion::new({{ api_ver['major'] }}, {{ api_ver['minor'] }}))
+    }
+{%- endif %}
 }
 
 {#- EP is pageable if operation_type is list and there is limit or marker query parameter #}

@@ -367,12 +367,30 @@ class RustSdkGenerator(BaseGenerator):
             spec, args.operation_name
         )
 
+        api_ver_matches: re.Match | None = None
+        path_elements = path.lstrip("/").split("/")
+        api_ver: dict[str, int] = {}
+        ver_prefix: str | None = None
+        if path_elements:
+            api_ver_matches = re.match(common.VERSION_RE, path_elements[0])
+            if api_ver_matches and api_ver_matches.groups():
+                # Remember the version prefix to discard it in the template
+                ver_prefix = path_elements[0]
+
         for operation_variant in operation_variants:
             logging.debug("Processing variant %s" % operation_variant)
             # TODO(gtema): if we are in MV variants filter out unsupported query
             # parameters
             # TODO(gtema): previously we were ensuring `router_id` path param
             # is renamed to `id`
+
+            if api_ver_matches:
+                api_ver = {
+                    "major": api_ver_matches.group(1),
+                    "minor": api_ver_matches.group(3) or 0,
+                }
+            else:
+                api_ver = {}
 
             class_name = res_name.title()
             operation_body = operation_variant.get("body")
@@ -395,6 +413,13 @@ class RustSdkGenerator(BaseGenerator):
                 min_ver = operation_body.get("x-openstack", {}).get("min-ver")
                 if min_ver:
                     mod_name += "_" + min_ver.replace(".", "")
+                    v = min_ver.split(".")
+                    if not len(v) == 2:
+                        raise RuntimeError(
+                            "Version information is not in format MAJOR.MINOR"
+                        )
+                    api_ver = {"major": v[0], "minor": v[1]}
+
                 # There is request body. Get the ADT from jsonschema
                 # if args.operation_type != "action":
                 (_, all_types) = openapi_parser.parse(
@@ -464,13 +489,14 @@ class RustSdkGenerator(BaseGenerator):
                 sdk_service_name=common.get_rust_service_type_from_str(
                     args.service_type
                 ),
-                url=path[1:] if path.startswith("/") else path,
+                url=path.lstrip("/").lstrip(ver_prefix).lstrip("/"),
                 method=method,
                 type_manager=type_manager,
                 response_key=response_key,
                 response_list_item_key=args.response_list_item_key,
                 mime_type=mime_type,
                 is_json_patch=is_json_patch,
+                api_ver=api_ver,
             )
 
             work_dir = Path(target_dir, "rust", "openstack_sdk", "src")

@@ -20,7 +20,7 @@ import yaml
 from openapi_core import Spec
 from pydantic import BaseModel
 
-VERSION_RE = re.compile(r"[Vv][0-9.]*")
+VERSION_RE = re.compile(r"^[Vv]([0-9]+)(\.([0-9]+))?$")
 # RE to split name from camelCase or by [`:`,`_`,`-`]
 SPLIT_NAME_RE = re.compile(r"(?<=[a-z])(?=[A-Z])|:|_|-")
 
