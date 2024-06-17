@@ -17,7 +17,7 @@ import importlib
 import inspect
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 import re
 
 from codegenerator.common.schema import ParameterSchema
@@ -365,25 +365,28 @@ class OpenStackServerSourceBase:
             for action, op_name in controller_actions.items():
                 logging.info("Action %s: %s", action, op_name)
                 (start_version, end_version) = (None, None)
+                action_impls: list[tuple[Callable, str | None, str | None]] = (
+                    []
+                )
                 if isinstance(op_name, str):
                     # wsgi action value is a string
                     if op_name in versioned_methods:
                         # ACTION with version bounds
-                        if len(versioned_methods[op_name]) > 1:
-                            raise RuntimeError(
-                                "Multiple versioned methods for action %s",
-                                action,
-                            )
                         for ver_method in versioned_methods[op_name]:
-                            start_version = ver_method.start_version
-                            end_version = ver_method.end_version
-                            func = ver_method.func
-                            logging.info("Versioned action %s", func)
-                        # operation_id += f"[{op_name}]"
+                            action_impls.append(
+                                (
+                                    ver_method.func,
+                                    ver_method.start_version,
+                                    ver_method.end_version,
+                                )
+                            )
+                            logging.info(
+                                "Versioned action %s", ver_method.func
+                            )
                     elif hasattr(contr, op_name):
                         # ACTION with no version bounds
                         func = getattr(contr, op_name)
-                        # operation_id += f"[{op_name}]"
+                        action_impls.append((func, None, None))
                         logging.info("Unversioned action %s", func)
                     else:
                         logging.error(
@@ -405,15 +408,20 @@ class OpenStackServerSourceBase:
                     if key and key in versioned_methods:
                         # ACTION with version bounds
                         if len(versioned_methods[key]) > 1:
-                            raise RuntimeError(
-                                "Multiple versioned methods for action %s",
-                                action,
+                            logging.warn(
+                                f"There are multiple callables for action {key} instead of multiple bodies"
                             )
                         for ver_method in versioned_methods[key]:
-                            start_version = ver_method.start_version
-                            end_version = ver_method.end_version
-                            func = ver_method.func
-                            logging.info("Versioned action %s", func)
+                            action_impls.append(
+                                (
+                                    ver_method.func,
+                                    ver_method.start_version,
+                                    ver_method.end_version,
+                                )
+                            )
+                            logging.info(
+                                "Versioned action %s", ver_method.func
+                            )
                     elif slf and key:
                         vm = getattr(slf, "versioned_methods", None)
                         if vm and key in vm:
@@ -424,12 +432,18 @@ class OpenStackServerSourceBase:
                                     action,
                                 )
                             for ver_method in vm[key]:
-                                start_version = ver_method.start_version
-                                end_version = ver_method.end_version
-                                func = ver_method.func
-                            logging.info("Versioned action %s", func)
+                                action_impls.append(
+                                    (
+                                        ver_method.func,
+                                        ver_method.start_version,
+                                        ver_method.end_version,
+                                    )
+                                )
+                            logging.info(
+                                "Versioned action %s", ver_method.func
+                            )
                     else:
-                        func = op_name
+                        action_impls.append((op_name, None, None))
 
                 # Get the path/op spec only when we have
                 # something to fill in
@@ -442,19 +456,20 @@ class OpenStackServerSourceBase:
                 operation_spec.tags.extend(operation_tags)
                 operation_spec.tags = list(set(operation_spec.tags))
 
-                self.process_operation(
-                    func,
-                    openapi_spec,
-                    operation_spec,
-                    path_resource_names,
-                    controller=controller,
-                    operation_name=action,
-                    method=method,
-                    start_version=start_version,
-                    end_version=end_version,
-                    mode="action",
-                    path=path,
-                )
+                for func, start_version, end_version in action_impls:
+                    self.process_operation(
+                        func,
+                        openapi_spec,
+                        operation_spec,
+                        path_resource_names,
+                        controller=controller,
+                        operation_name=action,
+                        method=method,
+                        start_version=start_version,
+                        end_version=end_version,
+                        mode="action",
+                        path=path,
+                    )
         elif framework == "pecan":
             if callable(controller):
                 func = controller
@@ -534,6 +549,22 @@ class OpenStackServerSourceBase:
             operation_name,
             func,
         )
+        # New decorators start having explicit null ApiVersion instead of being null
+        if (
+            start_version
+            and not isinstance(start_version, str)
+            and self._api_ver_major(start_version) in [0, None]
+            and self._api_ver_minor(start_version) in [0, None]
+        ):
+            start_version = None
+        if (
+            end_version
+            and not isinstance(end_version, str)
+            and self._api_ver_major(end_version) in [0, None]
+            and self._api_ver_minor(end_version) in [0, None]
+        ):
+            end_version = None
+
         deser_schema = None
         deser = getattr(controller, "deserializer", None)
         if deser:
@@ -583,8 +614,12 @@ class OpenStackServerSourceBase:
                     start_version.get_string()
                 )
 
-        if mode != "action" and end_version:
-            if end_version.ver_major == 0:
+        if (
+            mode != "action"
+            and end_version
+            and self._api_ver_major(end_version)
+        ):
+            if self._api_ver_major(end_version) == 0:
                 operation_spec.openstack.pop("max-ver", None)
                 operation_spec.deprecated = None
             else:
@@ -618,7 +653,11 @@ class OpenStackServerSourceBase:
             closure = inspect.getclosurevars(f)
             closure_locals = closure.nonlocals
             min_ver = closure_locals.get("min_version", start_version)
+            if min_ver and not isinstance(min_ver, str):
+                min_ver = min_ver.get_string()
             max_ver = closure_locals.get("max_version", end_version)
+            if max_ver and not isinstance(max_ver, str):
+                max_ver = max_ver.get_string()
 
             if "errors" in closure_locals:
                 expected_errors = closure_locals["errors"]
@@ -631,9 +670,14 @@ class OpenStackServerSourceBase:
                     ]
                 elif isinstance(expected_errors, int):
                     expected_errors = [str(expected_errors)]
-            if "request_body_schema" in closure_locals:
+            if "request_body_schema" in closure_locals or hasattr(
+                f, "_request_body_schema"
+            ):
                 # Body type is known through method decorator
-                obj = closure_locals["request_body_schema"]
+                obj = closure_locals.get(
+                    "request_body_schema",
+                    getattr(f, "_request_body_schema", {}),
+                )
                 if obj.get("type") in ["object", "array"]:
                     # We only allow object and array bodies
                     # To prevent type name collision keep module name part of the name
@@ -666,8 +710,22 @@ class OpenStackServerSourceBase:
 
                     ref_name = f"#/components/schemas/{typ_name}"
                     body_schemas.append(ref_name)
-            if "query_params_schema" in closure_locals:
-                obj = closure_locals["query_params_schema"]
+            if "response_body_schema" in closure_locals or hasattr(
+                f, "_response_body_schema"
+            ):
+                # Response type is known through method decorator - PERFECT
+                obj = closure_locals.get(
+                    "response_body_schema",
+                    getattr(f, "_response_body_schema", {}),
+                )
+                ser_schema = obj
+            if "query_params_schema" in closure_locals or hasattr(
+                f, "_request_query_schema"
+            ):
+                obj = closure_locals.get(
+                    "query_params_schema",
+                    getattr(f, "_request_query_schema", {}),
+                )
                 query_params_versions.append((obj, min_ver, max_ver))
 
             f = f.__wrapped__
@@ -704,7 +762,9 @@ class OpenStackServerSourceBase:
         if query_params_versions:
             so = sorted(
                 query_params_versions,
-                key=lambda d: d[1].split(".") if d[1] else (0, 0),
+                key=lambda d: (
+                    tuple(map(int, d[1].split("."))) if d[1] else (0, 0)
+                ),
             )
             for data, min_ver, max_ver in so:
                 self.process_query_parameters(

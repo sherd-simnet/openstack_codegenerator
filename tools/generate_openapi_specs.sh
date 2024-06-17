@@ -30,3 +30,7 @@ if [ -z "$1" -o "$1" = "placement" ]; then
   openstack-codegenerator --work-dir wrk --target openapi-spec --service-type placement --api-ref-src ${API_REF_BUILD_ROOT}/placement/api-ref/build/html/index.html --validate
   sed -i "s/(?expanded=delete-resource-provider-inventories-detail#delete-resource-provider-inventories)//" wrk/openapi_specs/placement/v1.yaml
 fi
+
+if [ -z "$1" -o "$1" = "shared-file-system" ]; then
+  openstack-codegenerator --work-dir wrk --target openapi-spec --service-type shared-file-system --api-ref-src ${API_REF_BUILD_ROOT}/manila/api-ref/build/html/index.html --validate
+fi
