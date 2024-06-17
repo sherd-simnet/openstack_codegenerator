@@ -13,6 +13,7 @@
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
         - codegenerator-openapi-placement-tips-with-api-ref
+        - codegenerator-openapi-shared-file-system-tips-with-api-ref
         - codegenerator-tox-publish-openapi-specs
     gate:
       jobs:
@@ -25,4 +26,5 @@
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
         - codegenerator-openapi-placement-tips-with-api-ref
+        - codegenerator-openapi-shared-file-system-tips-with-api-ref
         - codegenerator-tox-publish-openapi-specs

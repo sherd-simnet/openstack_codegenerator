@@ -240,6 +240,35 @@
         path: "/api-ref/build/html/index.html"
 
 - job:
+    name: codegenerator-openapi-shared-file-system-tips
+    parent: codegenerator-openapi-tips-base
+    description: |
+      Generate OpenAPI spec for Manila
+    required-projects:
+      - name: openstack/manila
+
+    vars:
+      openapi_service: shared-file-system
+      install_additional_projects:
+        - project: "opendev.org/openstack/manila"
+          name: "."
+
+- job:
+    name: codegenerator-openapi-shared-file-system-tips-with-api-ref
+    parent: codegenerator-openapi-shared-file-system-tips
+    description: |
+      Generate OpenAPI spec for Manila consuming API-REF
+    required-projects:
+      - name: openstack/manila
+
+    pre-run:
+      - playbooks/openapi/pre-api-ref.yaml
+    vars:
+      codegenerator_api_ref:
+        project: "opendev.org/openstack/manila"
+        path: "/api-ref/build/html/index.html"
+
+- job:
     name: codegenerator-tox-publish-openapi-specs
     parent: opendev-tox-docs
     description: |
@@ -258,6 +287,8 @@
       - name: codegenerator-openapi-network-tips-with-api-ref
         soft: true
       - name: codegenerator-openapi-placement-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-shared-file-system-tips-with-api-ref
         soft: true
     pre-run:
       - playbooks/openapi/fetch.yaml
