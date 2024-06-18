@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - ensure-pip
+    - ensure-virtualenv
+    - ensure-codegenerator

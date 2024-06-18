@@ -1,0 +1,3 @@
+---
+codegenerator_src: "{{ zuul.projects['opendev.org/openstack/codegenerator'].src_dir }}"
+codegenerator_venv: "{{ ansible_user_dir }}/.venv"
