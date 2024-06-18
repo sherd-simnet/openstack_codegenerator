@@ -1,0 +1,6 @@
+---
+- name: Install openstack-codegenerator from sources
+  ansible.builtin.pip:
+    chdir: "{{ codegenerator_src }}"
+    name: "."
+    virtualenv: "{{ codegenerator_venv }}"
