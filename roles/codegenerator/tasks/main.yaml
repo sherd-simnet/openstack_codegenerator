@@ -1,0 +1,16 @@
+---
+- name: Invoke openstack-codegenerator
+  args:
+    chdir: "{{ codegenerator_base_dir }}"
+    executable: "/bin/bash"
+  ansible.builtin.shell: >-
+    source {{ codegenerator_venv }}/bin/activate;
+    openstack-codegenerator
+    --work-dir {{ codegenerator_base_dir }}/{{ codegenerator_work_dir }}
+    --target {{ codegenerator_target }}
+    {% if codegenerator_metadata is defined%}
+    --metadata {{ codegenerator_metadata }}
+    {% endif %}
+    {% if codegenerator_service_type is defined %}
+    --service {{ codegenerator_service_type }}
+    {% endif %}
