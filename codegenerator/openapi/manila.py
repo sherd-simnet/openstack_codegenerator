@@ -82,7 +82,7 @@ class ManilaGenerator(OpenStackServerSourceBase):
         impl_path = Path(
             work_dir,
             "openapi_specs",
-            "shared_file_system",
+            "shared-file-system",
             f"v{self.api_version}.yaml",
         )
         impl_path.parent.mkdir(parents=True, exist_ok=True)

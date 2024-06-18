@@ -1,0 +1,1809 @@
+resources:
+  shared-file-system.version:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: :get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: version get
+  shared-file-system.availability_zone:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: availability-zones:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: availability-zone get
+  shared-file-system.service:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: services:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: service list
+      update:
+        operation_id: services/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: service set
+  shared-file-system.quota_set/default:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: quota-sets/id/defaults:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: quota-set default get
+  shared-file-system.quota_set:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: quota-sets/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: quota-set show
+      update:
+        operation_id: quota-sets/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: quota-set set
+      delete:
+        operation_id: quota-sets/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: quota-set delete
+      list_detailed:
+        operation_id: quota-sets/id/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: quota-set list
+  shared-file-system.quota_class_set:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: quota-class-sets/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: quota-class-set show
+      update:
+        operation_id: quota-class-sets/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: quota-class-set set
+  shared-file-system.share_manage:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      create:
+        operation_id: os-share-manage:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-manage create
+  shared-file-system.share_unmanage/unmanage:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      create:
+        operation_id: os-share-unmanage/id/unmanage:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-unmanage unmanage create
+  shared-file-system.share:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: shares/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: share list
+      list:
+        operation_id: shares:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: shares:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share create
+      action:
+        operation_id: shares/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share action
+      show:
+        operation_id: shares/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share show
+      update:
+        operation_id: shares/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: share set
+      delete:
+        operation_id: shares/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share delete
+  shared-file-system.share/manage:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      create:
+        operation_id: shares/manage:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share manage create
+  shared-file-system.share/metadata:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: shares/resource_id/metadata:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share metadata list
+      replace:
+        operation_id: shares/resource_id/metadata:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+            cli_full_command: share metadata replace
+      create:
+        operation_id: shares/resource_id/metadata/key:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share metadata create
+      show:
+        operation_id: shares/resource_id/metadata/key:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share metadata show
+      delete:
+        operation_id: shares/resource_id/metadata/key:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share metadata delete
+  shared-file-system.share_instance:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share_instances:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-instance list
+      action:
+        operation_id: share_instances/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-instance action
+      show:
+        operation_id: share_instances/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-instance show
+  shared-file-system.share_instance/export_location:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share_instances/share_instance_id/export_locations:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-instance export-location list
+      show:
+        operation_id: share_instances/share_instance_id/export_locations/export_location_uuid:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-instance export-location show
+  shared-file-system.share/instance:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: shares/share_id/instances:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: share instance get
+  shared-file-system.share/export_location:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: shares/share_id/export_locations:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share export-location list
+      show:
+        operation_id: shares/share_id/export_locations/export_location_uuid:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share export-location show
+  shared-file-system.snapshot:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: snapshots/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: snapshot list
+      list:
+        operation_id: snapshots:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: snapshots:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: snapshot create
+      action:
+        operation_id: snapshots/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: snapshot action
+      show:
+        operation_id: snapshots/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: snapshot show
+      update:
+        operation_id: snapshots/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: snapshot set
+      delete:
+        operation_id: snapshots/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: snapshot delete
+  shared-file-system.snapshot/metadata:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: snapshots/resource_id/metadata:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: snapshot metadata list
+      replace:
+        operation_id: snapshots/resource_id/metadata:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+            cli_full_command: snapshot metadata replace
+      create:
+        operation_id: snapshots/resource_id/metadata/key:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: snapshot metadata create
+      show:
+        operation_id: snapshots/resource_id/metadata/key:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: snapshot metadata show
+      delete:
+        operation_id: snapshots/resource_id/metadata/key:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: snapshot metadata delete
+  shared-file-system.snapshot/manage:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      create:
+        operation_id: snapshots/manage:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: snapshot manage create
+  shared-file-system.snapshot/access_list:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: snapshots/snapshot_id/access-list:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: snapshot access-list get
+  shared-file-system.snapshot/export_location:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: snapshots/snapshot_id/export-locations:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: snapshot export-location list
+      show:
+        operation_id: snapshots/snapshot_id/export-locations/export_location_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: snapshot export-location show
+  shared-file-system.snapshot_instance:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: snapshot-instances/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: snapshot-instance list
+      list:
+        operation_id: snapshot-instances:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      action:
+        operation_id: snapshot-instances/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: snapshot-instance action
+      show:
+        operation_id: snapshot-instances/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: snapshot-instance show
+  shared-file-system.snapshot_instance/export_location:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: snapshot-instances/snapshot_instance_id/export-locations:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: snapshot-instance export-location list
+      show:
+        operation_id: snapshot-instances/snapshot_instance_id/export-locations/export_location_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: snapshot-instance export-location show
+  shared-file-system.limit:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: limits:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: limit get
+  shared-file-system.security_service:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: security-services/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: security-service list
+      list:
+        operation_id: security-services:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: security-services:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: security-service create
+      show:
+        operation_id: security-services/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: security-service show
+      update:
+        operation_id: security-services/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: security-service set
+      delete:
+        operation_id: security-services/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: security-service delete
+  shared-file-system.share_network:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: share-networks/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: share-network list
+      list:
+        operation_id: share-networks:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: share-networks:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-network create
+      action:
+        operation_id: share-networks/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-network action
+      show:
+        operation_id: share-networks/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-network show
+      update:
+        operation_id: share-networks/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: share-network set
+      delete:
+        operation_id: share-networks/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-network delete
+  shared-file-system.share_network/subnet:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share-networks/share_network_id/subnets:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-network subnet list
+      create:
+        operation_id: share-networks/share_network_id/subnets:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-network subnet create
+      show:
+        operation_id: share-networks/share_network_id/subnets/share_network_subnet_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-network subnet show
+      delete:
+        operation_id: share-networks/share_network_id/subnets/share_network_subnet_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-network subnet delete
+  shared-file-system.share_network/subnet/metadata:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share-networks/share_network_id/subnets/resource_id/metadata:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-network subnet metadata list
+      replace:
+        operation_id: share-networks/share_network_id/subnets/resource_id/metadata:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+            cli_full_command: share-network subnet metadata replace
+      create:
+        operation_id: share-networks/share_network_id/subnets/resource_id/metadata/key:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-network subnet metadata create
+      show:
+        operation_id: share-networks/share_network_id/subnets/resource_id/metadata/key:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-network subnet metadata show
+      delete:
+        operation_id: share-networks/share_network_id/subnets/resource_id/metadata/key:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-network subnet metadata delete
+  shared-file-system.share_server:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share-servers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-server list
+      action:
+        operation_id: share-servers/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-server action
+      show:
+        operation_id: share-servers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-server show
+      delete:
+        operation_id: share-servers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-server delete
+  shared-file-system.share_server/details:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: share-servers/id/details:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: share-server details get
+  shared-file-system.share_server/manage:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      create:
+        operation_id: share-servers/manage:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-server manage create
+  shared-file-system.type/default:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: types/default:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: type default get
+  shared-file-system.type:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: type list
+      create:
+        operation_id: types:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: type create
+      action:
+        operation_id: types/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: type action
+      show:
+        operation_id: types/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: type show
+      update:
+        operation_id: types/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: type set
+      delete:
+        operation_id: types/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: type delete
+  shared-file-system.type/share_type_access:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: types/id/share_type_access:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: type share-type-access get
+  shared-file-system.type/extra_spec:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: types/type_id/extra_specs:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: type extra-spec list
+      create:
+        operation_id: types/type_id/extra_specs:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: type extra-spec create
+      show:
+        operation_id: types/type_id/extra_specs/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: type extra-spec show
+      update:
+        operation_id: types/type_id/extra_specs/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: type extra-spec set
+      delete:
+        operation_id: types/type_id/extra_specs/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: type extra-spec delete
+  shared-file-system.scheduler_stat/pool:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: scheduler-stats/pools:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: scheduler-stat pool get
+      list_detailed:
+        operation_id: scheduler-stats/pools/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: scheduler-stat pool list
+  shared-file-system.share_group:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: share-groups/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: share-group list
+      list:
+        operation_id: share-groups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: share-groups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-group create
+      show:
+        operation_id: share-groups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-group show
+      update:
+        operation_id: share-groups/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: share-group set
+      delete:
+        operation_id: share-groups/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-group delete
+      action:
+        operation_id: share-groups/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-group action
+  shared-file-system.share_group_type/default:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: share-group-types/default:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: share-group-type default get
+  shared-file-system.share_group_type:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share-group-types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-group-type list
+      create:
+        operation_id: share-group-types:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-group-type create
+      action:
+        operation_id: share-group-types/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-group-type action
+      show:
+        operation_id: share-group-types/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-group-type show
+      delete:
+        operation_id: share-group-types/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-group-type delete
+  shared-file-system.share_group_type/access:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: share-group-types/id/access:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: share-group-type access get
+  shared-file-system.share_group_type/group_spec:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share-group-types/id/group-specs:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-group-type group-spec list
+      create:
+        operation_id: share-group-types/id/group-specs:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-group-type group-spec create
+      show:
+        operation_id: share-group-types/id/group-specs/key:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-group-type group-spec show
+      update:
+        operation_id: share-group-types/id/group-specs/key:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: share-group-type group-spec set
+      delete:
+        operation_id: share-group-types/id/group-specs/key:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-group-type group-spec delete
+  shared-file-system.share_group_snapshot:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: share-group-snapshots/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: share-group-snapshot list
+      list:
+        operation_id: share-group-snapshots:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: share-group-snapshots:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-group-snapshot create
+      action:
+        operation_id: share-group-snapshots/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-group-snapshot action
+      show:
+        operation_id: share-group-snapshots/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-group-snapshot show
+      update:
+        operation_id: share-group-snapshots/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: share-group-snapshot set
+      delete:
+        operation_id: share-group-snapshots/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-group-snapshot delete
+  shared-file-system.share_group_snapshot/member:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: share-group-snapshots/id/members:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: share-group-snapshot member get
+  shared-file-system.share_replica:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: share-replicas/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: share-replica list
+      list:
+        operation_id: share-replicas:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: share-replicas:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-replica create
+      action:
+        operation_id: share-replicas/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-replica action
+      show:
+        operation_id: share-replicas/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-replica show
+      delete:
+        operation_id: share-replicas/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-replica delete
+  shared-file-system.share_transfer:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: share-transfers/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: share-transfer list
+      list:
+        operation_id: share-transfers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: share-transfers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-transfer create
+      show:
+        operation_id: share-transfers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-transfer show
+      delete:
+        operation_id: share-transfers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-transfer delete
+  shared-file-system.share_transfer/accept:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      create:
+        operation_id: share-transfers/id/accept:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-transfer accept create
+  shared-file-system.share_replica/export_location:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share-replicas/share_replica_id/export-locations:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-replica export-location list
+      show:
+        operation_id: share-replicas/share_replica_id/export-locations/export_location_uuid:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-replica export-location show
+  shared-file-system.message:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: messages:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: message list
+      show:
+        operation_id: messages/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: message show
+      delete:
+        operation_id: messages/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: message delete
+  shared-file-system.share_access_rule:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: share-access-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: share-access-rule list
+      show:
+        operation_id: share-access-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-access-rule show
+  shared-file-system.share_access_rule/metadata:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      replace:
+        operation_id: share-access-rules/access_id/metadata:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+            cli_full_command: share-access-rule metadata replace
+      delete:
+        operation_id: share-access-rules/access_id/metadata/key:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-access-rule metadata delete
+  shared-file-system.share_backup:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list_detailed:
+        operation_id: share-backups/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            cli_full_command: share-backup list
+      list:
+        operation_id: share-backups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: share-backups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: share-backup create
+      action:
+        operation_id: share-backups/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: action
+          rust-cli:
+            module_name: action
+            sdk_mod_name: action
+            cli_full_command: share-backup action
+      show:
+        operation_id: share-backups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: share-backup show
+      update:
+        operation_id: share-backups/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: share-backup set
+      delete:
+        operation_id: share-backups/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: share-backup delete
+  shared-file-system.resource_lock:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: resource-locks:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: resource-lock list
+      create:
+        operation_id: resource-locks:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: resource-lock create
+      show:
+        operation_id: resource-locks/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: resource-lock show
+      update:
+        operation_id: resource-locks/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: resource-lock set
+      delete:
+        operation_id: resource-locks/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: resource-lock delete
+  shared-file-system.extension:
+    spec_file: wrk/openapi_specs/shared-file-system/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: extensions:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: extension list
+      create:
+        operation_id: extensions:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: extension create
+      show:
+        operation_id: extensions/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: extension show
+      delete:
+        operation_id: extensions/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: extension delete

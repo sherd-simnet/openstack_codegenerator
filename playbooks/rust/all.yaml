@@ -1,0 +1,15 @@
+---
+- hosts: all
+  roles:
+    - "ensure-rust"
+  tasks:
+    - name: Generate Rust code
+      ansible.builtin.include_role:
+        name: codegenerator
+      vars:
+        codegenerator_target: "{{ zj_item.1 }}"
+        codegenerator_metadata: "{{ zj_item.0.metadata }}"
+        codegenerator_service_type: "{{ zj_item.0.service }}"
+      loop: "{{ codegenerator_service_metadata_target_map | subelements('targets') }}"
+      loop_control:
+        loop_var: zj_item

@@ -16,6 +16,7 @@
         - codegenerator-openapi-placement-tips-with-api-ref
         - codegenerator-openapi-shared-file-system-tips-with-api-ref
         - codegenerator-tox-publish-openapi-specs
+        - codegenerator-rust-all
     gate:
       jobs:
         - openstack-tox-pep8
@@ -30,3 +31,4 @@
         - codegenerator-openapi-placement-tips-with-api-ref
         - codegenerator-openapi-shared-file-system-tips-with-api-ref
         - codegenerator-tox-publish-openapi-specs
+        - codegenerator-rust-all
