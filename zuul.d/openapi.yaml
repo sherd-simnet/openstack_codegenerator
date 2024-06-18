@@ -263,3 +263,4 @@
       - playbooks/openapi/fetch.yaml
     vars:
       tox_envlist: publish-openapi-specs
+      openapi_dest: "{{ zuul.project.src_dir }}/doc/build/html"
