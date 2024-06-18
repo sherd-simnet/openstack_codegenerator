@@ -1,0 +1,64 @@
+---
+- job:
+    name: codegenerator-rust-base
+    parent: unittests
+    description: |
+      Base job for generation of the Rust code
+    attempts: 1
+    timeout: 1800
+    pre-run:
+      - playbooks/codegenerator/pre.yaml
+    vars:
+      codegenerator_service_metadata_target_map:
+        - service: "block-storage"
+          metadata: "metadata/block-storage_metadata.yaml"
+          targets: ["rust-sdk", "rust-cli"]
+        - service: "compute"
+          metadata: "metadata/compute_metadata.yaml"
+          targets: ["rust-sdk", "rust-cli"]
+        - service: "identity"
+          metadata: "metadata/identity_metadata.yaml"
+          targets: ["rust-sdk", "rust-cli"]
+        - service: "image"
+          metadata: "metadata/image_metadata.yaml"
+          targets: ["rust-sdk", "rust-cli"]
+        - service: "load-balancer"
+          metadata: "metadata/load-balancer_metadata.yaml"
+          targets: ["rust-sdk", "rust-cli"]
+        - service: "network"
+          metadata: "metadata/network_metadata.yaml"
+          targets: ["rust-sdk", "rust-cli"]
+        - service: "object-store"
+          metadata: "metadata/object-store_metadata.yaml"
+          targets: ["rust-sdk"]
+        - service: "shared-file-system"
+          metadata: "metadata/shared-file-system_metadata.yaml"
+          targets: ["rust-sdk"]
+
+- job:
+    name: codegenerator-rust-all
+    parent: codegenerator-rust-base
+    description: |
+      Generate Rust SDK/CLI
+    dependencies:
+      - name: codegenerator-openapi-block-storage-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-compute-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-identity-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-image-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-load-balancing-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-network-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-placement-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-shared-file-system-tips-with-api-ref
+        soft: true
+    pre-run: playbooks/openapi/fetch.yaml
+    run: playbooks/rust/all.yaml
+    vars:
+      codegenerator_base_dir: "{{ zuul.project.src_dir }}"
+      openapi_dest: "{{ codegenerator_base_dir }}/wrk/openapi_specs"
