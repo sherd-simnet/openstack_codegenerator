@@ -1,11 +1,9 @@
 ---
 - hosts: all
-  vars:
-    dest: "{{ zuul.project.src_dir }}/doc/build/html"
   tasks:
     - name: Precreate directories
       ansible.builtin.file:
-        path: "{{ dest }}/specs/{{ zj_artifact.metadata.service_type }}"
+        path: "{{ openapi_dest }}/{{ zj_artifact.metadata.service_type }}"
         state: "directory"
       loop: "{{ zuul.artifacts }}"
       loop_control:
@@ -19,7 +17,7 @@
     - name: Download specs
       ansible.builtin.uri:
         url: "{{ zj_artifact.url }}"
-        dest: "{{ dest }}/specs/{{ zj_artifact.metadata.service_type }}"
+        dest: "{{ openapi_dest }}/{{ zj_artifact.metadata.service_type }}"
       loop: "{{ zuul.artifacts }}"
       loop_control:
         loop_var: zj_artifact
