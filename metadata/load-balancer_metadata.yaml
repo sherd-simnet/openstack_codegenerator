@@ -1,0 +1,945 @@
+resources:
+  load-balancer.version:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: lbaas:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: version get
+  load-balancer.loadbalancer:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/loadbalancers/loadbalancer_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: loadbalancer show
+      update:
+        operation_id: lbaas/loadbalancers/loadbalancer_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: loadbalancer set
+      delete:
+        operation_id: lbaas/loadbalancers/loadbalancer_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: loadbalancer delete
+      list:
+        operation_id: lbaas/loadbalancers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: loadbalancer list
+      create:
+        operation_id: lbaas/loadbalancers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: loadbalancer create
+      stats:
+        operation_id: lbaas/loadbalancers/loadbalancer_id/stats:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: stats
+          rust-cli:
+            module_name: stats
+            sdk_mod_name: stats
+            find_implemented_by_sdk: true
+            cli_full_command: loadbalancer stats
+      status:
+        operation_id: lbaas/loadbalancers/loadbalancer_id/status:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: status
+          rust-cli:
+            module_name: status
+            sdk_mod_name: status
+            find_implemented_by_sdk: true
+            cli_full_command: loadbalancer status
+      failover:
+        operation_id: lbaas/loadbalancers/loadbalancer_id/failover:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: failover
+          rust-cli:
+            module_name: failover
+            sdk_mod_name: failover
+            find_implemented_by_sdk: true
+            cli_full_command: loadbalancer failover
+      find:
+        operation_id: lbaas/loadbalancers:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::loadbalancer
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.listener:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/listeners/listener_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: listener show
+      update:
+        operation_id: lbaas/listeners/listener_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: listener set
+      delete:
+        operation_id: lbaas/listeners/listener_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: listener delete
+      list:
+        operation_id: lbaas/listeners:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: listener list
+      create:
+        operation_id: lbaas/listeners:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: listener create
+      stats:
+        operation_id: lbaas/listeners/listener_id/stats:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: stats
+          rust-cli:
+            module_name: stats
+            sdk_mod_name: stats
+            find_implemented_by_sdk: true
+            cli_full_command: listener stats
+      find:
+        operation_id: lbaas/listeners:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::listener
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.pool:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/pools/pool_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: pool show
+      update:
+        operation_id: lbaas/pools/pool_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: pool set
+      delete:
+        operation_id: lbaas/pools/pool_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: pool delete
+      list:
+        operation_id: lbaas/pools:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: pool list
+      create:
+        operation_id: lbaas/pools:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: pool create
+      find:
+        operation_id: lbaas/pools:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::pool
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.l7policy:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/l7policies/l7policy_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: l7policy show
+      update:
+        operation_id: lbaas/l7policies/l7policy_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: l7policy set
+      delete:
+        operation_id: lbaas/l7policies/l7policy_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: l7policy delete
+      list:
+        operation_id: lbaas/l7policies:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: l7policy list
+      create:
+        operation_id: lbaas/l7policies:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: l7policy create
+      find:
+        operation_id: lbaas/l7policies:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::l7policy
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.healthmonitor:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/healthmonitors/healthmonitor_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: healthmonitor show
+      update:
+        operation_id: lbaas/healthmonitors/healthmonitor_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: healthmonitor set
+      delete:
+        operation_id: lbaas/healthmonitors/healthmonitor_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: healthmonitor delete
+      list:
+        operation_id: lbaas/healthmonitors:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: healthmonitor list
+      create:
+        operation_id: lbaas/healthmonitors:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: healthmonitor create
+      find:
+        operation_id: lbaas/healthmonitors:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::healthmonitor
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.quota:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/quotas/project_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: quota show
+      update:
+        operation_id: lbaas/quotas/project_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: quota set
+      delete:
+        operation_id: lbaas/quotas/project_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: quota delete
+      list:
+        operation_id: lbaas/quotas:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: quota list
+  load-balancer.provider:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: lbaas/providers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: provider list
+  load-balancer.flavor:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/flavors/flavor_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: flavor show
+      update:
+        operation_id: lbaas/flavors/flavor_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: flavor set
+      delete:
+        operation_id: lbaas/flavors/flavor_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: flavor delete
+      list:
+        operation_id: lbaas/flavors:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: flavor list
+      create:
+        operation_id: lbaas/flavors:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: flavor create
+      find:
+        operation_id: lbaas/flavors:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::flavor
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.flavor_profile:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/flavorprofiles/flavorprofile_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: flavor-profile show
+      update:
+        operation_id: lbaas/flavorprofiles/flavorprofile_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: flavor-profile set
+      delete:
+        operation_id: lbaas/flavorprofiles/flavorprofile_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: flavor-profile delete
+      list:
+        operation_id: lbaas/flavorprofiles:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: flavor-profile list
+      create:
+        operation_id: lbaas/flavorprofiles:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: flavor-profile create
+      find:
+        operation_id: lbaas/flavorprofiles:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::flavor_profile
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.availability_zone:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/availabilityzones/availabilityzone_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: availability-zone show
+      update:
+        operation_id: lbaas/availabilityzones/availabilityzone_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: availability-zone set
+      delete:
+        operation_id: lbaas/availabilityzones/availabilityzone_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: availability-zone delete
+      list:
+        operation_id: lbaas/availabilityzones:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: availability-zone list
+      create:
+        operation_id: lbaas/availabilityzones:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: availability-zone create
+  load-balancer.availability_zone_profile:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: lbaas/availabilityzoneprofiles/availabilityzoneprofile_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: availability-zone-profile show
+      update:
+        operation_id: lbaas/availabilityzoneprofiles/availabilityzoneprofile_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: availability-zone-profile set
+      delete:
+        operation_id: lbaas/availabilityzoneprofiles/availabilityzoneprofile_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: availability-zone-profile delete
+      list:
+        operation_id: lbaas/availabilityzoneprofiles:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: availability-zone-profile list
+      create:
+        operation_id: lbaas/availabilityzoneprofiles:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: availability-zone-profile create
+      find:
+        operation_id: lbaas/availabilityzoneprofiles:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::availability_zone_profile
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  load-balancer.octavia:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: octavia:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            cli_full_command: octavia get
+  load-balancer.amphorae:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      show:
+        operation_id: octavia/amphorae/amphora_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: amphorae show
+      delete:
+        operation_id: octavia/amphorae/amphora_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: amphorae delete
+      list:
+        operation_id: octavia/amphorae:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: amphorae list
+      stats:
+        operation_id: octavia/amphorae/amphora_id/stats:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: stats
+          rust-cli:
+            module_name: stats
+            sdk_mod_name: stats
+            cli_full_command: amphorae stats
+      config:
+        operation_id: octavia/amphorae/amphora_id/config:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: config
+          rust-cli:
+            module_name: config
+            sdk_mod_name: config
+            cli_full_command: amphorae config
+      failover:
+        operation_id: octavia/amphorae/amphora_id/failover:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: failover
+          rust-cli:
+            module_name: failover
+            sdk_mod_name: failover
+            cli_full_command: amphorae failover
+  load-balancer.provider/flavor_capability:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: lbaas/providers/provider/flavor_capabilities:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: provider flavor-capability list
+  load-balancer.provider/availability_zone_capability:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: lbaas/providers/provider/availability_zone_capabilities:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: provider availability-zone-capability list
+  load-balancer.l7policy/rule:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: lbaas/l7policies/l7policy_id/rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: l7policy rule list
+      create:
+        operation_id: lbaas/l7policies/l7policy_id/rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: l7policy rule create
+      show:
+        operation_id: lbaas/l7policies/l7policy_id/rules/rule_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: l7policy rule show
+      update:
+        operation_id: lbaas/l7policies/l7policy_id/rules/rule_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: l7policy rule set
+      delete:
+        operation_id: lbaas/l7policies/l7policy_id/rules/rule_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: l7policy rule delete
+  load-balancer.pool/member:
+    spec_file: wrk/openapi_specs/load-balancer/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: lbaas/pools/pool_id/members:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            cli_full_command: pool member list
+      replace:
+        operation_id: lbaas/pools/pool_id/members:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+            find_implemented_by_sdk: true
+            cli_full_command: pool member replace
+      create:
+        operation_id: lbaas/pools/pool_id/members:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            cli_full_command: pool member create
+      show:
+        operation_id: lbaas/pools/pool_id/members/member_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+            cli_full_command: pool member show
+      update:
+        operation_id: lbaas/pools/pool_id/members/member_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+            cli_full_command: pool member set
+      delete:
+        operation_id: lbaas/pools/pool_id/members/member_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+            cli_full_command: pool member delete
+      find:
+        operation_id: lbaas/pools/pool_id/members:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: load_balancer::v2::pool::member
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
