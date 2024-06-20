@@ -211,6 +211,17 @@
         path: "/api-ref/build/html/v2/index.html"
 
 - job:
+    name: codegenerator-openapi-object-store-static
+    parent: base
+    description: |
+      Generate OpenAPI spec for Swift
+    run:
+      - playbooks/openapi/static.yaml
+    vars:
+      codegenerator_work_dir: "wrk"
+      openapi_service: object-store
+
+- job:
     name: codegenerator-openapi-placement-tips
     parent: codegenerator-openapi-tips-base
     description: |
@@ -285,6 +296,8 @@
       - name: codegenerator-openapi-load-balancing-tips-with-api-ref
         soft: true
       - name: codegenerator-openapi-network-tips-with-api-ref
+        soft: true
+      - name: codegenerator-openapi-object-store-static
         soft: true
       - name: codegenerator-openapi-placement-tips-with-api-ref
         soft: true
