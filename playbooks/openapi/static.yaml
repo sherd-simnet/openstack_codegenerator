@@ -1,0 +1,56 @@
+---
+- hosts: all
+  vars:
+    specs_src: "{{ zuul.project.src_dir }}/static/openapi_specs/{{ openapi_service }}"
+  tasks:
+    - name: Ensure local output dirs
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "{{ zj_output_dir }}"
+        state: directory
+        mode: 0755
+      with_items:
+        - "{{ zuul.executor.work_root }}/artifacts"
+      loop_control:
+        loop_var: zj_output_dir
+
+    - name: Collect OpenAPI specs
+      synchronize:
+        dest: "{{ zj_output.dest }}"
+        mode: pull
+        src: "{{ zj_output.src }}"
+        verify_host: true
+        owner: false
+        group: false
+      loop:
+        - dest: "{{ zuul.executor.work_root }}/artifacts/openapi_specs"
+          src: "{{ specs_src }}"
+      loop_control:
+        loop_var: zj_output
+
+    - name: Find all generated specs
+      ansible.builtin.find:
+        paths: "{{ specs_src }}"
+        patterns: "*.yaml"
+        recurse: true
+        # Search for anything and filter later
+        file_type: "any"
+      register: openapi_specs
+
+    - name: Return artifact to Zuul
+      zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: "{{ openapi_service }} OpenAPI spec {{ zj_item.path | basename | splitext | first }}"
+                url: "artifacts/openapi_specs{{ zj_item.path | regex_replace(specs_src) }}"
+                metadata:
+                  type: openapi
+                  service_type: "{{ openapi_service }}"
+                  version: "{{ zj_item.path | basename | splitext | first }}"
+      loop: "{{ openapi_specs.files }}"
+      loop_control:
+        loop_var: zj_item
+      when:
+          # only interested in files/links
+        - "not zj_item.isdir"
