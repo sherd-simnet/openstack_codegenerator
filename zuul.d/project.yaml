@@ -12,6 +12,7 @@
         - codegenerator-openapi-image-tips-with-api-ref
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
+        - codegenerator-openapi-object-store-static
         - codegenerator-openapi-placement-tips-with-api-ref
         - codegenerator-openapi-shared-file-system-tips-with-api-ref
         - codegenerator-tox-publish-openapi-specs
@@ -25,6 +26,7 @@
         - codegenerator-openapi-image-tips-with-api-ref
         - codegenerator-openapi-load-balancing-tips-with-api-ref
         - codegenerator-openapi-network-tips-with-api-ref
+        - codegenerator-openapi-object-store-static
         - codegenerator-openapi-placement-tips-with-api-ref
         - codegenerator-openapi-shared-file-system-tips-with-api-ref
         - codegenerator-tox-publish-openapi-specs
