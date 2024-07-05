@@ -170,7 +170,7 @@ def _get_schema_ref(
             TypeSchema(**APPLICATION_CREDENTIAL_CREATE_SCHEMA),
         )
         ref = f"#/components/schemas/{name}"
-    elif name in "UsersApplication_CredentialsPostResponse":
+    elif name == "UsersApplication_CredentialsPostResponse":
         openapi_spec.components.schemas.setdefault(
             name,
             TypeSchema(**APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA),
