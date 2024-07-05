@@ -647,88 +647,14 @@ class OpenStackServerSourceBase:
         if action_name:
             operation_name = action_name
 
-        # Unwrap operation decorators to access all properties
-        f = func
-        while hasattr(f, "__wrapped__"):
-            closure = inspect.getclosurevars(f)
-            closure_locals = closure.nonlocals
-            min_ver = closure_locals.get("min_version", start_version)
-            if min_ver and not isinstance(min_ver, str):
-                min_ver = min_ver.get_string()
-            max_ver = closure_locals.get("max_version", end_version)
-            if max_ver and not isinstance(max_ver, str):
-                max_ver = max_ver.get_string()
-
-            if "errors" in closure_locals:
-                expected_errors = closure_locals["errors"]
-                if isinstance(expected_errors, list):
-                    expected_errors = [
-                        str(x)
-                        for x in filter(
-                            lambda x: isinstance(x, int), expected_errors
-                        )
-                    ]
-                elif isinstance(expected_errors, int):
-                    expected_errors = [str(expected_errors)]
-            if "request_body_schema" in closure_locals or hasattr(
-                f, "_request_body_schema"
-            ):
-                # Body type is known through method decorator
-                obj = closure_locals.get(
-                    "request_body_schema",
-                    getattr(f, "_request_body_schema", {}),
-                )
-                if obj.get("type") in ["object", "array"]:
-                    # We only allow object and array bodies
-                    # To prevent type name collision keep module name part of the name
-                    typ_name = (
-                        "".join([x.title() for x in path_resource_names])
-                        + func.__name__.title()
-                        + (f"_{min_ver.replace('.', '')}" if min_ver else "")
-                    )
-                    comp_schema = openapi_spec.components.schemas.setdefault(
-                        typ_name,
-                        self._sanitize_schema(
-                            copy.deepcopy(obj),
-                            start_version=start_version,
-                            end_version=end_version,
-                        ),
-                    )
-
-                    if min_ver:
-                        if not comp_schema.openstack:
-                            comp_schema.openstack = {}
-                        comp_schema.openstack["min-ver"] = min_ver
-                    if max_ver:
-                        if not comp_schema.openstack:
-                            comp_schema.openstack = {}
-                        comp_schema.openstack["max-ver"] = max_ver
-                    if mode == "action":
-                        if not comp_schema.openstack:
-                            comp_schema.openstack = {}
-                        comp_schema.openstack["action-name"] = action_name
-
-                    ref_name = f"#/components/schemas/{typ_name}"
-                    body_schemas.append(ref_name)
-            if "response_body_schema" in closure_locals or hasattr(
-                f, "_response_body_schema"
-            ):
-                # Response type is known through method decorator - PERFECT
-                obj = closure_locals.get(
-                    "response_body_schema",
-                    getattr(f, "_response_body_schema", {}),
-                )
-                ser_schema = obj
-            if "query_params_schema" in closure_locals or hasattr(
-                f, "_request_query_schema"
-            ):
-                obj = closure_locals.get(
-                    "query_params_schema",
-                    getattr(f, "_request_query_schema", {}),
-                )
-                query_params_versions.append((obj, min_ver, max_ver))
-
-            f = f.__wrapped__
+        (
+            query_params_versions,
+            body_schemas,
+            response_body_schema,
+            expected_errors,
+        ) = self._process_decorators(
+            func, path_resource_names, openapi_spec, start_version, end_version
+        )
 
         if hasattr(func, "_wsme_definition"):
             fdef = getattr(func, "_wsme_definition")
@@ -786,6 +712,8 @@ class OpenStackServerSourceBase:
                 operation_name,
             )
 
+        if ser_schema and not response_body_schema:
+            response_body_schema = ser_schema
         responses_spec = operation_spec.responses
         for error in expected_errors:
             responses_spec.setdefault(str(error), dict(description="Error"))
@@ -830,7 +758,7 @@ class OpenStackServerSourceBase:
                             if not action_name
                             else f"Response of the {operation_spec.operationId}:{action_name} action"
                         ),  # noqa
-                        schema_def=ser_schema,
+                        schema_def=response_body_schema,
                         action_name=action_name,
                     )
 
@@ -910,7 +838,8 @@ class OpenStackServerSourceBase:
                         **copy.deepcopy(spec["items"])
                     )
                 else:
-                    raise RuntimeError("Error")
+                    param_attrs["schema"] = TypeSchema(**copy.deepcopy(spec))
+                param_attrs["description"] = spec.get("description")
                 if min_ver:
                     os_ext = param_attrs.setdefault("x-openstack", {})
                     os_ext["min-ver"] = min_ver
@@ -1211,6 +1140,107 @@ class OpenStackServerSourceBase:
         else:
             response_code = "200"
         return [response_code]
+
+    def _process_decorators(
+        self,
+        func,
+        path_resource_names,
+        openapi_spec,
+        start_version,
+        end_version,
+    ):
+        """Extract schemas from the decorated method."""
+        # Unwrap operation decorators to access all properties
+        expected_errors: list[str] = []
+        body_schemas: list[str] = []
+        query_params_versions: list[tuple] = []
+        response_body_schema: dict | None = None
+
+        f = func
+        while hasattr(f, "__wrapped__"):
+            closure = inspect.getclosurevars(f)
+            closure_locals = closure.nonlocals
+            min_ver = closure_locals.get("min_version", start_version)
+            if min_ver and not isinstance(min_ver, str):
+                min_ver = min_ver.get_string()
+            max_ver = closure_locals.get("max_version", end_version)
+            if max_ver and not isinstance(max_ver, str):
+                max_ver = max_ver.get_string()
+
+            if "errors" in closure_locals:
+                expected_errors = closure_locals["errors"]
+                if isinstance(expected_errors, list):
+                    expected_errors = [
+                        str(x)
+                        for x in filter(
+                            lambda x: isinstance(x, int), expected_errors
+                        )
+                    ]
+                elif isinstance(expected_errors, int):
+                    expected_errors = [str(expected_errors)]
+            if "request_body_schema" in closure_locals or hasattr(
+                f, "_request_body_schema"
+            ):
+                # Body type is known through method decorator
+                obj = closure_locals.get(
+                    "request_body_schema",
+                    getattr(f, "_request_body_schema", {}),
+                )
+                if obj.get("type") in ["object", "array"]:
+                    # We only allow object and array bodies
+                    # To prevent type name collision keep module name part of the name
+                    typ_name = (
+                        "".join([x.title() for x in path_resource_names])
+                        + func.__name__.title()
+                        + (f"_{min_ver.replace('.', '')}" if min_ver else "")
+                    )
+                    comp_schema = openapi_spec.components.schemas.setdefault(
+                        typ_name,
+                        self._sanitize_schema(
+                            copy.deepcopy(obj),
+                            start_version=start_version,
+                            end_version=end_version,
+                        ),
+                    )
+
+                    if min_ver:
+                        if not comp_schema.openstack:
+                            comp_schema.openstack = {}
+                        comp_schema.openstack["min-ver"] = min_ver
+                    if max_ver:
+                        if not comp_schema.openstack:
+                            comp_schema.openstack = {}
+                        comp_schema.openstack["max-ver"] = max_ver
+
+                    ref_name = f"#/components/schemas/{typ_name}"
+                    body_schemas.append(ref_name)
+
+            if "response_body_schema" in closure_locals or hasattr(
+                f, "_response_body_schema"
+            ):
+                # Response type is known through method decorator - PERFECT
+                obj = closure_locals.get(
+                    "response_body_schema",
+                    getattr(f, "_response_body_schema", {}),
+                )
+                response_body_schema = obj
+            if "query_params_schema" in closure_locals or hasattr(
+                f, "_request_query_schema"
+            ):
+                obj = closure_locals.get(
+                    "query_params_schema",
+                    getattr(f, "_request_query_schema", {}),
+                )
+                query_params_versions.append((obj, min_ver, max_ver))
+
+            f = f.__wrapped__
+
+        return (
+            query_params_versions,
+            body_schemas,
+            response_body_schema,
+            expected_errors,
+        )
 
 
 def _convert_wsme_to_jsonschema(body_spec):
