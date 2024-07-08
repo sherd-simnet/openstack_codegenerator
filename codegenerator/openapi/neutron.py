@@ -898,6 +898,28 @@ class NeutronGenerator(OpenStackServerSourceBase):
                     )
                 elif field == "binding:vif_details":
                     js_schema.update({"type": "object"})
+                elif resource_key == "port" and field == "dns_assignment":
+                    js_schema.update(
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "fqdn": {
+                                        "type": "string",
+                                        "format": "hostname",
+                                    },
+                                    "hostname": {
+                                        "type": "string",
+                                        "format": "hostname",
+                                    },
+                                    "ip_address": {
+                                        "type": "string",
+                                    },
+                                },
+                            },
+                        }
+                    )
                 if data.get(f"allow_{method.lower()}", False):
                     send_props[field] = js_schema
                 if data.get("is_visible", False):
