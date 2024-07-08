@@ -1077,8 +1077,14 @@ class OpenStackServerSourceBase:
                 if typ == "array" and "additionalItems" in v:
                     # additionalItems have nothing to do under the type array (create servergroup)
                     schema.properties[k].pop("additionalItems")
-                if typ == "array" and isinstance(v["items"], list):
+                if (
+                    typ == "array"
+                    and "items" in v
+                    and isinstance(v["items"], list)
+                ):
                     # server_group create - type array "items" is a dict and not list
+                    # NOTE: server_groups recently changed to "prefixItems",
+                    # so this may be not necessary anymore
                     schema.properties[k]["items"] = v["items"][0]
         if start_version and self._api_ver_major(start_version) not in [
             "0",
