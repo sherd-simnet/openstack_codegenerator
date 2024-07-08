@@ -10,6 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import copy
 import inspect
 from multiprocessing import Process
 import logging
@@ -35,6 +36,7 @@ from codegenerator.openapi.keystone_schemas import role
 from codegenerator.openapi.keystone_schemas import service
 from codegenerator.openapi.keystone_schemas import user
 from codegenerator.openapi.utils import merge_api_ref_doc
+from codegenerator.openapi.utils import rst_to_md
 
 
 class KeystoneGenerator(OpenStackServerSourceBase):
@@ -150,10 +152,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
 
         for route in self.router.iter_rules():
             if route.rule.startswith("/static"):
-                continue
-            # if not route.rule.startswith("/v3/domains"):
-            #    continue
-            if "/credentials/OS-EC2" in route.rule:
                 continue
 
             self._process_route(route, openapi_spec)
@@ -358,25 +356,61 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             path,
             method,
         )
+        doc = inspect.getdoc(func)
+        if doc and not operation_spec.description:
+            doc = rst_to_md(doc)
+            operation_spec.description = LiteralScalarString(doc)
+
+        query_params_versions = []
+        body_schemas = []
+        expected_errors = ["404"]
+        response_code = None
+        start_version = None
+        end_version = None
+        deser_schema: dict = {}
+        ser_schema: dict = {}
+
+        (
+            query_params_versions,
+            body_schemas,
+            ser_schema,
+            expected_errors,
+        ) = self._process_decorators(
+            func,
+            path_resource_names,
+            openapi_spec,
+            method,
+            start_version,
+            end_version,
+            None,
+        )
+
+        if query_params_versions:
+            so = sorted(
+                query_params_versions,
+                key=lambda d: (
+                    tuple(map(int, d[1].split("."))) if d[1] else (0, 0)
+                ),
+            )
+            for data, min_ver, max_ver in so:
+                self.process_query_parameters(
+                    openapi_spec,
+                    operation_spec,
+                    path_resource_names,
+                    data,
+                    min_ver,
+                    max_ver,
+                )
+
         if method in ["PUT", "POST", "PATCH"]:
-            # This is clearly a modification operation but we know nothing about request
-            schema_name = (
-                "".join([x.title() for x in path_resource_names])
-                + method.title()
-                + "Request"
-            )
-
-            (schema_ref, mime_type) = self._get_schema_ref(
+            self.process_body_parameters(
                 openapi_spec,
-                schema_name,
-                description=f"Request of the {operation_spec.operationId} operation",
+                operation_spec,
+                path_resource_names,
+                body_schemas,
+                None,
+                method,
             )
-
-            if schema_ref:
-                content = operation_spec.requestBody = {"content": {}}
-                content["content"][mime_type] = {
-                    "schema": {"$ref": schema_ref}
-                }
 
         responses_spec = operation_spec.responses
         # Errors
@@ -420,6 +454,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 openapi_spec,
                 schema_name,
                 description=f"Response of the {operation_spec.operationId} operation",
+                schema_def=ser_schema,
             )
 
             if schema_ref:
@@ -486,7 +521,11 @@ class KeystoneGenerator(OpenStackServerSourceBase):
 
         # Default
         (ref, mime_type) = super()._get_schema_ref(
-            openapi_spec, name, description, action_name=action_name
+            openapi_spec,
+            name,
+            description,
+            schema_def=schema_def,
+            action_name=action_name,
         )
 
         return (ref, mime_type)
