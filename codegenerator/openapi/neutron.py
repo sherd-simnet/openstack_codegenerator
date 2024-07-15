@@ -920,6 +920,98 @@ class NeutronGenerator(OpenStackServerSourceBase):
                             },
                         }
                     )
+                elif (
+                    resource_key == "floatingip"
+                    and field == "port_forwardings"
+                ):
+                    js_schema.update(
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "The ID of the floating IP port forwarding.",
+                                    },
+                                    "external_port": {
+                                        "type": ["number", "null"],
+                                        "description": "The TCP/UDP/other protocol port number of the port forwarding’s floating IP address.",
+                                    },
+                                    "internal_port": {
+                                        "type": ["number", "null"],
+                                        "description": "The TCP/UDP/other protocol port number of the Neutron port fixed IP address associated to the floating ip port forwarding.",
+                                    },
+                                    "internal_ip_address": {
+                                        "type": "string",
+                                        "description": "The fixed IPv4 address of the Neutron port associated to the floating IP port forwarding.",
+                                    },
+                                    "protocol": {
+                                        "type": "string",
+                                        "description": "The IP protocol used in the floating IP port forwarding.",
+                                    },
+                                    "internal_port_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "The ID of the Neutron port associated to the floating IP port forwarding.",
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "A text describing the rule, which helps users to manage/find easily theirs rules.",
+                                    },
+                                    "external_port_range": {
+                                        "type": "number",
+                                        "description": "The TCP/UDP/other protocol port range of the port forwarding’s floating IP address.",
+                                    },
+                                    "internal_port_range": {
+                                        "type": "number",
+                                        "description": "The TCP/UDP/other protocol port range of the Neutron port fixed IP address associated to the floating ip port forwarding.",
+                                    },
+                                },
+                            },
+                        }
+                    )
+                elif resource_key == "floatingip" and field == "port_details":
+                    js_schema.update(
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Human-readable name of the resource.",
+                                    },
+                                    "network_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "The ID of the attached network.",
+                                    },
+                                    "admin_state_up": {
+                                        "type": ["string", "boolean"],
+                                        "description": "The administrative state of the resource, which is up (`true`) or down (`false`).",
+                                    },
+                                    "mac_address": {
+                                        "type": "string",
+                                        "description": "The MAC address of the port. If the port uses the `direct-physical` `vnic_type` then the value of this field is overwritten with the MAC address provided in the active binding:profile if any.",
+                                    },
+                                    "device_id": {
+                                        "type": "string",
+                                        "description": "The ID of the device that uses this port. For example, a server instance or a logical router.",
+                                    },
+                                    "device_owner": {
+                                        "type": "string",
+                                        "description": "The entity type that uses this port. For example, `compute:nova` (server instance), `network:dhcp` (DHCP agent) or `network:router_interface` (router interface).",
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "description": "The port status. Values are `ACTIVE`, `DOWN`, `BUILD` and `ERROR`.",
+                                    },
+                                },
+                            },
+                        }
+                    )
                 if data.get(f"allow_{method.lower()}", False):
                     send_props[field] = js_schema
                 if data.get("is_visible", False):
