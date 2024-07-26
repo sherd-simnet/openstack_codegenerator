@@ -832,6 +832,9 @@ class OpenStackServerSourceBase:
 
         It is expected, that this method is invoked in the raising min_ver order to do proper cleanup of max_ver
         """
+        if "type" not in obj:
+            # Nova has empty definitions for deprecated methods
+            return
         # Yey - we have query_parameters
         if obj["type"] == "object":
             params = obj["properties"]
@@ -839,7 +842,10 @@ class OpenStackServerSourceBase:
                 param_name = "_".join(path_resource_names) + f"_{prop}"
 
                 param_attrs: dict[str, TypeSchema | dict] = {}
-                if spec["type"] == "array":
+                if spec == {}:
+                    # Nova added empty params since it was never validating them. Skip
+                    param_attrs["schema"] = TypeSchema(type="string")
+                elif spec["type"] == "array":
                     param_attrs["schema"] = TypeSchema(
                         **copy.deepcopy(spec["items"])
                     )

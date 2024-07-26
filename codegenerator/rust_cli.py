@@ -110,7 +110,7 @@ class JsonValue(common_rust.JsonValue):
         if self.original_data_type and isinstance(
             self.original_data_type, common_rust.Dictionary
         ):
-            imports.update(["std::collections::BTreeMap", "anyhow::Context"])
+            imports.update(["std::collections::BTreeMap", "eyre::WrapErr"])
         return imports
 
 

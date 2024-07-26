@@ -169,7 +169,7 @@ Some({{ val }})
     {%- elif original_type and original_type.__class__.__name__ == "DictionaryInput" and original_type.value_type and original_type.value_type.__class__.__name__ == "DictionaryInput" %}
         {{ dst_var }}.{{ param.remote_name }}(
             serde_json::from_value::<BTreeMap<String, BTreeMap<String, {{ original_type.value_type.value_type.type_hint }}>>>({{ val_var | replace("&", "") }}.clone())
-            .with_context(|| "Failed to parse `{{ param.local_name }}` as dict of dicts of {{ original_type.value_type.value_type.type_hint }}")?
+            .wrap_err_with(|| "Failed to parse `{{ param.local_name }}` as dict of dicts of {{ original_type.value_type.value_type.type_hint }}")?
             .into_iter()
             .map(|(k, v)| (k, v.into_iter())),
         );
