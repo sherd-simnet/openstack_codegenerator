@@ -1,0 +1,24 @@
+---
+- name: "Copy {{ resource_name }} SDK code"
+  ansible.builtin.copy:
+    src: "{{ codegenerator_base_dir }}/wrk/rust/openstack_sdk/src/api/{{ rust_service_type }}/{{ zj_resource.value.api_version }}/{{ resource_name }}"
+    dest: "{{ rust_project_dir }}/openstack_sdk/src/api/{{ rust_service_type }}/{{ zj_resource.value.api_version }}"
+    remote_src: True
+
+- name: "Copy {{ resource_name }}.rs SDK code"
+  ansible.builtin.copy:
+    src: "{{ codegenerator_base_dir }}/wrk/rust/openstack_sdk/src/api/{{ rust_service_type }}/{{ zj_resource.value.api_version }}/{{ resource_name }}.rs"
+    dest: "{{ rust_project_dir }}/openstack_sdk/src/api/{{ rust_service_type }}/{{ zj_resource.value.api_version }}"
+    remote_src: True
+
+- name: "Copy {{ resource_name }} CLI code"
+  ansible.builtin.copy:
+    src: "{{ codegenerator_base_dir }}/wrk/rust/openstack_cli/src/{{ rust_service_type }}/{{ zj_resource.value.api_version }}/{{ resource_name }}"
+    dest: "{{ rust_project_dir }}/openstack_cli/src/{{ rust_service_type }}/{{ zj_resource.value.api_version }}"
+    remote_src: True
+
+- name: "Copy {{ resource_name }} CLI functional test code"
+  ansible.builtin.copy:
+    src: "{{ codegenerator_base_dir }}/wrk/rust/openstack_cli/tests/{{ rust_service_type }}/{{ zj_resource.value.api_version }}/{{ resource_name }}"
+    dest: "{{ rust_project_dir }}/tests/{{ rust_service_type }}/{{ zj_resource.value.api_version }}"
+    remote_src: True
