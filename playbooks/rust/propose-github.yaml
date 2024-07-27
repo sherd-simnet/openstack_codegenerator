@@ -1,0 +1,61 @@
+---
+- name: "Propose generated code changes upstream"
+  hosts: localhost
+  vars:
+    patch_file: "{{ zuul.executor.work_root }}/{{ zuul.change }}.patch"
+    branch_name: "codegenerator_{{ zuul.change }}"
+  tasks:
+
+    - name: "Check execution context"
+      when: "zuul.branch is not defined"
+      fail:
+        msg: "This playbook must be run in a branch-based pipeline (e.g., 'promote')."
+
+    - name: "Download docs archive"
+      ansible.builtin.include_role:
+        name: download-artifact
+      vars:
+        # download_artifact_job: provided by zuul job
+        download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+        download_artifact_type:
+          - rust_patch
+        download_artifact_pipeline: gate
+
+    - name: "Check git patch presense"
+      ansible.builtin.stat:
+        path: "{{ patch_file }}"
+      register: "git_patch_stat"
+
+    - name: "Process patch"
+      when:
+        - "git_patch_stat.stat.exists"
+      block:
+
+        - name: "Checkout target repository"
+          ansible.builtin.git:
+            repo: "{{ rust_sdk_git_repo }}"
+            dest: "{{ rust_project_dir }}"
+
+        - name: "Checkout new branch"
+          ansible.builtin.command: "git checkout -b {{ branch_name }}"
+          args:
+            chdir: "{{ ansible_user_dir }}/openstack"
+
+        - name: "Try to apply git patch"
+          ansible.builtin.command: "git apply --reject --ignore-space-change {{ git_patch_stat.stat.path }}"
+          args:
+            chdir: "{{ ansible_user_dir }}/openstack"
+          register: "patch_applied"
+          failed_when: false
+
+        - name: "Push changes"
+          ansible.builtin.command: "git push"
+          args:
+            chdir: "{{ ansible_user_dir }}/openstack"
+          when: "patch_applied.changed"
+          register: "change_pushed"
+
+        - name: "Inform how to open PR"
+          ansible.builtin.debug:
+            msg: "Please follow the link https://github.com/gtema/openstack/pull/new/{{ branch_name }} to create new pull request"
+          when: "change_pushed.changed"
