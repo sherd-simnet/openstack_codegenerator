@@ -62,5 +62,5 @@
     pre-run: playbooks/openapi/fetch.yaml
     run: playbooks/rust/all.yaml
     vars:
-      codegenerator_base_dir: "{{ zuul.project.src_dir }}"
+      codegenerator_base_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
       openapi_dest: "{{ codegenerator_base_dir }}/wrk/openapi_specs"
