@@ -40,26 +40,26 @@
     parent: codegenerator-rust-base
     description: |
       Generate Rust SDK/CLI
-    dependencies:
-      - name: codegenerator-openapi-block-storage-tips-with-api-ref
-        soft: true
-      - name: codegenerator-openapi-compute-tips-with-api-ref
-        soft: true
-      - name: codegenerator-openapi-identity-tips-with-api-ref
-        soft: true
-      - name: codegenerator-openapi-image-tips-with-api-ref
-        soft: true
-      - name: codegenerator-openapi-load-balancing-tips-with-api-ref
-        soft: true
-      - name: codegenerator-openapi-network-tips-with-api-ref
-        soft: true
-      - name: codegenerator-openapi-object-store-static
-        soft: true
-      - name: codegenerator-openapi-placement-tips-with-api-ref
-        soft: true
-      - name: codegenerator-openapi-shared-file-system-tips-with-api-ref
-        soft: true
-    pre-run: playbooks/openapi/fetch.yaml
+  #    dependencies:
+  #      - name: codegenerator-openapi-block-storage-tips-with-api-ref
+  #        soft: true
+  #      - name: codegenerator-openapi-compute-tips-with-api-ref
+  #        soft: true
+  #      - name: codegenerator-openapi-identity-tips-with-api-ref
+  #        soft: true
+  #      - name: codegenerator-openapi-image-tips-with-api-ref
+  #        soft: true
+  #      - name: codegenerator-openapi-load-balancing-tips-with-api-ref
+  #        soft: true
+  #      - name: codegenerator-openapi-network-tips-with-api-ref
+  #        soft: true
+  #      - name: codegenerator-openapi-object-store-static
+  #        soft: true
+  #      - name: codegenerator-openapi-placement-tips-with-api-ref
+  #        soft: true
+  #      - name: codegenerator-openapi-shared-file-system-tips-with-api-ref
+  #        soft: true
+  #    pre-run: playbooks/openapi/fetch.yaml
     run: playbooks/rust/all.yaml
     vars:
       codegenerator_base_dir: "{{ zuul.project.src_dir }}"
