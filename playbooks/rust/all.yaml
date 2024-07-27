@@ -2,6 +2,9 @@
 - hosts: all
   roles:
     - "ensure-rust"
+  vars:
+    rust_project_dir: "{{ ansible_user_dir }}/openstack"
+    rust_sdk_git_repo: "https://github.com/gtema/openstack"
   tasks:
     - name: Generate Rust code
       ansible.builtin.include_role:
@@ -13,3 +16,35 @@
       loop: "{{ codegenerator_service_metadata_target_map | subelements('targets') }}"
       loop_control:
         loop_var: zj_item
+
+    - name: Checkout target repository
+      ansible.builtin.git:
+        repo: "{{ rust_sdk_git_repo }}"
+        dest: "{{ rust_sdk_dir }}"
+
+    - name: Compile
+      ansible.builtin.command:
+        cmd: "cargo build"
+        chdir: "{{ rust_sdk_dir }}"
+
+    - name: Overwrite generated files
+      ansible.builtin.include_role:
+        name: copy_rust_code
+      vars:
+        rust_targets: "{{ zj_item.targets }}"
+        rust_metadata: "{{ zj_item.metadata }}"
+        rust_service_type: "{{ zj_item.service }}"
+        rust_project_dir: "{{ rust_project_dir }}"
+      loop: "{{ codegenerator_service_metadata_target_map }}"
+      loop_control:
+        loop_var: zj_item
+
+    - name: Compile
+      ansible.builtin.command:
+        cmd: "cargo build"
+        chdir: "{{ rust_sdk_dir }}"
+
+    - name: Git status
+      ansible.builtin.command:
+        cmd: "git status"
+        chdir: "{{ rust_project_dir }}"

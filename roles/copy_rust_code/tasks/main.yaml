@@ -1,0 +1,14 @@
+---
+- name: "Read metadata"
+  ansible.builtin.include_vars:
+    file: "{{ codegenerator_base_dir }}/{{ rust_metadata }}"
+    name: "metadata"
+
+- name: "Copy source code"
+  ansible.builtin.include_tasks:
+    file: "resource.yaml"
+  vars:
+    resource_name: "{{ zj_resource.key | split('.') | last | split('/') | first }}"
+  loop: "{{ metadata.resources | dict2items }}"
+  loop_control:
+    loop_var: "zj_resource"
