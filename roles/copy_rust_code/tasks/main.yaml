@@ -1,0 +1,14 @@
+---
+- name: "Read service metadata"
+  ansible.builtin.slurp:
+    src: "{{ codegenerator_base_dir }}/{{ codegenerator_metadata }}"
+  register: "metadata"
+
+- name: "Copy source code"
+  ansible.builtin.include_tasks:
+    file: "resource.yaml"
+  vars:
+    resource_name: "{{ zj_resource.key | split('.') | last | split('/') | first }}"
+  loop: "{{ metadata.content | b64decode | map(attribute='resources') | dict2items }}"
+  loop_control:
+    loop_var: "zj_resource"

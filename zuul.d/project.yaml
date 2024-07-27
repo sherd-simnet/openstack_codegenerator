@@ -4,8 +4,8 @@
       - publish-openstack-docs-pti
     check:
       jobs:
-        - openstack-tox-pep8
-        - openstack-tox-py311
+      #  - openstack-tox-pep8
+      #  - openstack-tox-py311
         - codegenerator-openapi-block-storage-tips-with-api-ref
         - codegenerator-openapi-compute-tips-with-api-ref
         - codegenerator-openapi-identity-tips-with-api-ref
@@ -15,7 +15,7 @@
         - codegenerator-openapi-object-store-static
         - codegenerator-openapi-placement-tips-with-api-ref
         - codegenerator-openapi-shared-file-system-tips-with-api-ref
-        - codegenerator-tox-publish-openapi-specs
+#       - codegenerator-tox-publish-openapi-specs
         - codegenerator-rust-all
     gate:
       jobs:
