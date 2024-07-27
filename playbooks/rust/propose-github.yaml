@@ -1,0 +1,63 @@
+---
+- hosts: localhost
+  vars:
+    #patch_file: "{{ zuul.executor.work_root }}/{{ zuul.change }}.patch"
+    patch_file: "{{ zuul.executor.work_root }}/artifacts/{{ zuul.change }}.patch"
+  tasks:
+
+    #    - name: "Check execution context"
+    #      when: "zuul.branch is not defined"
+    #      fail:
+    #        msg: "This playbook must be run in a branch-based pipeline (e.g., 'promote')."
+    #
+    #    - name: "Download docs archive"
+    #      ansible.builtin.include_role:
+    #        name: download-artifact
+    #      vars:
+    #        # download_artifact_job: provided by zuul job
+    #        download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+    #        download_artifact_type:
+    #          - rust_patch
+    #        download_artifact_pipeline: gate
+
+    - name: "Check git patch presense"
+      ansible.builtin.stat:
+        path: "{{ patch_file }}"
+      register: "git_patch_stat"
+
+    - name: "Process patch"
+      when:
+        - git_patch_stat.stat.exists"
+      block:
+
+        #- name: "Configure git username"
+        #  ansible.builtin.command: "git config --global user.name 'OpenStack codegenerator'"
+
+        #- name: "Configure git email"
+        #  ansible.builtin.command: "git config --global user.email 16461884+gtema@users.noreply.github.com"
+
+        - name: "Checkout target repository"
+          ansible.builtin.git:
+            repo: "{{ rust_sdk_git_repo }}"
+            dest: "{{ rust_project_dir }}"
+
+        - name: "Checkout new branch"
+          ansible.builtin.command: "git checkout -b codegenerator_{{ zuul.change }}"
+          args:
+            chdir: "{{ ansible_user_dir }}/openstack"
+          failed_when: false
+          when: "git_patch_stat.stat.exists"
+
+        - name: "Try to apply git patch"
+          ansible.builtin.command: "git apply --reject --ignore-space-change {{ git_patch_stat.stat.path }}"
+          args:
+            chdir: "{{ ansible_user_dir }}/openstack"
+          failed_when: false
+          when: "git_patch_stat.stat.exists"
+
+        - name: "Push changes"
+          ansible.builtin.command: "git push"
+          args:
+            chdir: "{{ ansible_user_dir }}/openstack"
+          failed_when: false
+          when: "git_patch_stat.stat.exists"

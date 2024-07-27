@@ -8,6 +8,8 @@
     timeout: 1800
     pre-run:
       - playbooks/codegenerator/pre.yaml
+    post-run:
+      - playbooks/rust/post.yaml
     vars:
       codegenerator_service_metadata_target_map:
         - service: "block-storage"
@@ -38,6 +40,8 @@
 - job:
     name: codegenerator-rust-all
     parent: codegenerator-rust-base
+    # It takes a while to compile the project
+    timeout: 3600
     description: |
       Generate Rust SDK/CLI
     dependencies:
@@ -60,7 +64,29 @@
       - name: codegenerator-openapi-shared-file-system-tips-with-api-ref
         soft: true
     pre-run: playbooks/openapi/fetch.yaml
+    post-run: playbooks/rust/propose-github.yaml
     run: playbooks/rust/all.yaml
     vars:
-      codegenerator_base_dir: "{{ zuul.project.src_dir }}"
+      codegenerator_base_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
       openapi_dest: "{{ codegenerator_base_dir }}/wrk/openapi_specs"
+      patch_path: "{{ ansible_user_dir }}/{{ zuul.change }}.patch"
+      rust_sdk_git_repo: "https://github.com/gtema/openstack"
+      rust_project_dir: "{{ ansible_user_dir }}/openstack"
+
+    #- job:
+    #    name: codegenerator-propose-rust-openstack-change
+    #    description: |
+    #      Propose changes to the Rust OpenStack project with the code newly
+    #      generated in this change.
+    #
+    #      This job is applying the git patch created by the `codegenerator-rust-all`
+    #      job.
+    #    post-review: true
+    #    run: playbooks/rust/propose-github.yaml
+    #    nodeset:
+    #      nodes: []
+    #    vars:
+    #      rust_sdk_git_repo: "https://github.com/gtema/openstack"
+    #    secrets:
+    #      - secret: github_credentials
+    #        name: github_credentials
