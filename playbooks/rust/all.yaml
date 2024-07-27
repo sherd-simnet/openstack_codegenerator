@@ -3,9 +3,9 @@
   roles:
     - "ensure-rust"
   tasks:
-    - name: Generate Rust code
+    - name: "Generate Rust code"
       ansible.builtin.include_role:
-        name: codegenerator
+        name: "codegenerator"
       vars:
         codegenerator_target: "{{ zj_item.1 }}"
         codegenerator_metadata: "{{ zj_item.0.metadata }}"
@@ -13,3 +13,60 @@
       loop: "{{ codegenerator_service_metadata_target_map | subelements('targets') }}"
       loop_control:
         loop_var: zj_item
+
+    - name: "Checkout target repository"
+      ansible.builtin.git:
+        repo: "{{ rust_sdk_git_repo }}"
+        dest: "{{ rust_project_dir }}"
+
+    - name: "Pre-Compile current code to ensure it builds"
+      ansible.builtin.command:
+        cmd: "cargo build"
+        chdir: "{{ rust_project_dir }}"
+
+    - name: "Overwrite generated files"
+      ansible.builtin.copy:
+        src: "{{ codegenerator_base_dir }}/wrk/rust/"
+        dest: "{{ rust_project_dir }}"
+        remote_src: True
+
+    - name: "Optimize generated code with clippy"
+      ansible.builtin.command:
+        cmd: "cargo clippy --fix --lib --tests --allow-dirty"
+        chdir: "{{ rust_project_dir }}"
+
+    - name: "Compile"
+      ansible.builtin.command:
+        cmd: "cargo build"
+        chdir: "{{ rust_project_dir }}"
+
+    - name: "Checkout new branch"
+      ansible.builtin.command:
+        cmd: "git checkout -b codegenerator_{{ zuul.change }}"
+        chdir: "{{ rust_project_dir }}"
+
+    - name: "Configure git username"
+      ansible.builtin.command: "git config --global user.name 'OpenStack codegenerator'"
+
+    - name: "Configure git email"
+      ansible.builtin.command: "git config --global user.email 16461884+gtema@users.noreply.github.com"
+
+    - name: "Stage files for commit"
+      ansible.builtin.command:
+        cmd: "git add ."
+        chdir: "{{ rust_project_dir }}"
+
+    - name: "Git status"
+      ansible.builtin.command:
+        cmd: "git status"
+        chdir: "{{ rust_project_dir }}"
+
+    - name: "Commit changes"
+      ansible.builtin.command:
+        cmd: "git commit -m 'feat: New generated content' -m '{{ zuul.change_message }}' -m 'Changes are triggered by {{ zuul.change_url }}'"
+        chdir: "{{ rust_project_dir }}"
+
+    - name: "Format patch"
+      ansible.builtin.command:
+        cmd: "git format-patch -1 --output {{ patch_path }}"
+        chdir: "{{ rust_project_dir }}"
