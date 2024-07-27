@@ -1,0 +1,86 @@
+---
+- hosts: all
+  vars:
+    archive_path: "{{ ansible_user_dir }}/archive.tar.gz"
+  tasks:
+    - name: "Ensure local output dirs"
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "{{ zj_output_dir }}"
+        state: directory
+        mode: 0755
+      with_items:
+        - "{{ zuul.executor.work_root }}/artifacts"
+      loop_control:
+        loop_var: zj_output_dir
+
+    - name: "Archive generated code"
+      community.general.archive:
+        path: "{{ codegenerator_base_dir }}/wrk/rust"
+        dest: "{{ archive_path }}"
+
+    - name: "Collect archived generated code"
+      ansible.posix.synchronize:
+        dest: "{{ zj_output.dest }}"
+        mode: pull
+        src: "{{ zj_output.src }}"
+        verify_host: true
+        owner: false
+        group: false
+      loop:
+        - dest: "{{ zuul.executor.work_root }}/artifacts/"
+          src: "{{ archive_path }}"
+      loop_control:
+        loop_var: zj_output
+
+    - name: "Return source code artifact to Zuul"
+      zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: "Code changes"
+                url: "artifacts/archive.tar.gz"
+                metadata:
+                  type: "content"
+
+    - name: Find generated patch file
+      ansible.builtin.stat:
+        path: "{{ patch_path }}"
+      register: patch_stat
+
+    - name: "Collect patch file"
+      ansible.posix.synchronize:
+        dest: "{{ zuul.executor.work_root }}/artifacts/"
+        mode: pull
+        src: "{{ patch_path }}"
+        verify_host: true
+        owner: false
+        group: false
+      when:
+        - "patch_stat.stat.exists"
+
+    - name: "Return patch artifact to Zuul"
+      zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: "Git patch"
+                url: "artifacts/{{ zuul.change }}.patch"
+                metadata:
+                  type: "patch"
+      when:
+        - "patch_stat.stat.exists"
+
+    - name: "Return artifact to Zuul"
+      zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: "Git patch"
+                url: "artifacts/{{ zuul.change }}.patch"
+                metadata:
+                  type: "patch"
+              - name: "Code changes"
+                url: "artifacts/archive.tar.gz"
+                metadata:
+                  type: "content"
