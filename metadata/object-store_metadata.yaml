@@ -9,40 +9,40 @@ resources:
         targets:
           rust-sdk:
             module_name: head
-          rust-cli:
-            module_name: head
-            sdk_mod_name: head
-            cli_full_command: account show
+          #rust-cli:
+          #  module_name: head
+          #  sdk_mod_name: head
+          #  cli_full_command: account show
       get:
         operation_id: account.get
         operation_type: get
         targets:
           rust-sdk:
             module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-            cli_full_command: container list
+          #rust-cli:
+          #  module_name: get
+          #  sdk_mod_name: get
+          #  cli_full_command: container list
       update:
         operation_id: account.post
         operation_type: set
         targets:
           rust-sdk:
             module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-            cli_full_command: account set
+          #rust-cli:
+          #  module_name: set
+          #  sdk_mod_name: set
+          #  cli_full_command: account set
       delete:
         operation_id: account.delete
         operation_type: delete
         targets:
           rust-sdk:
             module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-            cli_full_command: account delete
+          #rust-cli:
+          #  module_name: delete
+          #  sdk_mod_name: delete
+          #  cli_full_command: account delete
   object-store.container:
     spec_file: wrk/openapi_specs/object-store/v1.yaml
     api_version: v1
@@ -53,50 +53,50 @@ resources:
         targets:
           rust-sdk:
             module_name: head
-          rust-cli:
-            module_name: head
-            sdk_mod_name: head
-            cli_full_command: container show
+          #rust-cli:
+          #  module_name: head
+          #  sdk_mod_name: head
+          #  cli_full_command: container show
       get:
         operation_id: container.get
         operation_type: get
         targets:
           rust-sdk:
             module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-            cli_full_command: object list
+          #rust-cli:
+          #  module_name: get
+          #  sdk_mod_name: get
+          #  cli_full_command: object list
       create:
         operation_id: container.put
         operation_type: create
         targets:
           rust-sdk:
             module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-            cli_full_command: container create
+          #rust-cli:
+          #  module_name: create
+          #  sdk_mod_name: create
+          #  cli_full_command: container create
       update:
         operation_id: container.post
         operation_type: set
         targets:
           rust-sdk:
             module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-            cli_full_command: container set
+          #rust-cli:
+          #  module_name: set
+          #  sdk_mod_name: set
+          #  cli_full_command: container set
       delete:
         operation_id: container.delete
         operation_type: delete
         targets:
           rust-sdk:
             module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-            cli_full_command: container delete
+          #rust-cli:
+          #  module_name: delete
+          #  sdk_mod_name: delete
+          #  cli_full_command: container delete
   object-store.object:
     spec_file: wrk/openapi_specs/object-store/v1.yaml
     api_version: v1
@@ -107,47 +107,47 @@ resources:
         targets:
           rust-sdk:
             module_name: head
-          rust-cli:
-            module_name: head
-            sdk_mod_name: head
-            cli_full_command: object show
+          #rust-cli:
+          #  module_name: head
+          #  sdk_mod_name: head
+          #  cli_full_command: object show
       get:
         operation_id: object.get
         operation_type: download
         targets:
           rust-sdk:
             module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-            cli_full_command: object download
+          #rust-cli:
+          #  module_name: get
+          #  sdk_mod_name: get
+          #  cli_full_command: object download
       put:
         operation_id: object.put
         operation_type: upload
         targets:
           rust-sdk:
             module_name: put
-          rust-cli:
-            module_name: put
-            sdk_mod_name: put
-            cli_full_command: object upload
+          #rust-cli:
+          #  module_name: put
+          #  sdk_mod_name: put
+          #  cli_full_command: object upload
       update:
         operation_id: object.post
         operation_type: set
         targets:
           rust-sdk:
             module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-            cli_full_command: object set
+          #rust-cli:
+          #  module_name: set
+          #  sdk_mod_name: set
+          #  cli_full_command: object set
       delete:
         operation_id: object.delete
         operation_type: delete
         targets:
           rust-sdk:
             module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-            cli_full_command: object delete
+          #rust-cli:
+          #  module_name: delete
+          #  sdk_mod_name: delete
+          #  cli_full_command: object delete

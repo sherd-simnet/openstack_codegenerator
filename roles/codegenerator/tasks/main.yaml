@@ -1,5 +1,18 @@
 ---
-- name: Invoke openstack-codegenerator
+- name: "Read service metadata"
+  ansible.builtin.slurp:
+    src: "{{ codegenerator_base_dir }}/{{ codegenerator_metadata }}"
+  register: "metadata_content"
+
+- ansible.builtin.set_fact:
+   metadata: "{{ metadata_content.content | b64decode | from_yaml }}"
+
+- name: "Check presense of openapi file (first one)"
+  ansible.builtin.stat:
+    path: "{{ codegenerator_base_dir }}/{{ metadata.resources | dict2items | map(attribute='value') | map(attribute='spec_file') | first }}"
+  register: "openapi_stat"
+
+- name: "Invoke openstack-codegenerator"
   args:
     chdir: "{{ codegenerator_base_dir }}"
     executable: "/bin/bash"
@@ -14,3 +27,5 @@
     {% if codegenerator_service_type is defined %}
     --service {{ codegenerator_service_type }}
     {% endif %}
+  when:
+    - "openapi_stat.stat.exists"
