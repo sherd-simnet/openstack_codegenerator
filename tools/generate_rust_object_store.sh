@@ -14,9 +14,9 @@ openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${MET
 # openstack-codegenerator --work-dir ${WRK_DIR} --target rust-cli --metadata ${METADATA}/object-store_metadata.yaml --service object-store
 
 
-for resource in "${NET_RESOURCES[@]}"; do
-  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/object_store/v1/${resource}" ${DST}/openstack_sdk/src/api/object_store/v1
-  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/object_store/v1/${resource}.rs" ${DST}/openstack_sdk/src/api/object_store/v1
-  #cp -av "${WRK_DIR}/rust/openstack_cli/src/object_store/v1/${resource}" ${DST}/openstack_cli/src/object_store/v1
-  #cp -av "${WRK_DIR}/rust/openstack_cli/tests/object_store/v1/${resource}" ${DST}/openstack_cli/tests/object_store/v1
-done;
+#for resource in "${NET_RESOURCES[@]}"; do
+#  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/object_store/v1/${resource}" ${DST}/openstack_sdk/src/api/object_store/v1
+#  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/object_store/v1/${resource}.rs" ${DST}/openstack_sdk/src/api/object_store/v1
+#  #cp -av "${WRK_DIR}/rust/openstack_cli/src/object_store/v1/${resource}" ${DST}/openstack_cli/src/object_store/v1
+#  #cp -av "${WRK_DIR}/rust/openstack_cli/tests/object_store/v1/${resource}" ${DST}/openstack_cli/tests/object_store/v1
+#done;
