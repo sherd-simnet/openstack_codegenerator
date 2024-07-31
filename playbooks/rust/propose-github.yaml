@@ -33,6 +33,7 @@
 
         - name: "Checkout target repository"
           ansible.builtin.git:
+            accept_newhostkey: true
             repo: "{{ rust_sdk_git_repo }}"
             dest: "{{ rust_project_dir }}"
 
@@ -42,7 +43,7 @@
             chdir: "{{ ansible_user_dir }}/openstack"
 
         - name: "Try to apply git patch"
-          ansible.builtin.command: "git apply --reject --ignore-space-change {{ git_patch_stat.stat.path }}"
+          ansible.builtin.command: "git am {{ git_patch_stat.stat.path }}"
           args:
             chdir: "{{ ansible_user_dir }}/openstack"
           register: "patch_applied"
