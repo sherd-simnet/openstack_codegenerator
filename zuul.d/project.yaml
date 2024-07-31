@@ -32,6 +32,6 @@
         - codegenerator-openapi-shared-file-system-tips-with-api-ref
         - codegenerator-tox-publish-openapi-specs
         - codegenerator-rust-all
-    post:
+    promote:
       jobs:
         - codegenerator-propose-rust-openstack-change
