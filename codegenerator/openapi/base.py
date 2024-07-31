@@ -730,7 +730,7 @@ class OpenStackServerSourceBase:
         if not response_code:
             response_codes = getattr(func, "wsgi_code", None)
             if response_codes and not isinstance(response_codes, list):
-                response_codes = [response_codes]
+                response_codes = [str(response_codes)]
         else:
             response_codes = [response_code]
         if not response_codes:
