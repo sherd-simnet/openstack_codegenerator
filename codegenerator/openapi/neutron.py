@@ -1012,6 +1012,95 @@ class NeutronGenerator(OpenStackServerSourceBase):
                             },
                         }
                     )
+                elif (
+                    resource_key == "security_group"
+                    and field == "security_group_rules"
+                ):
+                    js_schema.update(
+                        {
+                            "type": "array",
+                            "description": "A list of security_group_rule objects.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "The ID of the security group rule.",
+                                    },
+                                    "security_group_id": {
+                                        "type": "string",
+                                        "maxLength": 36,
+                                        "description": "The security group ID to associate with this\nsecurity group rule.",
+                                    },
+                                    "remote_group_id": {
+                                        "type": "string",
+                                        "description": "The remote group UUID to associate with this\nsecurity group rule. You can specify either the\n`remote_group_id` or `remote_ip_prefix` attribute in the\nrequest body.",
+                                    },
+                                    "direction": {
+                                        "type": "string",
+                                        "enum": ["ingress", "egress"],
+                                        "description": "Ingress or egress, which is the direction in\nwhich the security group rule is applied.",
+                                    },
+                                    "protocol": {
+                                        "type": "string",
+                                        "description": "The IP protocol can be represented by a string, an integer, or `null`.",
+                                    },
+                                    "port_range_min": {
+                                        "type": "string",
+                                        "description": "The minimum port number in the range that is\nmatched by the security group rule. If the protocol is TCP, UDP,\nDCCP, SCTP or UDP-Lite this value must be less than or equal to\nthe `port_range_max` attribute value. If the protocol is ICMP,\nthis value must be an ICMP type.",
+                                    },
+                                    "port_range_max": {
+                                        "type": "string",
+                                        "description": "The maximum port number in the range that is\nmatched by the security group rule. If the protocol is TCP, UDP,\nDCCP, SCTP or UDP-Lite this value must be greater than or equal to\nthe `port_range_min` attribute value. If the protocol is ICMP,\nthis value must be an ICMP code.",
+                                    },
+                                    "ethertype": {
+                                        "type": "string",
+                                        "enum": ["IPv4", "IPv6"],
+                                        "description": "Must be IPv4 or IPv6, and addresses represented\nin CIDR must match the ingress or egress rules.",
+                                    },
+                                    "remote_ip_prefix": {
+                                        "type": "string",
+                                        "description": "The remote IP prefix that is matched by this security group rule.",
+                                    },
+                                    "tenant_id": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "description": "The ID of the project.",
+                                    },
+                                    "revision_number": {
+                                        "type": "integer",
+                                        "description": "The revision number of the resource.",
+                                    },
+                                    "created_at": {
+                                        "type": "string",
+                                        "description": "Time at which the resource has been created (in UTC ISO8601 format).",
+                                    },
+                                    "updated_at": {
+                                        "type": "string",
+                                        "description": "Time at which the resource has been updated (in UTC ISO8601 format).",
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "description": "A human-readable description for the resource.",
+                                    },
+                                    "normalized_cidr": {
+                                        "type": ["string", "null"]
+                                    },
+                                    "remote_address_group_id": {
+                                        "type": "string",
+                                        "description": "The remote address group UUID that is associated with this\nsecurity group rule.",
+                                    },
+                                    "belongs_to_default_sg": {
+                                        "type": ["string", "boolean", "null"],
+                                        "description": "Indicates if the security group rule belongs to the default security\ngroup of the project or not.",
+                                    },
+                                },
+                            },
+                        }
+                    )
+
                 if data.get(f"allow_{method.lower()}", False):
                     send_props[field] = js_schema
                 if data.get("is_visible", False):
@@ -1298,6 +1387,8 @@ def get_schema(param_data):
             schema = {"type": ["string", "integer"]}
         elif convert_to.__name__ == "convert_to_int_if_not_none":
             schema = {"type": ["string", "integer", "null"]}
+        elif convert_to.__name__ == "convert_validate_port_value":
+            schema = {"type": ["integer", "null"]}
         else:
             logging.warning(
                 "Unsupported conversion function %s used", convert_to.__name__
