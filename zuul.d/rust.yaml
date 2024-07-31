@@ -95,3 +95,4 @@
     vars:
       rust_sdk_git_repo: "git@github.com:gtema/openstack.git"
       rust_project_dir: "{{ ansible_user_dir }}/openstack"
+      download_artifact_job: "codegenerator-rust-all"
