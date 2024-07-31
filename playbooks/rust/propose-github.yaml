@@ -50,7 +50,7 @@
           failed_when: false
 
         - name: "Push changes"
-          ansible.builtin.command: "git push"
+          ansible.builtin.command: "git push --set-upstream origin {{ branch_name }}"
           args:
             chdir: "{{ ansible_user_dir }}/openstack"
           when: "patch_applied.changed"
