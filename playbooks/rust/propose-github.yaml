@@ -33,6 +33,7 @@
 
         - name: "Checkout target repository"
           ansible.builtin.git:
+            accept_newhostkey: true
             repo: "{{ rust_sdk_git_repo }}"
             dest: "{{ rust_project_dir }}"
 
