@@ -19,3 +19,14 @@
       loop: "{{ install_additional_projects }}"
       loop_control:
         loop_var: zj_dep
+
+    - name: Download crate-ci/typos
+      ansible.builtin.get_url:
+        url: "https://github.com/crate-ci/typos/releases/download/v1.23.6/typos-v1.23.6-x86_64-unknown-linux-musl.tar.gz"
+        dest: "/tmp/typos.tar.gz"
+
+    - name: Unpack typos
+      ansible.builtin.unarchive:
+        src: "/tmp/typos.tar.gz"
+        dest: "/usr/local/bin"
+        remote_src: true
