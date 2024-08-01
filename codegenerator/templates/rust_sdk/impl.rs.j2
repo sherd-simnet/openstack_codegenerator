@@ -272,7 +272,11 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
 
 {#- EP is pageable if operation_type is list and there is limit or marker query parameter #}
 {%- if operation_type == "list" and "limit" in type_manager.parameters.keys() or "marker" in type_manager.parameters.keys() %}
-impl{{ type_manager.get_request_static_lifetimes(request) }} Pageable for Request{{ type_manager.get_request_static_lifetimes(request) }} {}
+impl{{ type_manager.get_request_static_lifetimes(request) }} Pageable for Request{{ type_manager.get_request_static_lifetimes(request) }} {
+  {%- if sdk_service_name == "ObjectStore" %}
+    fn use_keyset_pagination(&self) -> bool { false }
+  {%- endif %}
+}
 {%- endif %}
 
 #[cfg(test)]
