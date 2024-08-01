@@ -13,6 +13,7 @@
 import abc
 import copy
 import datetime
+import enum
 import importlib
 import inspect
 import logging
@@ -729,8 +730,15 @@ class OpenStackServerSourceBase:
                 operation_spec.deprecated = True
         if not response_code:
             response_codes = getattr(func, "wsgi_code", None)
-            if response_codes and not isinstance(response_codes, list):
-                response_codes = [str(response_codes)]
+            if response_codes:
+                if not isinstance(response_codes, list):
+                    response_codes = [response_codes]
+                # py starting from 3.11 magically works for str(enum.IntEnum),
+                # while older ones need an explicit conversion
+                response_codes = [
+                    rc.value if isinstance(rc, enum.IntEnum) else rc
+                    for rc in response_codes
+                ]
         else:
             response_codes = [response_code]
         if not response_codes:
