@@ -20,3 +20,6 @@
         {%- if codegenerator_api_ref is defined and codegenerator_api_ref is mapping %}
         --api-ref-src {{ ansible_user_dir }}/{{ zuul.projects[codegenerator_api_ref.project].src_dir }}/{{ codegenerator_api_ref.path | default("/api-ref/build/html/index.html") }}
         {% endif %}
+
+    - name: "Fix typos"
+      ansible.builtin.command: "{{ ansible_user_dir }}/bin/typos -vw {{ ansible_user_dir }}/{{ codegenerator_work_dir }}/openapi"
