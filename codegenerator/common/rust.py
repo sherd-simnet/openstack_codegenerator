@@ -780,10 +780,31 @@ class TypeManager:
                 if typ["class"] == number_klass:
                     kinds.remove(typ)
         elif string_klass in kinds_classes and integer_klass in kinds_classes:
-            if enum_name and (
-                enum_name.endswith("size") or enum_name.endswith("count")
-            ):
+            int_klass = next(
+                (
+                    x
+                    for x in type_model.kinds
+                    if isinstance(x, model.ConstraintInteger)
+                )
+            )
+            if (
                 # XX_size or XX_count is clearly an integer
+                (
+                    enum_name
+                    and (
+                        enum_name.endswith("size")
+                        or enum_name.endswith("count")
+                    )
+                )
+                # There is certain limit (min/max) - it can be only integer
+                or (
+                    int_klass
+                    and (
+                        int_klass.minimum is not None
+                        or int_klass.maximum is not None
+                    )
+                )
+            ):
                 for typ in list(kinds):
                     if typ["class"] == string_klass:
                         kinds.remove(typ)
