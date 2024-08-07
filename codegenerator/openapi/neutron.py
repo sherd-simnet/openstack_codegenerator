@@ -1377,18 +1377,18 @@ def get_schema(param_data):
                 "Unsupported type %s in %s" % (validate, param_data)
             )
             schema = {"type": "string"}
-    elif convert_to:
+    if convert_to:
         # Nice way to get type of the field, isn't it?
         if convert_to.__name__ == "convert_to_boolean":
-            schema = {"type": ["string", "boolean"]}
+            schema.update(**{"type": ["string", "boolean"]})
         elif convert_to.__name__ == "convert_to_boolean_if_not_none":
-            schema = {"type": ["string", "boolean", "null"]}
+            schema.update(**{"type": ["string", "boolean", "null"]})
         elif convert_to.__name__ == "convert_to_int":
-            schema = {"type": ["string", "integer"]}
+            schema.update(**{"type": ["string", "integer"]})
         elif convert_to.__name__ == "convert_to_int_if_not_none":
-            schema = {"type": ["string", "integer", "null"]}
+            schema.update(**{"type": ["string", "integer", "null"]})
         elif convert_to.__name__ == "convert_validate_port_value":
-            schema = {"type": ["integer", "null"]}
+            schema.update(**{"type": ["integer", "null"]})
         else:
             logging.warning(
                 "Unsupported conversion function %s used", convert_to.__name__
