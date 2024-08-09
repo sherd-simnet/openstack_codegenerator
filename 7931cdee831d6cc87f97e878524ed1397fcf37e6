@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4eb13769_f3695d19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27900
+      },
+      "writtenOn": "2024-08-09T09:10:02Z",
+      "side": 1,
+      "message": "After manually applying in target repo all functional and unit tests are working fine.",
+      "revId": "7931cdee831d6cc87f97e878524ed1397fcf37e6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
