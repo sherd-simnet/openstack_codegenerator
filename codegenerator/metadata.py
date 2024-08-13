@@ -171,7 +171,10 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "create"
                         elif method == "delete":
                             operation_key = "delete"
-                    elif path.endswith("/detail"):
+                    elif (
+                        path.endswith("/detail")
+                        and resource_name != "quota_set"
+                    ):
                         if method == "get":
                             operation_key = "list_detailed"
                     # elif path.endswith("/default"):
@@ -210,6 +213,19 @@ class MetadataGenerator(BaseGenerator):
                         and method == "get"
                     ):
                         operation_key = "list"
+                    elif (
+                        args.service_type == "compute"
+                        and resource_name == "quota_set"
+                        and path.endswith("defaults")
+                    ):
+                        operation_key = "defaults"
+                    elif (
+                        args.service_type == "compute"
+                        and resource_name == "quota_set"
+                        and path.endswith("detail")
+                    ):
+                        # normalize "details" name
+                        operation_key = "details"
                     elif (
                         args.service_type == "load-balancer"
                         and len(path_elements) > 1
@@ -262,6 +278,19 @@ class MetadataGenerator(BaseGenerator):
                         ]
                     ):
                         operation_key = path_elements[-1]
+                    elif (
+                        args.service_type == "network"
+                        and "quota" in path
+                        and path.endswith("/default")
+                    ):
+                        # normalize "defaults" name
+                        operation_key = "defaults"
+                    elif (
+                        args.service_type == "network"
+                        and "quota" in path
+                        and path.endswith("/details")
+                    ):
+                        operation_key = "details"
                     elif (
                         len(
                             [
@@ -655,6 +684,8 @@ def get_operation_type_by_key(operation_key):
         return "set"
     elif operation_key == "default":
         return "get"
+    elif operation_key == "details":
+        return "show"
     elif operation_key == "download":
         return "download"
     elif operation_key == "upload":
@@ -865,6 +896,12 @@ def post_process_compute_operation(
             operation.targets["rust-cli"].cli_full_command = operation.targets[
                 "rust-cli"
             ].cli_full_command.replace("remove-tenant-access", "access remove")
+
+    if resource_name == "limit":
+        # Limits API return object and not a list
+        operation.targets["rust-cli"].operation_type = "show"
+        operation.targets["rust-cli"].response_key = "limits"
+        operation.targets["rust-sdk"].response_key = "limits"
 
     if "/tag" in resource_name:
         if operation_name == "update":

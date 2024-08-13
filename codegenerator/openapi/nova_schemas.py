@@ -217,58 +217,64 @@ FLAVOR_ACCESSES_SCHEMA: dict[str, Any] = {
 
 LIMITS_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "description": "Data structure that contains both absolute limits within a deployment.",
     "properties": {
-        "absolute": {
+        "limits": {
             "type": "object",
+            "description": "Data structure that contains both absolute limits within a deployment.",
             "properties": {
-                "maxServerGroupMembers": {
-                    "type": "integer",
-                    "description": "The number of allowed members for each server group.",
-                },
-                "maxServerGroups": {
-                    "type": "integer",
-                    "description": "The number of allowed server groups for each tenant.",
-                },
-                "maxServerMetamaxServerMeta": {
-                    "type": "integer",
-                    "description": "The number of allowed metadata items for each server.",
-                },
-                "maxTotalCores": {
-                    "type": "integer",
-                    "description": "The number of allowed server cores for each tenant.",
-                },
-                "maxTotalInstances": {
-                    "type": "integer",
-                    "description": "The number of allowed servers for each tenant.",
-                },
-                "maxTotalKeypairs": {
-                    "type": "integer",
-                    "description": "The number of allowed key pairs for each user.",
-                },
-                "maxTotalRAMSize": {
-                    "type": "integer",
-                    "description": "The amount of allowed server RAM, in MiB, for each tenant.",
-                },
-                "totalCoresUsed": {
-                    "type": "integer",
-                    "description": "The number of used server cores in each tenant. If reserved query parameter is specified and it is not 0, the number of reserved server cores are also included.",
-                },
-                "totalInstancesUsed": {
-                    "type": "integer",
-                    "description": "The number of servers in each tenant. If reserved query parameter is specified and it is not 0, the number of reserved servers are also included.",
-                },
-                "totalRAMUsed": {
-                    "type": "integer",
-                    "description": "The amount of used server RAM in each tenant. If reserved query parameter is specified and it is not 0, the amount of reserved server RAM is also included.",
-                },
-                "totalServerGroupsUsed": {
-                    "type": "integer",
-                    "description": "The number of used server groups in each tenant. If reserved query parameter is specified and it is not 0, the number of reserved server groups are also included.",
+                "absolute": {
+                    "type": "object",
+                    "description": "Name/value pairs that set quota limits within a deployment and Name/value pairs of resource usage.",
+                    "properties": {
+                        "maxServerGroupMembers": {
+                            "type": "integer",
+                            "description": "The number of allowed members for each server group.",
+                        },
+                        "maxServerGroups": {
+                            "type": "integer",
+                            "description": "The number of allowed server groups for each tenant.",
+                        },
+                        "maxServerMetamaxServerMeta": {
+                            "type": "integer",
+                            "description": "The number of allowed metadata items for each server.",
+                        },
+                        "maxTotalCores": {
+                            "type": "integer",
+                            "description": "The number of allowed server cores for each tenant.",
+                        },
+                        "maxTotalInstances": {
+                            "type": "integer",
+                            "description": "The number of allowed servers for each tenant.",
+                        },
+                        "maxTotalKeypairs": {
+                            "type": "integer",
+                            "description": "The number of allowed key pairs for each user.",
+                        },
+                        "maxTotalRAMSize": {
+                            "type": "integer",
+                            "description": "The amount of allowed server RAM, in MiB, for each tenant.",
+                        },
+                        "totalCoresUsed": {
+                            "type": "integer",
+                            "description": "The number of used server cores in each tenant. If reserved query parameter is specified and it is not 0, the number of reserved server cores are also included.",
+                        },
+                        "totalInstancesUsed": {
+                            "type": "integer",
+                            "description": "The number of servers in each tenant. If reserved query parameter is specified and it is not 0, the number of reserved servers are also included.",
+                        },
+                        "totalRAMUsed": {
+                            "type": "integer",
+                            "description": "The amount of used server RAM in each tenant. If reserved query parameter is specified and it is not 0, the amount of reserved server RAM is also included.",
+                        },
+                        "totalServerGroupsUsed": {
+                            "type": "integer",
+                            "description": "The number of used server groups in each tenant. If reserved query parameter is specified and it is not 0, the number of reserved server groups are also included.",
+                        },
+                    },
+                    "additionalProperties": {"type": "integer"},
                 },
             },
-            "additionalProperties": {"type": "integer"},
-        },
+        }
     },
 }
 
