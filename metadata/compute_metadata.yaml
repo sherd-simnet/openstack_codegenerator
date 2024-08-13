@@ -219,16 +219,19 @@ resources:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
-      get:
+      list:
         operation_id: limits:get
-        operation_type: get
+        operation_type: list
         targets:
           rust-sdk:
-            module_name: get
+            module_name: list
+            response_key: limits
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
-            cli_full_command: limit get
+            module_name: list
+            sdk_mod_name: list
+            operation_type: show
+            response_key: limits
+            cli_full_command: limit list
   compute.aggregate:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -738,30 +741,26 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             cli_full_command: quota-set delete
-      list_detailed:
+      details:
         operation_id: os-quota-sets/id/detail:get
-        operation_type: list
+        operation_type: show
         targets:
           rust-sdk:
-            module_name: list_detailed
+            module_name: details
           rust-cli:
-            module_name: list
-            sdk_mod_name: list_detailed
-            cli_full_command: quota-set list
-  compute.quota_set/default:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
+            module_name: details
+            sdk_mod_name: details
+            cli_full_command: quota-set details
+      defaults:
         operation_id: os-quota-sets/id/defaults:get
-        operation_type: get
+        operation_type: show
         targets:
           rust-sdk:
-            module_name: get
+            module_name: defaults
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
-            cli_full_command: quota-set default get
+            module_name: defaults
+            sdk_mod_name: defaults
+            cli_full_command: quota-set defaults
   compute.server_external_event:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
