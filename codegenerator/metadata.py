@@ -263,6 +263,18 @@ class MetadataGenerator(BaseGenerator):
                     ):
                         operation_key = path_elements[-1]
                     elif (
+                        args.service_type == "network"
+                        and "quota" in path
+                        and path.endswith("/default")
+                    ):
+                        operation_key = "default"
+                    elif (
+                        args.service_type == "network"
+                        and "quota" in path
+                        and path.endswith("/details")
+                    ):
+                        operation_key = "details"
+                    elif (
                         len(
                             [
                                 x
@@ -655,6 +667,8 @@ def get_operation_type_by_key(operation_key):
         return "set"
     elif operation_key == "default":
         return "get"
+    elif operation_key == "details":
+        return "show"
     elif operation_key == "download":
         return "download"
     elif operation_key == "upload":
@@ -865,6 +879,12 @@ def post_process_compute_operation(
             operation.targets["rust-cli"].cli_full_command = operation.targets[
                 "rust-cli"
             ].cli_full_command.replace("remove-tenant-access", "access remove")
+
+    if resource_name == "limit":
+        # Limits API return object and not a list
+        operation.targets["rust-cli"].operation_type = "show"
+        operation.targets["rust-cli"].response_key = "limits"
+        operation.targets["rust-sdk"].response_key = "limits"
 
     if "/tag" in resource_name:
         if operation_name == "update":

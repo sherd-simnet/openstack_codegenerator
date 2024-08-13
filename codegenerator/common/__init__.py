@@ -505,6 +505,10 @@ def get_resource_names_from_url(path: str):
         "delete_key",
     ]:
         path_resource_names = ["qos_spec"]
+    if path_resource_names == ["quota", "default"]:
+        path_resource_names = ["quota"]
+    if path_resource_names == ["quota", "details"]:
+        path_resource_names = ["quota"]
     if path == "/v3/domains/{domain_id}/config":
         path_resource_names = ["domain", "config"]
     elif path == "/v3/domains/{domain_id}/config/{group}":

@@ -225,9 +225,12 @@ resources:
         targets:
           rust-sdk:
             module_name: get
+            response_key: limits
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            operation_type: show
+            response_key: limits
             cli_full_command: limit get
   compute.aggregate:
     spec_file: wrk/openapi_specs/compute/v2.yaml

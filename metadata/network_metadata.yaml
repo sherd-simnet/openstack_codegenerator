@@ -2342,6 +2342,16 @@ resources:
             module_name: list
             sdk_mod_name: list
             cli_full_command: quota list
+      default:
+        operation_id: quotas/id/default:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: default
+          rust-cli:
+            module_name: default
+            sdk_mod_name: default
+            cli_full_command: quota default
       show:
         operation_id: quotas/id:get
         operation_type: show
@@ -2372,34 +2382,16 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             cli_full_command: quota delete
-  network.quota/default:
-    spec_file: wrk/openapi_specs/network/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: quotas/id/default:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-            cli_full_command: quota default get
-  network.quota/details:
-    spec_file: wrk/openapi_specs/network/v2.yaml
-    api_version: v2
-    operations:
-      get:
+      details:
         operation_id: quotas/id/details:get
-        operation_type: get
+        operation_type: show
         targets:
           rust-sdk:
-            module_name: get
+            module_name: details
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
-            cli_full_command: quota details get
+            module_name: details
+            sdk_mod_name: details
+            cli_full_command: quota details
   network.rbac_policy:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
