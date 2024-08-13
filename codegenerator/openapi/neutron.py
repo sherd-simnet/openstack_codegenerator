@@ -1100,6 +1100,8 @@ class NeutronGenerator(OpenStackServerSourceBase):
                             },
                         }
                     )
+                elif resource_key == "subnetpool" and field == "ip_version":
+                    js_schema.update({"type": "integer"})
 
                 if data.get(f"allow_{method.lower()}", False):
                     send_props[field] = js_schema
