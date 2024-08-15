@@ -22,26 +22,6 @@ from codegenerator.common.schema import TypeSchema
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.openapi.keystone_schemas import common
 
-# Application Credentials
-APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {
-        "access_rules": copy.deepcopy(
-            application_credential_schema._access_rules_properties
-        ),
-        "links": copy.deepcopy(common.LINKS_SCHEMA),
-    },
-}
-
-APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {
-        "access_rule": copy.deepcopy(
-            application_credential_schema._access_rules_properties["items"]
-        ),
-    },
-}
-
 APPLICATION_CREDENTIAL_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
@@ -138,19 +118,7 @@ def _get_schema_ref(
     mime_type: str = "application/json"
     ref: str
     # ### Application Credentials
-    if name == "UsersAccess_RuleGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "UsersAccess_RulesGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "UsersApplication_CredentialsGetResponse":
+    if name == "UsersApplication_CredentialsGetResponse":
         openapi_spec.components.schemas.setdefault(
             name,
             TypeSchema(**APPLICATION_CREDENTIALS_SCHEMA),
