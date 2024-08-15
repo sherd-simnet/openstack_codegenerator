@@ -18,7 +18,7 @@ import importlib
 import inspect
 import logging
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 import re
 
 from codegenerator.common.schema import ParameterSchema
@@ -33,6 +33,16 @@ from wsme import types as wtypes
 
 
 VERSION_RE = re.compile(r"[Vv][0-9\.]*")
+
+
+# Workaround Python's lack of an undefined sentinel
+# https://python-patterns.guide/python/sentinel-object/
+class Unset:
+    def __bool__(self) -> Literal[False]:
+        return False
+
+
+UNSET: Unset = Unset()
 
 
 def get_referred_type_data(func, name: str):
@@ -893,9 +903,9 @@ class OpenStackServerSourceBase:
         mode,
         action_name,
     ):
-        op_body = operation_spec.requestBody.setdefault("content", {})
         mime_type: str = "application/json"
         schema_name = None
+        schema_ref: str | Unset | None = None
         # We should not modify path_resource_names of the caller
         path_resource_names = path_resource_names.copy()
         # Create container schema with version discriminator
@@ -909,19 +919,24 @@ class OpenStackServerSourceBase:
 
         if len(body_schemas) == 1:
             # There is only one body known at the moment
-            if cont_schema_name in openapi_spec.components.schemas:
-                # if we have already oneOf - add there
-                cont_schema = openapi_spec.components.schemas[cont_schema_name]
-                if cont_schema.oneOf and body_schemas[0] not in [
-                    x["$ref"] for x in cont_schema.oneOf
-                ]:
-                    cont_schema.oneOf.append({"$ref": body_schemas[0]})
-                schema_ref = f"#/components/schemas/{cont_schema_name}"
-            else:
-                # otherwise just use schema as body
-                schema_ref = body_schemas[0]
+            # None is a special case with explicitly no body supported
+            if body_schemas[0] is not UNSET:
+                if cont_schema_name in openapi_spec.components.schemas:
+                    # if we have already oneOf - add there
+                    cont_schema = openapi_spec.components.schemas[
+                        cont_schema_name
+                    ]
+                    if cont_schema.oneOf and body_schemas[0] not in [
+                        x["$ref"] for x in cont_schema.oneOf
+                    ]:
+                        cont_schema.oneOf.append({"$ref": body_schemas[0]})
+                    schema_ref = f"#/components/schemas/{cont_schema_name}"
+                else:
+                    # otherwise just use schema as body
+                    schema_ref = body_schemas[0]
         elif len(body_schemas) > 1:
             # We may end up here multiple times if we have versioned operation. In this case merge to what we have already
+            op_body = operation_spec.requestBody.setdefault("content", {})
             old_schema = op_body.get(mime_type, {}).get("schema", {})
             old_ref = (
                 old_schema.ref
@@ -984,16 +999,20 @@ class OpenStackServerSourceBase:
             )
 
         if mode == "action":
+            op_body = operation_spec.requestBody.setdefault("content", {})
             js_content = op_body.setdefault(mime_type, {})
             body_schema = js_content.setdefault("schema", {})
             one_of = body_schema.setdefault("oneOf", [])
-            if schema_ref not in [x.get("$ref") for x in one_of]:
+            if schema_ref and schema_ref not in [
+                x.get("$ref") for x in one_of
+            ]:
                 one_of.append({"$ref": schema_ref})
             os_ext = body_schema.setdefault("x-openstack", {})
             os_ext["discriminator"] = "action"
             if cont_schema and action_name:
                 cont_schema.openstack["action-name"] = action_name
-        elif schema_ref:
+        elif schema_ref is not UNSET:
+            op_body = operation_spec.requestBody.setdefault("content", {})
             js_content = op_body.setdefault(mime_type, {})
             body_schema = js_content.setdefault("schema", {})
             operation_spec.requestBody["content"][mime_type]["schema"] = (
@@ -1127,12 +1146,13 @@ class OpenStackServerSourceBase:
                 "type": "object",
                 "description": LiteralScalarString(description),
             }
-        schema = openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(
-                **schema_def,
-            ),
-        )
+        if schema_def is not UNSET:
+            schema = openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **schema_def,
+                ),
+            )
 
         if action_name:
             if not schema.openstack:
@@ -1180,9 +1200,9 @@ class OpenStackServerSourceBase:
         """Extract schemas from the decorated method."""
         # Unwrap operation decorators to access all properties
         expected_errors: list[str] = []
-        body_schemas: list[str] = []
+        body_schemas: list[str | Unset] = []
         query_params_versions: list[tuple] = []
-        response_body_schema: dict | None = None
+        response_body_schema: dict | Unset | None = UNSET
 
         f = func
         while hasattr(f, "__wrapped__"):
@@ -1214,38 +1234,47 @@ class OpenStackServerSourceBase:
                     "request_body_schema",
                     getattr(f, "_request_body_schema", {}),
                 )
-                if obj.get("type") in ["object", "array"]:
-                    # We only allow object and array bodies
-                    # To prevent type name collision keep module name part of the name
-                    typ_name = (
-                        "".join([x.title() for x in path_resource_names])
-                        + func.__name__.title()
-                        + (f"_{min_ver.replace('.', '')}" if min_ver else "")
-                    )
-                    comp_schema = openapi_spec.components.schemas.setdefault(
-                        typ_name,
-                        self._sanitize_schema(
-                            copy.deepcopy(obj),
-                            start_version=start_version,
-                            end_version=end_version,
-                        ),
-                    )
+                if obj:
+                    if obj.get("type") in ["object", "array"]:
+                        # We only allow object and array bodies
+                        # To prevent type name collision keep module name part of the name
+                        typ_name = (
+                            "".join([x.title() for x in path_resource_names])
+                            + func.__name__.title()
+                            + (
+                                f"_{min_ver.replace('.', '')}"
+                                if min_ver
+                                else ""
+                            )
+                        )
+                        comp_schema = (
+                            openapi_spec.components.schemas.setdefault(
+                                typ_name,
+                                self._sanitize_schema(
+                                    copy.deepcopy(obj),
+                                    start_version=start_version,
+                                    end_version=end_version,
+                                ),
+                            )
+                        )
 
-                    if min_ver:
-                        if not comp_schema.openstack:
-                            comp_schema.openstack = {}
-                        comp_schema.openstack["min-ver"] = min_ver
-                    if max_ver:
-                        if not comp_schema.openstack:
-                            comp_schema.openstack = {}
-                        comp_schema.openstack["max-ver"] = max_ver
-                    if mode == "action":
-                        if not comp_schema.openstack:
-                            comp_schema.openstack = {}
-                        comp_schema.openstack["action-name"] = action_name
+                        if min_ver:
+                            if not comp_schema.openstack:
+                                comp_schema.openstack = {}
+                            comp_schema.openstack["min-ver"] = min_ver
+                        if max_ver:
+                            if not comp_schema.openstack:
+                                comp_schema.openstack = {}
+                            comp_schema.openstack["max-ver"] = max_ver
+                        if mode == "action":
+                            if not comp_schema.openstack:
+                                comp_schema.openstack = {}
+                            comp_schema.openstack["action-name"] = action_name
 
-                    ref_name = f"#/components/schemas/{typ_name}"
-                    body_schemas.append(ref_name)
+                        ref_name = f"#/components/schemas/{typ_name}"
+                        body_schemas.append(ref_name)
+                else:
+                    body_schemas.append(UNSET)
 
             if "response_body_schema" in closure_locals or hasattr(
                 f, "_response_body_schema"
@@ -1255,7 +1284,10 @@ class OpenStackServerSourceBase:
                     "response_body_schema",
                     getattr(f, "_response_body_schema", {}),
                 )
-                response_body_schema = obj
+                if obj:
+                    response_body_schema = obj
+                else:
+                    response_body_schema = UNSET
             if "query_params_schema" in closure_locals or hasattr(
                 f, "_request_query_schema"
             ):

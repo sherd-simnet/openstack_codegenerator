@@ -1070,19 +1070,6 @@ resources:
             operation_name: trigger_crash_dump
             find_implemented_by_sdk: true
             cli_full_command: server trigger-crash-dump
-      reset-network:
-        operation_id: servers/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: reset_network
-            operation_name: resetNetwork
-          rust-cli:
-            module_name: reset_network
-            sdk_mod_name: reset_network
-            operation_name: resetNetwork
-            find_implemented_by_sdk: true
-            cli_full_command: server reset-network
       inject-network-info:
         operation_id: servers/id/action:post
         operation_type: action
