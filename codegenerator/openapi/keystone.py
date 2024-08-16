@@ -10,7 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import copy
 import inspect
 from multiprocessing import Process
 import logging
@@ -22,7 +21,7 @@ from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
-from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi.base import OpenStackServerSourceBase, UNSET
 from codegenerator.openapi.keystone_schemas import application_credential
 from codegenerator.openapi.keystone_schemas import auth
 from codegenerator.openapi.keystone_schemas import common
@@ -368,7 +367,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         start_version = None
         end_version = None
         deser_schema: dict = {}
-        ser_schema: dict = {}
+        ser_schema: dict | None = {}
 
         (
             query_params_versions,
@@ -512,7 +511,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         # Invoke modularized schema _get_schema_ref
         for resource_mod in self.RESOURCE_MODULES:
             hook = getattr(resource_mod, "_get_schema_ref", None)
-            if hook:
+            if hook and schema_def is not UNSET:
                 (ref, mime_type, matched) = hook(
                     openapi_spec, name, description, schema_def, action_name
                 )
@@ -527,5 +526,4 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             schema_def=schema_def,
             action_name=action_name,
         )
-
         return (ref, mime_type)
