@@ -203,7 +203,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         schema_def=None,
         action_name=None,
     ):
-        mime_type: str = "application/json"
+        mime_type: str | None = "application/json"
 
         # Invoke modularized schema _get_schema_ref
         for resource_mod in self.RESOURCE_MODULES:

@@ -423,8 +423,8 @@ class GlanceGenerator(OpenStackServerSourceBase):
         from glance.api.v2 import tasks
         from glance import schema as glance_schema
 
-        ref: str
-        mime_type: str = "application/json"
+        ref: str | None
+        mime_type: str | None = "application/json"
 
         if name == "TasksListResponse":
             openapi_spec.components.schemas.setdefault(
