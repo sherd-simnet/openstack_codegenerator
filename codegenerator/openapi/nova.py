@@ -158,8 +158,9 @@ class NovaGenerator(OpenStackServerSourceBase):
     ):
         from nova.api.openstack.compute.schemas import flavors
 
-        schema = None
-        mime_type: str = "application/json"
+        schema: None = None
+        ref: str | None
+        mime_type: str | None = "application/json"
         # NOTE(gtema): This must go away once scemas are merged directly to
         # Nova
         # /servers

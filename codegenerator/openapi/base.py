@@ -601,7 +601,7 @@ class OpenStackServerSourceBase:
 
         action_name = None
         query_params_versions = []
-        body_schemas = []
+        body_schemas: list[str | None] | Unset = UNSET
         expected_errors = ["404"]
         response_code = None
         # Version bound on an operation are set only when it is not an
@@ -682,13 +682,16 @@ class OpenStackServerSourceBase:
                 openapi_spec.components.schemas.setdefault(
                     schema_name, TypeSchema(**body_schema)
                 )
-                body_schemas.append(f"#/components/schemas/{schema_name}")
+                if body_schemas is UNSET:
+                    body_schemas = []
+                if isinstance(body_schemas, list):
+                    body_schemas.append(f"#/components/schemas/{schema_name}")
             rsp_spec = getattr(fdef, "return_type", None)
             if rsp_spec:
                 ser_schema = _convert_wsme_to_jsonschema(rsp_spec)
             response_code = getattr(fdef, "status_code", None)
 
-        if not body_schemas and deser_schema:
+        if body_schemas is UNSET and deser_schema:
             # Glance may have request deserializer attached schema
             schema_name = (
                 "".join([x.title() for x in path_resource_names])
@@ -903,7 +906,10 @@ class OpenStackServerSourceBase:
         mode,
         action_name,
     ):
-        mime_type: str = "application/json"
+        # Body is not expected, exit (unless we are in the "action")
+        if body_schemas is None or (body_schemas == [] and mode != "action"):
+            return
+        mime_type: str | None = "application/json"
         schema_name = None
         schema_ref: str | Unset | None = None
         # We should not modify path_resource_names of the caller
@@ -917,10 +923,10 @@ class OpenStackServerSourceBase:
         )
         cont_schema = None
 
-        if len(body_schemas) == 1:
+        if body_schemas is not UNSET and len(body_schemas) == 1:
             # There is only one body known at the moment
             # None is a special case with explicitly no body supported
-            if body_schemas[0] is not UNSET:
+            if True:  # body_schemas[0] is not UNSET:
                 if cont_schema_name in openapi_spec.components.schemas:
                     # if we have already oneOf - add there
                     cont_schema = openapi_spec.components.schemas[
@@ -934,7 +940,7 @@ class OpenStackServerSourceBase:
                 else:
                     # otherwise just use schema as body
                     schema_ref = body_schemas[0]
-        elif len(body_schemas) > 1:
+        elif body_schemas is not UNSET and len(body_schemas) > 1:
             # We may end up here multiple times if we have versioned operation. In this case merge to what we have already
             op_body = operation_spec.requestBody.setdefault("content", {})
             old_schema = op_body.get(mime_type, {}).get("schema", {})
@@ -968,7 +974,7 @@ class OpenStackServerSourceBase:
                 # not to create container. Now we need to change that by
                 # merging with previous data
                 cont_schema.oneOf.append({"$ref": old_ref})
-        elif len(body_schemas) == 0 and mode == "action":
+        elif mode == "action":
             # There are actions without a real body description, but we know that action requires dummy body
             cont_schema = openapi_spec.components.schemas.setdefault(
                 cont_schema_name,
@@ -980,7 +986,7 @@ class OpenStackServerSourceBase:
                 ),
             )
             schema_ref = f"#/components/schemas/{cont_schema_name}"
-        elif len(body_schemas) == 0:
+        elif body_schemas is UNSET:
             # We know nothing about request
             schema_name = (
                 "".join([x.title() for x in path_resource_names])
@@ -1134,19 +1140,20 @@ class OpenStackServerSourceBase:
         self,
         openapi_spec,
         name,
-        description=None,
-        schema_def=None,
+        description: str | None = None,
+        schema_def=UNSET,
         action_name=None,
-    ) -> tuple[str, str]:
-        if not schema_def:
+    ) -> tuple[str | None, str | None]:
+        if schema_def is UNSET:
             logging.warn(
                 "No Schema definition for %s[%s] is known", name, action_name
             )
+            # Create dummy schema since we got no data for it
             schema_def = {
                 "type": "object",
                 "description": LiteralScalarString(description),
             }
-        if schema_def is not UNSET:
+        if schema_def is not None:
             schema = openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
@@ -1154,12 +1161,14 @@ class OpenStackServerSourceBase:
                 ),
             )
 
-        if action_name:
-            if not schema.openstack:
-                schema.openstack = {}
-            schema.openstack.setdefault("action-name", action_name)
+            if action_name:
+                if not schema.openstack:
+                    schema.openstack = {}
+                schema.openstack.setdefault("action-name", action_name)
 
-        return (f"#/components/schemas/{name}", "application/json")
+            return (f"#/components/schemas/{name}", "application/json")
+        else:
+            return (None, None)
 
     def _get_tags_for_url(self, url):
         """Return Tag (group) name based on the URL"""
@@ -1200,7 +1209,7 @@ class OpenStackServerSourceBase:
         """Extract schemas from the decorated method."""
         # Unwrap operation decorators to access all properties
         expected_errors: list[str] = []
-        body_schemas: list[str | Unset] = []
+        body_schemas: list[str | None] | Unset = UNSET
         query_params_versions: list[tuple] = []
         response_body_schema: dict | Unset | None = UNSET
 
@@ -1234,6 +1243,9 @@ class OpenStackServerSourceBase:
                     "request_body_schema",
                     getattr(f, "_request_body_schema", {}),
                 )
+                # body schemas are not UNSET anymore
+                if body_schemas is UNSET:
+                    body_schemas = []
                 if obj is not None:
                     if obj.get("type") in ["object", "array"]:
                         # We only allow object and array bodies
@@ -1272,9 +1284,12 @@ class OpenStackServerSourceBase:
                             comp_schema.openstack["action-name"] = action_name
 
                         ref_name = f"#/components/schemas/{typ_name}"
-                        body_schemas.append(ref_name)
+                        if isinstance(body_schemas, list):
+                            body_schemas.append(ref_name)
                 else:
-                    body_schemas.append(UNSET)
+                    # register no-body
+                    if isinstance(body_schemas, list):
+                        body_schemas.append(None)
 
             if "response_body_schema" in closure_locals or hasattr(
                 f, "_response_body_schema"
@@ -1284,10 +1299,7 @@ class OpenStackServerSourceBase:
                     "response_body_schema",
                     getattr(f, "_response_body_schema", {}),
                 )
-                if obj is not None:
-                    response_body_schema = obj
-                else:
-                    response_body_schema = UNSET
+                response_body_schema = obj
             if "query_params_schema" in closure_locals or hasattr(
                 f, "_request_query_schema"
             ):

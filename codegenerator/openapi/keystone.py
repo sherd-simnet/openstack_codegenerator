@@ -511,7 +511,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         # Invoke modularized schema _get_schema_ref
         for resource_mod in self.RESOURCE_MODULES:
             hook = getattr(resource_mod, "_get_schema_ref", None)
-            if hook and schema_def is not UNSET:
+            if hook:
                 (ref, mime_type, matched) = hook(
                     openapi_spec, name, description, schema_def, action_name
                 )
