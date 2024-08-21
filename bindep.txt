@@ -10,3 +10,6 @@ cryptsetup [platform:rpm]
 cryptsetup-bin [platform:dpkg]
 libssl-dev [platform:dpkg]
 openssl-devel [platform:rpm]
+
+# There are no wheels for pillow on py3.12 so we need to enable building it
+libjpeg-dev [platform:dpkg]
