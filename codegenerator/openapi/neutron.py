@@ -281,7 +281,38 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         }
                     },
                     headers={},
-                    parameters={},
+                    parameters={
+                        "limit": ParameterSchema(
+                            name="limit",
+                            location="query",
+                            description="Limits count of entries returned on a single page",
+                            type_schema=TypeSchema(type="integer", minimum=0),
+                        ),
+                        "marker": ParameterSchema(
+                            name="marker",
+                            location="query",
+                            description="The ID of the last-seen item. Use the limit parameter to make an initial limited request and use the ID of the last-seen item from the response as the marker parameter value in a subsequent limited request.",
+                            type_schema=TypeSchema(type="string"),
+                        ),
+                        "page_reverse": ParameterSchema(
+                            name="page_reverse",
+                            location="query",
+                            description="Reverse the page direction",
+                            type_schema=TypeSchema(type="bool"),
+                        ),
+                        "sort_key": ParameterSchema(
+                            name="sort_key",
+                            location="query",
+                            description="Sort results by the attribute. This is an optional feature and may be silently ignored by the server.",
+                            type_schema=TypeSchema(type="bool"),
+                        ),
+                        "sort_dir": ParameterSchema(
+                            name="sort_dir",
+                            location="query",
+                            description="Sort direction. This is an optional feature and may be silently ignored by the server.",
+                            type_schema=TypeSchema(enum=["asc", "desc"]),
+                        ),
+                    },
                     schemas={},
                 ),
             )
@@ -724,7 +755,26 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         operation_spec.parameters.append(
                             ParameterSchema(ref=param_ref_name)
                         )
-
+            if path != "/v2.0/extensions" and collection not in ["extensions"]:
+                # All Neutron LIST operations support pagination and sorting (as
+                # much as possible). Sadly there is no preciese info whether
+                # certain operations do not support that so we add it everywhere
+                # by default.
+                operation_spec.parameters.append(
+                    ParameterSchema(ref="#/components/parameters/sort_key")
+                )
+                operation_spec.parameters.append(
+                    ParameterSchema(ref="#/components/parameters/sort_dir")
+                )
+                operation_spec.parameters.append(
+                    ParameterSchema(ref="#/components/parameters/limit")
+                )
+                operation_spec.parameters.append(
+                    ParameterSchema(ref="#/components/parameters/marker")
+                )
+                operation_spec.parameters.append(
+                    ParameterSchema(ref="#/components/parameters/page_reverse")
+                )
         responses_spec = operation_spec.responses
         if method == "DELETE":
             response_code = "204"
