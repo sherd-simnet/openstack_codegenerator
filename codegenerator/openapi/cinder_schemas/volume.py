@@ -234,7 +234,7 @@ VOLUMES_DETAIL_SCHEMA: dict[str, Any] = {
 VOLUME_PARAMETERS: dict[str, Any] = {
     "all_tenants": {
         "in": "query",
-        "name": "all_tenans",
+        "name": "all_tenants",
         "schema": {
             "type": "boolean",
         },
@@ -268,9 +268,7 @@ VOLUME_PARAMETERS: dict[str, Any] = {
     "limit": {
         "in": "query",
         "name": "limit",
-        "schema": {
-            "type": "integer",
-        },
+        "schema": {"type": "integer", "minimum": 1},
         "description": "Requests a page size of items. Returns a number of items up to a limit value. Use the limit parameter to make an initial limited request and use the ID of the last-seen item from the response as the marker parameter value in a subsequent limited request.",
     },
     "offset": {
