@@ -224,6 +224,15 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                     )
                 # We can only assume the param type. For path it is logically a string only
                 path_param.type_schema = TypeSchema(type="string")
+                # For non /users/{id} urls link user_id path attribute to the user resource
+                if path_param.name == "user_id" and path_resource_names != [
+                    "users"
+                ]:
+                    if not path_param.openstack:
+                        path_param.openstack = {}
+                    path_param.openstack["resource_link"] = (
+                        "identity/v3/user.id"
+                    )
                 openapi_spec.components.parameters[global_param_name] = (
                     path_param
                 )

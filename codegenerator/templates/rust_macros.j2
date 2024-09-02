@@ -381,27 +381,66 @@ Some({{ val }})
         // Set path parameters
 {%- endif %}
 {%- for (k, v) in type_manager.get_parameters("path") %}
-{%- if not v.is_required %}
-  {%- if k != "project_id" %}
+  {%- if v.resource_link %}
+    {%- set res_name = v.resource_link.split(".")[0].split('/')[-1] %}
+
+        // Process path parameter `{{ k }}`
+        if let Some(id) = &self.path.{{ res_name }}.{{ res_name }}_id {
+            // {{ res_name }}_id is passed. No need to lookup
+            {{ builder }}.{{ v.remote_name }}(id);
+        }
+        else if let Some(name) = &self.path.user.user_name {
+            // {{ res_name }}_name is passed. Need to lookup resource
+            let mut find_builder = find_{{ res_name }}::Request::builder();
+            warn!("Querying {{ res_name}} by name (because of `--{{res_name}}-name` parameter passed) may not be definite. This may fail in which case parameter `--{{res_name}}-id` should be used instead.");
+
+            find_builder.id(name);
+            let find_ep = find_builder
+                .build()
+                .map_err(|x| OpenStackCliError::EndpointBuild(x.to_string()))?;
+            let find_data: serde_json::Value = find_by_name(find_ep).query_async(client).await?;
+            // Try to extract resource id
+            match find_data.get("id") {
+                Some(val) => match val.as_str() {
+                    Some(id_str) => {
+                        {{ builder }}.{{ v.remote_name }}(id_str.to_owned());
+                    }
+                    None => {
+                        return Err(OpenStackCliError::ResourceAttributeNotString(
+                            serde_json::to_string(&val)?,
+                        ))
+                    }
+                },
+                None => {
+                    return Err(OpenStackCliError::ResourceAttributeMissing(
+                        "id".to_string(),
+                    ))
+                }
+            };
+        }
+  {%- else %}
+  {%- if not v.is_required %}
+    {%- if k != "project_id" %}
         if let Some(val) = &self.path.{{ v.local_name }} {
             {{ builder }}.{{ v.local_name }}(val);
         }
-  {%- else %}
+    {%- else %}
         if let Some(val) = &self.path.{{ v.local_name }} {
             {{ builder }}.{{ v.local_name }}(val);
         } else {
             {{ builder }}.{{ v.local_name }}(client.get_current_project().expect("Project ID must be known").id);
         }
-  {%- endif %}
+    {%- endif %}
 {%- elif not find_mode and find_present and operation_type in ["show", "set", "download"] %}
         let resource_id = find_data["id"]
             .as_str()
             .expect("Resource ID is a string")
             .to_string();
         {{ builder }}.{{ v.local_name }}(resource_id.clone());
-{%- else %}
+    {%- else %}
         {{ builder }}.{{ v.local_name }}(&self.path.{{ v.local_name }});
-{%- endif %}
+    {%- endif %}
+  {%- endif %}
 {%- endfor %}
 {%- endmacro %}
 

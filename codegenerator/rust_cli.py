@@ -1069,6 +1069,7 @@ class RustCliGenerator(BaseGenerator):
         target_class_name = resource_name
         is_image_download: bool = False
         is_json_patch: bool = False
+        global_additional_imports: set[str] = set()
 
         # Collect all operation parameters
         for param in openapi_spec["paths"][path].get(
@@ -1086,6 +1087,18 @@ class RustCliGenerator(BaseGenerator):
                     # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
                     param_.name = "id"
                 operation_params.append(param_)
+                if param_.resource_link:
+                    link_res_name: str = param_.resource_link.split(".")[0]
+                    global_additional_imports.add("tracing::warn")
+                    global_additional_imports.add(
+                        "openstack_sdk::api::find_by_name"
+                    )
+                    global_additional_imports.add(
+                        "openstack_sdk::api::QueryAsync"
+                    )
+                    global_additional_imports.add(
+                        f"openstack_sdk::api::{'::'.join(link_res_name.split('/'))}::find as find_{link_res_name.split('/')[-1]}"
+                    )
 
         # List of operation variants (based on the body)
         operation_variants = common.get_operation_variants(
@@ -1108,7 +1121,7 @@ class RustCliGenerator(BaseGenerator):
 
         for operation_variant in operation_variants:
             logging.debug("Processing variant %s" % operation_variant)
-            additional_imports = set()
+            additional_imports = set(global_additional_imports)
             type_manager: common_rust.TypeManager = RequestTypeManager()
             response_type_manager: common_rust.TypeManager = (
                 ResponseTypeManager()
