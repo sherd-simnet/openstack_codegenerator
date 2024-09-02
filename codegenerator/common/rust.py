@@ -397,6 +397,7 @@ class RequestParameter(BaseModel):
     description: str | None = None
     is_required: bool = False
     is_flag: bool = False
+    resource_link: str | None = None
     setter_name: str | None = None
     setter_type: str | None = None
 
@@ -1031,6 +1032,7 @@ class TypeManager:
                 description=sanitize_rust_docstrings(parameter.description),
                 is_required=parameter.is_required,
                 is_flag=parameter.is_flag,
+                resource_link=parameter.resource_link,
             )
             self.parameters[param.local_name] = param
 

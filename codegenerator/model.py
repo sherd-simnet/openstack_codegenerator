@@ -661,6 +661,7 @@ class RequestParameter(BaseModel):
     description: str | None = None
     is_required: bool = False
     is_flag: bool = False
+    resource_link: str | None = None
 
 
 class OpenAPISchemaParser(JsonSchemaParser):
@@ -737,7 +738,9 @@ class OpenAPISchemaParser(JsonSchemaParser):
         is_flag: bool = False
         os_ext = schema.get("x-openstack", {})
         if not isinstance(os_ext, dict):
-            raise RuntimeError(f"x-openstack must be a dictionary in {schema}")
+            raise RuntimeError(
+                f"x-openstack must be a dictionary inside {schema}"
+            )
         if "is-flag" in os_ext:
             is_flag = os_ext["is-flag"]
 
@@ -749,6 +752,7 @@ class OpenAPISchemaParser(JsonSchemaParser):
                 description=schema.get("description"),
                 is_required=schema.get("required", False),
                 is_flag=is_flag,
+                resource_link=os_ext.get("resource_link", None),
             )
         raise NotImplementedError("Parameter %s is not covered yet" % schema)
 

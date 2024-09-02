@@ -3,10 +3,34 @@
 #[derive(Args)]
 struct PathParameters {
 {%- for param in type_manager.parameters.values() %}
-{%- if param.location == "path"%}
+{%- if param.location == "path" %}
+  {%- if not param.resource_link %}
     {{ macros.docstring(param.description, indent=4) }}
     {{ param.clap_macros }}
     {{ param.local_name }}: {{ param.type_hint }},
+  {%- else %}
+    {% set res_name = param.resource_link.split(".")[0].split('/')[-1] %}
+    /// Link to the {{ res_name | title }} resource for which the operation should be performed.
+    #[command(flatten)]
+    {{ res_name }}: {{ res_name | title }}Input,
+  {%- endif %}
 {%- endif %}
 {%- endfor %}
 }
+
+{%- for (k, param) in type_manager.get_parameters("path") %}
+  {%- if param.resource_link %}
+    {% set res_name = param.resource_link.split(".")[0].split('/')[-1] %}
+/// {{ res_name | title }} input select group
+#[derive(Args)]
+#[group(required = true, multiple = false)]
+struct {{ res_name | title }}Input {
+    /// {{ res_name | title }} Name.
+    #[arg(long, help_heading = "Path parameters", value_name = "{{ res_name | upper }}_NAME")]
+    /// {{ res_name | title }} ID.
+    {{ res_name }}_name: Option<String>,
+    #[arg(long, help_heading = "Path parameters", value_name = "{{ res_name | upper }}_ID")]
+    {{ res_name }}_id: Option<String>,
+}
+  {%- endif %}
+{%- endfor %}
