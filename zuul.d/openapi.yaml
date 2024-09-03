@@ -96,6 +96,7 @@
     parent: codegenerator-openapi-tips-base
     description: |
       Generate OpenAPI spec for Keystone
+    nodeset: ubuntu-jammy
     required-projects:
       - name: openstack/keystone
 
