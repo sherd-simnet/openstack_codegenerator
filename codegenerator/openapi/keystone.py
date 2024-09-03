@@ -233,6 +233,14 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                     path_param.openstack["resource_link"] = (
                         "identity/v3/user.id"
                     )
+                if path_param.name == "domain_id" and path_resource_names != [
+                    "domains"
+                ]:
+                    if not path_param.openstack:
+                        path_param.openstack = {}
+                    path_param.openstack["resource_link"] = (
+                        "identity/v3/domain.id"
+                    )
                 openapi_spec.components.parameters[global_param_name] = (
                     path_param
                 )
