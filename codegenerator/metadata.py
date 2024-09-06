@@ -945,11 +945,7 @@ def post_process_identity_operation(
             operation.targets["rust-cli"].response_key = "config"
 
     if "rust-cli" in operation.targets:
-        if "auth/catalog" == resource_name:
-            operation.targets["rust-cli"].cli_full_command = operation.targets[
-                "rust-cli"
-            ].cli_full_command.replace("auth ", "")
-        elif "OS_FEDERATION" in resource_name:
+        if "OS_FEDERATION" in resource_name:
             operation.targets["rust-cli"].cli_full_command = operation.targets[
                 "rust-cli"
             ].cli_full_command.replace("OS-FEDERATION", "federation")

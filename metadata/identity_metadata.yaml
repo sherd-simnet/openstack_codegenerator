@@ -138,7 +138,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
-            cli_full_command: catalog list
+            cli_full_command: auth catalog list
   identity.auth/token/OS_PKI/revoked:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
