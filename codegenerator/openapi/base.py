@@ -1309,6 +1309,48 @@ class OpenStackServerSourceBase:
                     getattr(f, "_request_query_schema", {}),
                 )
                 query_params_versions.append((obj, min_ver, max_ver))
+            if "validators" in closure_locals:
+                validators = closure_locals.get("validators")
+                body_schemas = []
+                if isinstance(validators, dict):
+                    for k, v in validators.items():
+                        sig = inspect.signature(v)
+                        vals = sig.parameters.get("validators", None)
+                        if vals:
+                            print(vals)
+                            sig2 = inspect.signature(vals.default[0])
+                            schema_param = sig2.parameters.get("schema", None)
+                            if schema_param:
+                                schema = schema_param.default
+
+                                typ_name = (
+                                    "".join(
+                                        [
+                                            x.title()
+                                            for x in path_resource_names
+                                        ]
+                                    )
+                                    + func.__name__.title()
+                                    + (
+                                        f"_{min_ver.replace('.', '')}"
+                                        if min_ver
+                                        else ""
+                                    )
+                                )
+                                comp_schema = (
+                                    openapi_spec.components.schemas.setdefault(
+                                        typ_name,
+                                        self._sanitize_schema(
+                                            copy.deepcopy(schema),
+                                            start_version=None,
+                                            end_version=None,
+                                        ),
+                                    )
+                                )
+
+                                ref_name = f"#/components/schemas/{typ_name}"
+                                if isinstance(body_schemas, list):
+                                    body_schemas.append(ref_name)
 
             f = f.__wrapped__
 

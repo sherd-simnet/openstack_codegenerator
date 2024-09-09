@@ -34,3 +34,7 @@ fi
 if [ -z "$1" -o "$1" = "shared-file-system" ]; then
   openstack-codegenerator --work-dir wrk --target openapi-spec --service-type shared-file-system --api-ref-src ${API_REF_BUILD_ROOT}/manila/api-ref/build/html/index.html --validate
 fi
+
+if [ -z "$1" -o "$1" = "baremetal" ]; then
+  openstack-codegenerator --work-dir wrk --target openapi-spec --service-type baremetal --api-ref-src ${API_REF_BUILD_ROOT}/ironic/api-ref/build/html/index.html --validate
+fi

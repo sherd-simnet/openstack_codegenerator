@@ -68,6 +68,11 @@ class OpenApiSchemaGenerator(BaseGenerator):
 
         ManilaGenerator().generate(target_dir, args)
 
+    def generate_ironic(self, target_dir, args):
+        from codegenerator.openapi.ironic import IronicGenerator
+
+        IronicGenerator().generate(target_dir, args)
+
     def generate(
         self, res, target_dir, openapi_spec=None, operation_id=None, args=None
     ):
@@ -78,6 +83,8 @@ class OpenApiSchemaGenerator(BaseGenerator):
         # dramatically
         if args.service_type == "compute":
             self.generate_nova(target_dir, args)
+        elif args.service_type == "baremetal":
+            self.generate_ironic(target_dir, args)
         elif args.service_type in ["block-storage", "volume"]:
             self.generate_cinder(target_dir, args)
         elif args.service_type == "image":
