@@ -161,7 +161,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
             if route.routepath.startswith(
                 "/extensions"
             ) or route.routepath.startswith(
-                "/{project_id:[0-9a-f\-]+}/extensions"
+                "/{project_id:[0-9a-f\\-]+}/extensions"
             ):
                 if route.defaults.get("action") != "index":
                     # Extensions controller is broken as one exposing CRUD

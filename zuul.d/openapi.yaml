@@ -34,6 +34,35 @@
       install_additional_projects: []
 
 - job:
+    name: codegenerator-openapi-baremetal-tips
+    parent: codegenerator-openapi-tips-base
+    description: |
+      Generate OpenAPI spec for Ironic
+    required-projects:
+      - name: openstack/ironic
+
+    vars:
+      openapi_service: baremetal
+      install_additional_projects:
+        - project: "opendev.org/openstack/ironic"
+          name: "."
+
+- job:
+    name: codegenerator-openapi-baremetal-tips-with-api-ref
+    parent: codegenerator-openapi-baremetal-tips
+    description: |
+      Generate OpenAPI spec for Ironic consuming API-REF
+    required-projects:
+      - name: openstack/ironic
+
+    pre-run:
+      - playbooks/openapi/pre-api-ref.yaml
+    vars:
+      codegenerator_api_ref:
+        project: "opendev.org/openstack/ironic"
+        path: "/api-ref/build/html/index.html"
+
+- job:
     name: codegenerator-openapi-block-storage-tips
     parent: codegenerator-openapi-tips-base
     description: |
@@ -286,6 +315,8 @@
     description: |
       Published OpenAPI specs
     dependencies:
+      - name: codegenerator-openapi-baremetal-tips-with-api-ref
+        soft: true
       - name: codegenerator-openapi-block-storage-tips-with-api-ref
         soft: true
       - name: codegenerator-openapi-compute-tips-with-api-ref
