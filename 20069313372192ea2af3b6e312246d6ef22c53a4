@@ -16,6 +16,23 @@
       "message": "recheck temp failure",
       "revId": "20069313372192ea2af3b6e312246d6ef22c53a4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "843a9ddc_ff8dba4d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27900
+      },
+      "writtenOn": "2024-09-10T15:11:35Z",
+      "side": 1,
+      "message": "recheck fix submitted",
+      "revId": "20069313372192ea2af3b6e312246d6ef22c53a4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
