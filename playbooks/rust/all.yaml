@@ -64,7 +64,7 @@
 
     - name: "Commit changes"
       ansible.builtin.command:
-        cmd: "git commit -m 'feat: New generated content' -m '{{ zuul.change_message }}' -m 'Changes are triggered by {{ zuul.change_url }}'"
+        cmd: "git commit -m 'feat: New generated content' -m {{ zuul.change_message | quote }} -m 'Changes are triggered by {{ zuul.change_url }}'"
         chdir: "{{ rust_project_dir }}"
       register: "commit"
       when:
