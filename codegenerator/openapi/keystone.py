@@ -202,6 +202,9 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         path_resource_names: list[str] = []
         operation_tags = self._get_tags_for_url(path)
         for path_element in path_elements:
+            if "{" not in path_element:
+                path_resource_names.append(path_element.replace("-", "_"))
+        for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
                 global_param_name = (
@@ -244,8 +247,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 openapi_spec.components.parameters[global_param_name] = (
                     path_param
                 )
-            else:
-                path_resource_names.append(path_element.replace("-", "_"))
         if len(path_elements) == 0:
             path_resource_names.append("root")
         elif path_elements[-1].startswith("{"):
