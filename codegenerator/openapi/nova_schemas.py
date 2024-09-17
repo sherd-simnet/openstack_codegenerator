@@ -192,9 +192,7 @@ FLAVORS_LIST_SCHEMA: dict[str, Any] = {
 FLAVORS_LIST_DETAIL_SCHEMA: dict[str, Any] = {
     "description": "Detailed flavors list response",
     "type": "object",
-    "properties": {
-        "flavors": {"type": "array", "items": copy.deepcopy(FLAVOR_SCHEMA)}
-    },
+    "properties": {"flavors": {"type": "array", "items": copy.deepcopy(FLAVOR_SCHEMA)}},
 }
 
 FLAVOR_ACCESS_SCHEMA: dict[str, Any] = {
@@ -469,16 +467,16 @@ REMOTE_CONSOLE_SCHEMA: dict[str, Any] = {
             "properties": {
                 "protocol": {
                     "type": "string",
-                    "enum": remote_consoles.create_v28["properties"][
-                        "remote_console"
-                    ]["properties"]["protocol"]["enum"],
+                    "enum": remote_consoles.create_v28["properties"]["remote_console"][
+                        "properties"
+                    ]["protocol"]["enum"],
                     "description": "The protocol of remote console. The valid values are vnc, spice, rdp, serial and mks. The protocol mks is added since Microversion 2.8.",
                 },
                 "type": {
                     "type": "string",
-                    "enum": remote_consoles.create_v28["properties"][
-                        "remote_console"
-                    ]["properties"]["type"]["enum"],
+                    "enum": remote_consoles.create_v28["properties"]["remote_console"][
+                        "properties"
+                    ]["type"]["enum"],
                     "description": "The type of remote console. The valid values are novnc, rdp-html5, spice-html5, serial, and webmks. The type webmks is added since Microversion 2.8.",
                 },
                 "url": {
@@ -835,12 +833,8 @@ KEYPAIR_CONTAINER_SCHEMA: dict[str, Any] = {
     "properties": {"keypair": KEYPAIR_SCHEMA},
 }
 
-KEYPAIR_CREATED_SCHEMA: dict[str, Any] = copy.deepcopy(
-    KEYPAIR_CONTAINER_SCHEMA
-)
-KEYPAIR_CREATED_SCHEMA["properties"]["keypair"]["properties"][
-    "private_key"
-] = {
+KEYPAIR_CREATED_SCHEMA: dict[str, Any] = copy.deepcopy(KEYPAIR_CONTAINER_SCHEMA)
+KEYPAIR_CREATED_SCHEMA["properties"]["keypair"]["properties"]["private_key"] = {
     "type": "string",
     "description": "If you do not provide a public key on create, a new keypair will be built for you, and the private key will be returned during the initial create call. Make sure to save this, as there is no way to get this private key again in the future.",
     "x-openstack": {"max-ver": "2.91"},

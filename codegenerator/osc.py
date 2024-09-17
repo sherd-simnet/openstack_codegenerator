@@ -48,9 +48,7 @@ class OSCGenerator(BaseGenerator):
         context = dict(
             res=res.resource_class,
             sdk_mod_name=res.mod_name,
-            osc_mod_name=res.mod_name.replace(
-                "openstack.", "openstackclient."
-            ),
+            osc_mod_name=res.mod_name.replace("openstack.", "openstackclient."),
             class_name=res.class_name,
             resource_name=res.class_name.lower(),
             sdk_service_name=res.service_name,
@@ -80,9 +78,7 @@ class OSCGenerator(BaseGenerator):
                 context,
                 osc_path,
                 "osc/impl_list.py.j2",
-                Path(
-                    work_dir, "openstackclient", "/".join(osc_path), "list.py"
-                ),
+                Path(work_dir, "openstackclient", "/".join(osc_path), "list.py"),
                 "osc/test_unit_list.py.j2",
                 Path(
                     work_dir,
@@ -100,9 +96,7 @@ class OSCGenerator(BaseGenerator):
                 context,
                 osc_path,
                 "osc/impl_show.py.j2",
-                Path(
-                    work_dir, "openstackclient", "/".join(osc_path), "show.py"
-                ),
+                Path(work_dir, "openstackclient", "/".join(osc_path), "show.py"),
                 "osc/test_unit_show.py.j2",
                 Path(
                     work_dir,

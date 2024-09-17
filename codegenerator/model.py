@@ -185,9 +185,7 @@ class JsonSchemaParser:
     ) -> ty.Tuple[ADT | None, list[ADT]]:
         """Parse JsonSchema object into internal DataModel"""
         results: list[ADT] = []
-        res = self.parse_schema(
-            schema, results, ignore_read_only=ignore_read_only
-        )
+        res = self.parse_schema(schema, results, ignore_read_only=ignore_read_only)
         return (res, results)
 
     def parse_schema(
@@ -409,9 +407,7 @@ class JsonSchemaParser:
             if pattern_props and not additional_properties_type:
                 # `"type": "object", "pattern_properties": ...`
                 if len(list(pattern_props.values())) == 1:
-                    obj = Dictionary(
-                        value_type=list(pattern_props.values())[0]
-                    )
+                    obj = Dictionary(value_type=list(pattern_props.values())[0])
                 else:
                     obj = Struct(pattern_properties=pattern_props)
             elif not pattern_props and additional_properties_type:
@@ -452,15 +448,9 @@ class JsonSchemaParser:
 
         if obj:
             obj.description = schema.get("description")
-            if (
-                obj.reference
-                and f"{obj.reference.name}{obj.reference.type}"
-                in [
-                    f"{x.reference.name}{x.reference.type}"
-                    for x in results
-                    if x.reference
-                ]
-            ):
+            if obj.reference and f"{obj.reference.name}{obj.reference.type}" in [
+                f"{x.reference.name}{x.reference.type}" for x in results if x.reference
+            ]:
                 if obj.reference.__hash__() in [
                     x.reference.__hash__() for x in results if x.reference
                 ]:
@@ -476,9 +466,9 @@ class JsonSchemaParser:
                     if parent and name:
                         new_name = parent.name + "_" + name
 
-                        if Reference(
-                            name=new_name, type=obj.reference.type
-                        ) in [x.reference for x in results]:
+                        if Reference(name=new_name, type=obj.reference.type) in [
+                            x.reference for x in results
+                        ]:
                             raise NotImplementedError
                         else:
                             obj.reference.name = new_name
@@ -716,17 +706,17 @@ class OpenAPISchemaParser(JsonSchemaParser):
             # Param type can be anything. Process supported combinations first
             if param_location == "query" and param_name == "limit":
                 dt = ConstraintInteger(minimum=0)
-            elif param_location == "query" and sorted(
-                ["string", "boolean"]
-            ) == sorted(param_typ):
+            elif param_location == "query" and sorted(["string", "boolean"]) == sorted(
+                param_typ
+            ):
                 dt = PrimitiveBoolean()
-            elif param_location == "query" and sorted(
-                ["string", "integer"]
-            ) == sorted(param_typ):
+            elif param_location == "query" and sorted(["string", "integer"]) == sorted(
+                param_typ
+            ):
                 dt = ConstraintInteger(**param_schema)
-            elif param_location == "query" and sorted(
-                ["string", "number"]
-            ) == sorted(param_typ):
+            elif param_location == "query" and sorted(["string", "number"]) == sorted(
+                param_typ
+            ):
                 dt = ConstraintNumber(**param_schema)
 
         if isinstance(dt, ADT):
@@ -738,9 +728,7 @@ class OpenAPISchemaParser(JsonSchemaParser):
         is_flag: bool = False
         os_ext = schema.get("x-openstack", {})
         if not isinstance(os_ext, dict):
-            raise RuntimeError(
-                f"x-openstack must be a dictionary inside {schema}"
-            )
+            raise RuntimeError(f"x-openstack must be a dictionary inside {schema}")
         if "is-flag" in os_ext:
             is_flag = os_ext["is-flag"]
 

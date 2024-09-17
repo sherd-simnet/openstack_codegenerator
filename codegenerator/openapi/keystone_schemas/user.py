@@ -99,12 +99,12 @@ USER_PWD_CHANGE_SCHEMA: dict[str, Any] = {
 }
 
 # Set `password` format for password change operation
-USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"]["password"][
+USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"]["password"]["format"] = (
+    "password"
+)
+USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"]["original_password"][
     "format"
 ] = "password"
-USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"][
-    "original_password"
-]["format"] = "password"
 
 USER_GROUP_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -188,17 +188,13 @@ USER_PROJECTS_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
     if operationId == "users:get":
         for key, val in USER_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -225,9 +221,7 @@ def _get_schema_ref(
         )
         ref = f"#/components/schemas/{name}"
     elif name == "UsersGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**USERS_SCHEMA)
-        )
+        openapi_spec.components.schemas.setdefault(name, TypeSchema(**USERS_SCHEMA))
         ref = f"#/components/schemas/{name}"
     elif name in ["UserGetResponse", "UserPostResponse", "UserPatchResponse"]:
         openapi_spec.components.schemas.setdefault(

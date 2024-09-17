@@ -207,9 +207,7 @@ GROUP_REPLICATION_TARGETS_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [
@@ -219,9 +217,7 @@ def _post_process_operation_hook(
         "groups/detail:get",
     ]:
         for key, val in GROUP_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -242,9 +238,7 @@ def _get_schema_ref(
         )
         ref = f"#/components/schemas/{name}"
     elif name == "GroupsListResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**GROUPS_SCHEMA)
-        )
+        openapi_spec.components.schemas.setdefault(name, TypeSchema(**GROUPS_SCHEMA))
         ref = f"#/components/schemas/{name}"
     elif name in [
         "GroupsCreateResponse",

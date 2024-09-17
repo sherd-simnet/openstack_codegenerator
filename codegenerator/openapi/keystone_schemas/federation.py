@@ -61,16 +61,12 @@ IDENTITY_PROVIDER_CONTAINER_SCHEMA: dict[str, Any] = {
 
 IDENTITY_PROVIDER_CREATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "identity_provider": federation_schema.identity_provider_create
-    },
+    "properties": {"identity_provider": federation_schema.identity_provider_create},
 }
 
 IDENTITY_PROVIDER_UPDATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "identity_provider": federation_schema.identity_provider_update
-    },
+    "properties": {"identity_provider": federation_schema.identity_provider_update},
 }
 
 IDENTITY_PROVIDERS_SCHEMA: dict[str, Any] = {
@@ -219,22 +215,16 @@ FEDERATION_SERVICE_PROVIDERS_SCHEMA: dict[str, Any] = {
 
 FEDERATION_SERVICE_PROVIDER_CREATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "service_provider": federation_schema.service_provider_create
-    },
+    "properties": {"service_provider": federation_schema.service_provider_create},
 }
 
 FEDERATION_SERVICE_PROVIDER_UPDATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "service_provider": federation_schema.service_provider_update
-    },
+    "properties": {"service_provider": federation_schema.service_provider_update},
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId == "OS-FEDERATION/identity_providers:get":
@@ -242,9 +232,7 @@ def _post_process_operation_hook(
             key,
             val,
         ) in IDENTITY_PROVIDERS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))

@@ -352,15 +352,15 @@ ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = {
 ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = copy.deepcopy(
     ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
 )
-ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"][
-    "properties"
-]["external_gateways"]["items"]["properties"]["network_id"]["readOnly"] = True
+ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"]["properties"][
+    "external_gateways"
+]["items"]["properties"]["network_id"]["readOnly"] = True
 ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = copy.deepcopy(
     ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
 )
-ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"][
-    "properties"
-]["external_gateways"]["items"]["properties"].pop("enable_snat")
+ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"]["properties"][
+    "external_gateways"
+]["items"]["properties"].pop("enable_snat")
 
 ADDRESS_GROUP_ADDRESS_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -518,18 +518,12 @@ def _get_schema_ref(
             **ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
         )
         ref = f"#/components/schemas/{name}"
-    elif (
-        name
-        == "RoutersUpdate_External_GatewaysUpdate_External_GatewaysRequest"
-    ):
+    elif name == "RoutersUpdate_External_GatewaysUpdate_External_GatewaysRequest":
         openapi_spec.components.schemas[name] = TypeSchema(
             **ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
         )
         ref = f"#/components/schemas/{name}"
-    elif (
-        name
-        == "RoutersRemove_External_GatewaysRemove_External_GatewaysRequest"
-    ):
+    elif name == "RoutersRemove_External_GatewaysRemove_External_GatewaysRequest":
         openapi_spec.components.schemas[name] = TypeSchema(
             **ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
         )
@@ -558,14 +552,10 @@ def _get_schema_ref(
         ref = "#/components/schemas/Address_GroupShowResponse"
 
     elif name == "AgentsL3_RoutersIndexResponse":
-        openapi_spec.components.schemas[name] = TypeSchema(
-            **L3_ROUTER_AGENTS_SCHEMA
-        )
+        openapi_spec.components.schemas[name] = TypeSchema(**L3_ROUTER_AGENTS_SCHEMA)
         ref = f"#/components/schemas/{name}"
     elif name == "AgentsL3_RoutersIndexResponse":
-        openapi_spec.components.schemas[name] = TypeSchema(
-            **L3_ROUTER_AGENTS_SCHEMA
-        )
+        openapi_spec.components.schemas[name] = TypeSchema(**L3_ROUTER_AGENTS_SCHEMA)
         ref = f"#/components/schemas/{name}"
     elif name == "AgentsL3_RoutersCreateRequest":
         openapi_spec.components.schemas[name] = TypeSchema(

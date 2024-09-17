@@ -50,9 +50,7 @@ EXTENSIONS_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [

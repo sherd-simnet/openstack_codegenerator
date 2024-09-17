@@ -102,9 +102,7 @@ def _get_schema_ref(
     mime_type: str = "application/json"
     ref: str
     if name == "LimitsListResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**LIMITS_SCHEMA)
-        )
+        openapi_spec.components.schemas.setdefault(name, TypeSchema(**LIMITS_SCHEMA))
         ref = f"#/components/schemas/{name}"
     else:
         return (None, None, False)

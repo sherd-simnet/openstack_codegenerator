@@ -253,9 +253,7 @@ class Struct(BaseCompoundType):
 
     @property
     def type_hint(self):
-        return self.name + (
-            f"<{', '.join(self.lifetimes)}>" if self.lifetimes else ""
-        )
+        return self.name + (f"<{', '.join(self.lifetimes)}>" if self.lifetimes else "")
 
     @property
     def imports(self):
@@ -315,9 +313,7 @@ class Enum(BaseCompoundType):
 
     @property
     def type_hint(self):
-        return self.name + (
-            f"<{', '.join(self.lifetimes)}>" if self.lifetimes else ""
-        )
+        return self.name + (f"<{', '.join(self.lifetimes)}>" if self.lifetimes else "")
 
     @property
     def imports(self):
@@ -346,9 +342,7 @@ class StringEnum(BaseCompoundType):
     variants: dict[str, set[str]] = {}
     imports: set[str] = set(["serde::Deserialize", "serde::Serialize"])
     lifetimes: set[str] = set()
-    derive_container_macros: str = (
-        "#[derive(Debug, Deserialize, Clone, Serialize)]"
-    )
+    derive_container_macros: str = "#[derive(Debug, Deserialize, Clone, Serialize)]"
     builder_container_macros: str | None = None
     serde_container_macros: str | None = None  # "#[serde(untagged)]"
     serde_macros: set[str] | None = None
@@ -490,9 +484,7 @@ class TypeManager:
     def get_local_attribute_name(self, name: str) -> str:
         """Get localized attribute name"""
         name = name.replace(".", "_")
-        attr_name = "_".join(
-            x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
-        )
+        attr_name = "_".join(x.lower() for x in re.split(common.SPLIT_NAME_RE, name))
         if attr_name in ["type", "self", "enum", "ref", "default"]:
             attr_name = f"_{attr_name}"
         return attr_name
@@ -510,8 +502,7 @@ class TypeManager:
         if not model_ref:
             return "Request"
         name = "".join(
-            x.capitalize()
-            for x in re.split(common.SPLIT_NAME_RE, model_ref.name)
+            x.capitalize() for x in re.split(common.SPLIT_NAME_RE, model_ref.name)
         )
         return name
 
@@ -527,9 +518,7 @@ class TypeManager:
     ) -> BasePrimitiveType | BaseCombinedType | BaseCompoundType:
         """Get local destination type from the ModelType"""
         # logging.debug("Get RustSDK type for %s", type_model)
-        typ: BasePrimitiveType | BaseCombinedType | BaseCompoundType | None = (
-            None
-        )
+        typ: BasePrimitiveType | BaseCombinedType | BaseCompoundType | None = None
         model_ref: model.Reference | None = None
         if isinstance(type_model, model.Reference):
             model_ref = type_model
@@ -588,9 +577,7 @@ class TypeManager:
                             val = "".join(
                                 [
                                     x.capitalize()
-                                    for x in re.split(
-                                        common.SPLIT_NAME_RE, lit
-                                    )
+                                    for x in re.split(common.SPLIT_NAME_RE, lit)
                                 ]
                             )
                             if val and val[0].isdigit():
@@ -605,13 +592,9 @@ class TypeManager:
                             variants=variants,
                         )
                     except Exception:
-                        logging.exception(
-                            "Error processing enum: %s", type_model
-                        )
+                        logging.exception("Error processing enum: %s", type_model)
                 elif base_type is model.ConstraintInteger:
-                    typ = self.primitive_type_mapping[
-                        model.ConstraintInteger
-                    ]()
+                    typ = self.primitive_type_mapping[model.ConstraintInteger]()
                 elif base_type is model.ConstraintNumber:
                     typ = self.primitive_type_mapping[model.ConstraintNumber]()
                 elif base_type is model.PrimitiveBoolean:
@@ -690,9 +673,7 @@ class TypeManager:
                 if item_type.__class__ == lt.item_type.__class__:
                     result_data_type = self.data_type_mapping[model.Array](
                         item_type=item_type,
-                        description=sanitize_rust_docstrings(
-                            type_model.description
-                        ),
+                        description=sanitize_rust_docstrings(type_model.description),
                     )
                     # logging.debug("Replacing Typ + list[Typ] with list[Typ]")
         elif len(kinds) == 1:
@@ -721,9 +702,7 @@ class TypeManager:
                 result_data_type.kinds[enum_kind.name] = enum_kind
 
         if is_nullable:
-            result_data_type = self.option_type_class(
-                item_type=result_data_type
-            )
+            result_data_type = self.option_type_class(item_type=result_data_type)
 
         return result_data_type
 
@@ -782,28 +761,18 @@ class TypeManager:
                     kinds.remove(typ)
         elif string_klass in kinds_classes and integer_klass in kinds_classes:
             int_klass = next(
-                (
-                    x
-                    for x in type_model.kinds
-                    if isinstance(x, model.ConstraintInteger)
-                )
+                (x for x in type_model.kinds if isinstance(x, model.ConstraintInteger))
             )
             if (
                 # XX_size or XX_count is clearly an integer
                 (
                     enum_name
-                    and (
-                        enum_name.endswith("size")
-                        or enum_name.endswith("count")
-                    )
+                    and (enum_name.endswith("size") or enum_name.endswith("count"))
                 )
                 # There is certain limit (min/max) - it can be only integer
                 or (
                     int_klass
-                    and (
-                        int_klass.minimum is not None
-                        or int_klass.maximum is not None
-                    )
+                    and (int_klass.minimum is not None or int_klass.maximum is not None)
                 )
             ):
                 for typ in list(kinds):
@@ -863,8 +832,7 @@ class TypeManager:
                     # Try adding parent_name as prefix
                     new_name = (
                         "".join(
-                            x.title()
-                            for x in model_.reference.parent.name.split("_")
+                            x.title() for x in model_.reference.parent.name.split("_")
                         )
                         + name
                     )
@@ -883,8 +851,7 @@ class TypeManager:
                         # Try adding parent_name as prefix
                         new_other_name = (
                             "".join(
-                                x.title()
-                                for x in other_model.parent.name.split("_")
+                                x.title() for x in other_model.parent.name.split("_")
                             )
                             + name
                         )
@@ -895,9 +862,9 @@ class TypeManager:
                     # with remote being oneOf with multiple structs)
                     # Try to make a name consisting of props
                     props = model_data_type.fields.keys()
-                    new_new_name = name + "".join(
-                        x.title() for x in props
-                    ).replace("_", "")
+                    new_new_name = name + "".join(x.title() for x in props).replace(
+                        "_", ""
+                    )
                     if new_new_name not in unique_models:
                         for other_ref, other_model in self.refs.items():
                             other_name = getattr(other_model, "name", None)
@@ -913,9 +880,7 @@ class TypeManager:
                                     x.title() for x in props
                                 ).replace("_", "")
                                 other_model.name = new_other_name
-                                unique_models[new_other_name] = (
-                                    model_.reference
-                                )
+                                unique_models[new_other_name] = model_.reference
 
                         model_data_type.name = new_new_name
                         unique_models[new_new_name] = model_.reference
@@ -924,9 +889,7 @@ class TypeManager:
                             "Model name %s is already present" % new_new_name
                         )
                 else:
-                    raise RuntimeError(
-                        "Model name %s is already present" % new_name
-                    )
+                    raise RuntimeError("Model name %s is already present" % new_name)
             elif (
                 name
                 and name in unique_models
@@ -945,17 +908,9 @@ class TypeManager:
     def get_subtypes(self):
         """Get all subtypes excluding TLA"""
         for k, v in self.refs.items():
-            if (
-                k
-                and isinstance(v, (Enum, Struct, StringEnum))
-                and k.name != "Body"
-            ):
+            if k and isinstance(v, (Enum, Struct, StringEnum)) and k.name != "Body":
                 yield v
-            elif (
-                k
-                and k.name != "Body"
-                and isinstance(v, self.option_type_class)
-            ):
+            elif k and k.name != "Body" and isinstance(v, self.option_type_class):
                 if isinstance(v.item_type, Enum):
                     yield v.item_type
 
@@ -967,10 +922,7 @@ class TypeManager:
                     # There might be tuple Struct (with
                     # fields as list)
                     field_names = list(v.fields.keys())
-                    if (
-                        len(field_names) == 1
-                        and v.fields[field_names[0]].is_optional
-                    ):
+                    if len(field_names) == 1 and v.fields[field_names[0]].is_optional:
                         # A body with only field can not normally be optional
                         logging.warning(
                             "Request body with single root field cannot be optional"
@@ -1058,9 +1010,7 @@ class TypeManager:
             if ref == type_model.reference:
                 sub_ref: model.Reference | None = None
                 if ref.type == model.Struct:
-                    logging.debug(
-                        "Element is a struct. Purging also field types"
-                    )
+                    logging.debug("Element is a struct. Purging also field types")
                     # For struct type we cascadely discard all field types as
                     # well
                     for v in type_model.fields.values():
@@ -1072,9 +1022,7 @@ class TypeManager:
                             logging.debug(f"Need to purge also {sub_ref}")
                             self.discard_model(sub_ref)
                 elif ref.type == model.OneOfType:
-                    logging.debug(
-                        "Element is a OneOf. Purging also kinds types"
-                    )
+                    logging.debug("Element is a OneOf. Purging also kinds types")
                     for v in type_model.kinds:
                         if isinstance(v, model.Reference):
                             sub_ref = v
@@ -1090,9 +1038,7 @@ class TypeManager:
                     if isinstance(type_model.item_type, model.Reference):
                         sub_ref = type_model.item_type
                     else:
-                        sub_ref = getattr(
-                            type_model.item_type, "reference", None
-                        )
+                        sub_ref = getattr(type_model.item_type, "reference", None)
                     if sub_ref:
                         logging.debug(f"Need to purge also {sub_ref}")
                         self.discard_model(sub_ref)

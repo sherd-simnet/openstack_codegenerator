@@ -21,7 +21,7 @@ from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
-from codegenerator.openapi.base import OpenStackServerSourceBase, UNSET
+from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.keystone_schemas import application_credential
 from codegenerator.openapi.keystone_schemas import auth
 from codegenerator.openapi.keystone_schemas import common
@@ -158,9 +158,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         self._sanitize_param_ver_info(openapi_spec, self.min_api_version)
 
         if args.api_ref_src:
-            merge_api_ref_doc(
-                openapi_spec, args.api_ref_src, allow_strip_version=False
-            )
+            merge_api_ref_doc(openapi_spec, args.api_ref_src, allow_strip_version=False)
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)
 
@@ -207,14 +205,10 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
-                global_param_name = (
-                    "_".join(path_resource_names) + f"_{param_name}"
-                )
+                global_param_name = "_".join(path_resource_names) + f"_{param_name}"
                 param_ref_name = f"#/components/parameters/{global_param_name}"
                 # Ensure reference to the param is in the path_params
-                if param_ref_name not in [
-                    k.ref for k in [p for p in path_params]
-                ]:
+                if param_ref_name not in [k.ref for k in [p for p in path_params]]:
                     path_params.append(ParameterSchema(ref=param_ref_name))
                 # Ensure global parameter is present
                 path_param = ParameterSchema(
@@ -228,25 +222,17 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 # We can only assume the param type. For path it is logically a string only
                 path_param.type_schema = TypeSchema(type="string")
                 # For non /users/{id} urls link user_id path attribute to the user resource
-                if path_param.name == "user_id" and path_resource_names != [
-                    "users"
-                ]:
+                if path_param.name == "user_id" and path_resource_names != ["users"]:
                     if not path_param.openstack:
                         path_param.openstack = {}
-                    path_param.openstack["resource_link"] = (
-                        "identity/v3/user.id"
-                    )
+                    path_param.openstack["resource_link"] = "identity/v3/user.id"
                 if path_param.name == "domain_id" and path_resource_names != [
                     "domains"
                 ]:
                     if not path_param.openstack:
                         path_param.openstack = {}
-                    path_param.openstack["resource_link"] = (
-                        "identity/v3/domain.id"
-                    )
-                openapi_spec.components.parameters[global_param_name] = (
-                    path_param
-                )
+                    path_param.openstack["resource_link"] = "identity/v3/domain.id"
+                openapi_spec.components.parameters[global_param_name] = path_param
         if len(path_elements) == 0:
             path_resource_names.append("root")
         elif path_elements[-1].startswith("{"):
@@ -277,17 +263,13 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         elif path == "/v3":
             operation_id_prefix = "version"
         else:
-            operation_id_prefix = "/".join(
-                [x.strip("{}") for x in path_elements]
-            )
+            operation_id_prefix = "/".join([x.strip("{}") for x in path_elements])
         for method in route.methods:
             if method == "OPTIONS":
                 # Not sure what should be done with it
                 continue
             if controller:
-                func = getattr(
-                    controller, method.replace("HEAD", "GET").lower(), None
-                )
+                func = getattr(controller, method.replace("HEAD", "GET").lower(), None)
             else:
                 func = view
             # Set operationId
@@ -384,7 +366,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         response_code = None
         start_version = None
         end_version = None
-        deser_schema: dict = {}
         ser_schema: dict | None = {}
 
         (
@@ -405,9 +386,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         if query_params_versions:
             so = sorted(
                 query_params_versions,
-                key=lambda d: (
-                    tuple(map(int, d[1].split("."))) if d[1] else (0, 0)
-                ),
+                key=lambda d: (tuple(map(int, d[1].split("."))) if d[1] else (0, 0)),
             )
             for data, min_ver, max_ver in so:
                 self.process_query_parameters(
@@ -491,9 +470,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 operation_spec.security = []
             elif method == "GET":
                 operation_spec.parameters.append(
-                    ParameterSchema(
-                        ref="#/components/parameters/X-Subject-Token"
-                    )
+                    ParameterSchema(ref="#/components/parameters/X-Subject-Token")
                 )
                 rsp_headers.setdefault(
                     "X-Subject-Token",
@@ -505,9 +482,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             if tag not in [x["name"] for x in openapi_spec.tags]:
                 openapi_spec.tags.append({"name": tag, "description": None})
 
-        self._post_process_operation_hook(
-            openapi_spec, operation_spec, path=path
-        )
+        self._post_process_operation_hook(openapi_spec, operation_spec, path=path)
 
     def _post_process_operation_hook(
         self, openapi_spec, operation_spec, path: str | None = None

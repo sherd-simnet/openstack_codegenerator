@@ -15,7 +15,6 @@ from typing import Any
 
 from cinder.api.schemas import snapshot_manage as cinder_snapshot_manage
 
-from codegenerator.openapi.cinder_schemas import common
 from codegenerator.openapi.cinder_schemas import snapshot
 
 from codegenerator.common.schema import ParameterSchema
@@ -109,9 +108,7 @@ MANAGEABLE_SNAPSHOT_CREATE_REQUEST_SCHEMA: dict[str, Any] = copy.deepcopy(
 MANAGEABLE_SNAPSHOT_CREATE_REQUEST_SCHEMA["properties"].pop("type", None)
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [

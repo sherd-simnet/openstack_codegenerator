@@ -27,11 +27,7 @@ class TestParserObject(TestCase):
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={
-                    "foo": model.StructField(
-                        data_type=model.ConstraintString()
-                    )
-                }
+                fields={"foo": model.StructField(data_type=model.ConstraintString())}
             ),
             res,
         )
@@ -48,11 +44,7 @@ class TestParserObject(TestCase):
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={
-                    "foo": model.StructField(
-                        data_type=model.ConstraintString()
-                    )
-                }
+                fields={"foo": model.StructField(data_type=model.ConstraintString())}
             ),
             res,
         )
@@ -69,11 +61,7 @@ class TestParserObject(TestCase):
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={
-                    "foo": model.StructField(
-                        data_type=model.ConstraintString()
-                    )
-                },
+                fields={"foo": model.StructField(data_type=model.ConstraintString())},
                 additional_fields=model.PrimitiveAny(),
             ),
             res,
@@ -91,11 +79,7 @@ class TestParserObject(TestCase):
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={
-                    "foo": model.StructField(
-                        data_type=model.ConstraintString()
-                    )
-                },
+                fields={"foo": model.StructField(data_type=model.ConstraintString())},
                 additional_fields=model.ConstraintString(),
             ),
             res,
@@ -208,11 +192,7 @@ class TestParserObject(TestCase):
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={
-                    "foo": model.StructField(
-                        data_type=model.ConstraintString()
-                    )
-                },
+                fields={"foo": model.StructField(data_type=model.ConstraintString())},
                 pattern_properties={
                     "^A": model.ConstraintString(),
                 },
@@ -266,16 +246,12 @@ class TestParserObject(TestCase):
                 kinds=[
                     model.Struct(
                         fields={
-                            "foo": model.StructField(
-                                data_type=model.ConstraintString()
-                            )
+                            "foo": model.StructField(data_type=model.ConstraintString())
                         },
                     ),
                     model.Struct(
                         fields={
-                            "bar": model.StructField(
-                                data_type=model.ConstraintString()
-                            )
+                            "bar": model.StructField(data_type=model.ConstraintString())
                         },
                     ),
                 ]
@@ -310,9 +286,7 @@ class TestParserObject(TestCase):
                     "foo": model.StructField(
                         data_type=model.ConstraintString(), is_required=True
                     ),
-                    "bar": model.StructField(
-                        data_type=model.ConstraintString()
-                    ),
+                    "bar": model.StructField(data_type=model.ConstraintString()),
                 },
             ),
             res,

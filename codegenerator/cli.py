@@ -39,9 +39,7 @@ class ResourceProcessor:
     def __init__(self, mod_name, class_name):
         self.mod_name = mod_name
         self.class_name = class_name
-        self.class_plural_name = (
-            class_name + "s" if class_name[:-1] != "y" else "ies"
-        )
+        self.class_plural_name = class_name + "s" if class_name[:-1] != "y" else "ies"
 
         spec = importlib.util.find_spec(self.mod_name)
         if not spec:
@@ -123,9 +121,7 @@ class Generator:
     def get_openapi_spec(self, path: Path):
         logging.debug("Fetch %s", path)
         if path.as_posix() not in self.schemas:
-            self.schemas[path.as_posix()] = common.get_openapi_spec(
-                path.as_posix()
-            )
+            self.schemas[path.as_posix()] = common.get_openapi_spec(path.as_posix())
         return self.schemas[path.as_posix()]
 
     def load_metadata(self, path: Path):
@@ -162,9 +158,7 @@ def main():
         ],
         help="Target for which to generate code",
     )
-    parser.add_argument(
-        "--work-dir", help="Working directory for the generated code"
-    )
+    parser.add_argument("--work-dir", help="Working directory for the generated code")
     parser.add_argument(
         "--alternative-module-path",
         help=("Optional new module path"),
@@ -252,14 +246,11 @@ def main():
                     openapi_spec = generator.get_openapi_spec(
                         Path(
                             # metadata_path.parent,
-                            op_data.spec_file
-                            or res_data.spec_file,
+                            op_data.spec_file or res_data.spec_file,
                         ).resolve()
                     )
 
-                    for mod_path, mod_name, path in generators[
-                        args.target
-                    ].generate(
+                    for mod_path, mod_name, path in generators[args.target].generate(
                         res,
                         args.work_dir,
                         openapi_spec=openapi_spec,
@@ -290,16 +281,13 @@ def main():
             resource_results: dict[str, dict] = dict()
             for mod_path, mod_name, path in res_mods:
                 mn = "/".join(mod_path)
-                x = resource_results.setdefault(
-                    mn, {"path": path, "mods": set()}
-                )
+                x = resource_results.setdefault(mn, {"path": path, "mods": set()})
                 x["mods"].add(mod_name)
             changed = True
             while changed:
                 changed = False
                 for mod_path in [
-                    mod_path_str.split("/")
-                    for mod_path_str in resource_results.keys()
+                    mod_path_str.split("/") for mod_path_str in resource_results.keys()
                 ]:
                     if len(mod_path) < 3:
                         continue

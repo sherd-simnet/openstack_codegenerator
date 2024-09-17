@@ -91,9 +91,7 @@ IMAGE_PARAMETERS = {
     "status": {
         "in": "query",
         "name": "status",
-        "description": LiteralScalarString(
-            "Filters the response by an image status."
-        ),
+        "description": LiteralScalarString("Filters the response by an image status."),
         "schema": {"type": "string"},
     },
     "size_min": {
@@ -311,9 +309,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
 
         # Set global headers and parameters
         for name, definition in IMAGE_PARAMETERS.items():
-            openapi_spec.components.parameters[name] = ParameterSchema(
-                **definition
-            )
+            openapi_spec.components.parameters[name] = ParameterSchema(**definition)
         for name, definition in IMAGE_HEADERS.items():
             openapi_spec.components.headers[name] = HeaderSchema(**definition)
 
@@ -376,9 +372,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
             key = "OpenStack-image-store-ids"
             ref = f"#/components/headers/{key}"
             operation_spec.responses["201"].setdefault("headers", {})
-            operation_spec.responses["201"]["headers"].update(
-                {key: {"$ref": ref}}
-            )
+            operation_spec.responses["201"]["headers"].update({key: {"$ref": ref}})
 
         elif operationId == "images/image_id/file:put":
             for ref in [
@@ -439,9 +433,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
                                 "type": "array",
                                 "items": {
                                     "type": "object",
-                                    "properties": copy.deepcopy(
-                                        schema_def.properties
-                                    ),
+                                    "properties": copy.deepcopy(schema_def.properties),
                                 },
                             },
                         },
@@ -459,9 +451,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
             openapi_spec.components.schemas.setdefault(
                 name,
                 self._get_glance_schema(
-                    glance_schema.CollectionSchema(
-                        "tasks", tasks.get_task_schema()
-                    ),
+                    glance_schema.CollectionSchema("tasks", tasks.get_task_schema()),
                     name,
                 ),
             )
@@ -480,9 +470,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
                                     "uri": {"type": "string"},
                                     "glance_image_id": {"type": "string"},
                                     "glance_region": {"type": "string"},
-                                    "glance_service_interface": {
-                                        "type": "string"
-                                    },
+                                    "glance_service_interface": {"type": "string"},
                                 },
                             },
                             "stores": {
@@ -508,9 +496,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
         elif name == "ImagesMembersListResponse":
             openapi_spec.components.schemas.setdefault(
                 name,
-                self._get_glance_schema(
-                    image_members.get_collection_schema(), name
-                ),
+                self._get_glance_schema(image_members.get_collection_schema(), name),
             )
             ref = f"#/components/schemas/{name}"
         elif name in [
@@ -609,9 +595,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
         ]:
             openapi_spec.components.schemas.setdefault(
                 name,
-                self._get_glance_schema(
-                    metadef_objects.get_collection_schema(), name
-                ),
+                self._get_glance_schema(metadef_objects.get_collection_schema(), name),
             )
             ref = f"#/components/schemas/{name}"
         elif name in [
@@ -679,9 +663,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
         ]:
             openapi_spec.components.schemas.setdefault(
                 name,
-                self._get_glance_schema(
-                    metadef_tags.get_collection_schema(), name
-                ),
+                self._get_glance_schema(metadef_tags.get_collection_schema(), name),
             )
             ref = f"#/components/schemas/{name}"
         elif name == "ImageUpdateRequest":
@@ -752,9 +734,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 for field in i32_fixes:
                     res["properties"][field]["format"] = "int64"
             elif name == "MetadefsNamespacesPropertiesListResponse":
-                res["properties"]["properties"]["additionalProperties"][
-                    "type"
-                ] = "object"
+                res["properties"]["properties"]["additionalProperties"]["type"] = (
+                    "object"
+                )
         return TypeSchema(**res)
 
     @classmethod

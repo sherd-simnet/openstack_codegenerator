@@ -60,9 +60,7 @@ VOLUME_TYPE_CONTAINER_SCHEMA: dict[str, Any] = {
 
 VOLUME_TYPES_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "volume_types": {"type": "array", "items": VOLUME_TYPE_SCHEMA}
-    },
+    "properties": {"volume_types": {"type": "array", "items": VOLUME_TYPE_SCHEMA}},
 }
 
 VOLUME_TYPE_LIST_PARAMETERS: dict[str, Any] = {
@@ -228,9 +226,7 @@ DEFAULT_TYPE_SCHEMA: dict[str, Any] = {
 
 DEFAULT_TYPES_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "default_types": {"type": "array", "items": DEFAULT_TYPE_SCHEMA}
-    },
+    "properties": {"default_types": {"type": "array", "items": DEFAULT_TYPE_SCHEMA}},
 }
 
 DEFAULT_TYPE_CONTAINER_SCHEMA: dict[str, Any] = {
@@ -239,9 +235,7 @@ DEFAULT_TYPE_CONTAINER_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
@@ -249,9 +243,7 @@ def _post_process_operation_hook(
         "project_id/types:get",
     ]:
         for key, val in VOLUME_TYPE_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))

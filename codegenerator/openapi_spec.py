@@ -93,6 +93,4 @@ class OpenApiSchemaGenerator(BaseGenerator):
         elif args.service_type == "shared-file-system":
             self.generate_manila(target_dir, args)
         else:
-            raise RuntimeError(
-                "Service type %s is not supported", args.service_type
-            )
+            raise RuntimeError("Service type %s is not supported", args.service_type)

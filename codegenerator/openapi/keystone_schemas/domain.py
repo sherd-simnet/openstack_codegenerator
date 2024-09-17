@@ -119,9 +119,7 @@ DOMAIN_LIST_PARAMETERS: dict[str, dict] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
 
     operationId = operation_spec.operationId
@@ -130,9 +128,7 @@ def _post_process_operation_hook(
             key,
             val,
         ) in DOMAIN_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -160,9 +156,7 @@ def _get_schema_ref(
         )
         ref = "#/components/schemas/Domain"
     elif name == "DomainsGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**DOMAINS_SCHEMA)
-        )
+        openapi_spec.components.schemas.setdefault(name, TypeSchema(**DOMAINS_SCHEMA))
         ref = f"#/components/schemas/{name}"
 
     # Domain Config

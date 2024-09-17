@@ -156,9 +156,7 @@ SNAPSHOTS_DETAIL_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [
@@ -194,9 +192,7 @@ def _get_schema_ref(
     ref: str
     # ### Snapshot
     if name == "SnapshotsListResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**SNAPSHOTS_SCHEMA)
-        )
+        openapi_spec.components.schemas.setdefault(name, TypeSchema(**SNAPSHOTS_SCHEMA))
         ref = f"#/components/schemas/{name}"
     if name == "SnapshotsDetailResponse":
         openapi_spec.components.schemas.setdefault(

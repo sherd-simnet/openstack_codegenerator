@@ -21,12 +21,18 @@ repos:
     rev: v1.1.1
     hooks:
       - id: doc8
-  - repo: https://github.com/psf/black
-    rev: 24.2.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.5
     hooks:
-      - id: black
-        args: ['-l', '79']
-        exclude: '^codegenerator/templates/.*$'
+      - id: ruff
+        args: ['--fix', '--unsafe-fixes']
+      - id: ruff-format
+  #  - repo: https://github.com/psf/black
+  #    rev: 24.2.0
+  #    hooks:
+  #      - id: black
+  #        args: ['-l', '79']
+  #        exclude: '^codegenerator/templates/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.4.1
     hooks:

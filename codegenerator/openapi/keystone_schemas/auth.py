@@ -546,9 +546,7 @@ AUTH_RECEIPT_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
@@ -563,9 +561,7 @@ def _post_process_operation_hook(
                     "$ref": "#/components/headers/Openstack-Auth-Receipt"
                 }
             },
-            "content": {
-                receipt_mime_type: {"schema": {"$ref": receipt_schema_ref}}
-            },
+            "content": {receipt_mime_type: {"schema": {"$ref": receipt_schema_ref}}},
         }
 
 

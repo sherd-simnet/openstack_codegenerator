@@ -150,9 +150,7 @@ class OpenStackServerSourceBase:
             if os_ext == {}:
                 v.openstack = None
 
-    def _process_route(
-        self, route, openapi_spec, ver_prefix=None, framework=None
-    ):
+    def _process_route(self, route, openapi_spec, ver_prefix=None, framework=None):
         # Placement exposes "action" as controller in route defaults, all others - "controller"
         if not ("controller" in route.defaults or "action" in route.defaults):
             return
@@ -176,17 +174,11 @@ class OpenStackServerSourceBase:
 
         # if "method" not in route.conditions:
         #    raise RuntimeError("Method not set for %s", route)
-        method = (
-            route.conditions.get("method", "GET")[0]
-            if route.conditions
-            else "GET"
-        )
+        method = route.conditions.get("method", "GET")[0] if route.conditions else "GET"
 
         controller = route.defaults.get("controller")
         action = route.defaults.get("action")
-        logging.info(
-            "Path: %s; method: %s; operation: %s", path, method, action
-        )
+        logging.info("Path: %s; method: %s; operation: %s", path, method, action)
 
         versioned_methods = {}
         controller_actions = {}
@@ -239,9 +231,7 @@ class OpenStackServerSourceBase:
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
-                global_param_name = (
-                    "_".join(path_resource_names) + f"_{param_name}"
-                )
+                global_param_name = "_".join(path_resource_names) + f"_{param_name}"
 
                 param_ref_name = self._get_param_ref(
                     openapi_spec,
@@ -251,9 +241,7 @@ class OpenStackServerSourceBase:
                     path=path,
                 )
                 # Ensure reference to the param is in the path_params
-                if param_ref_name not in [
-                    k.ref for k in [p for p in path_params]
-                ]:
+                if param_ref_name not in [k.ref for k in [p for p in path_params]]:
                     path_params.append(ParameterSchema(ref=param_ref_name))
         # Cleanup path_resource_names
         # if len(path_resource_names) > 0 and VERSION_RE.match(path_resource_names[0]):
@@ -275,8 +263,7 @@ class OpenStackServerSourceBase:
         operation_id = re.sub(
             r"^(/?v[0-9.]*/)",
             "",
-            "/".join([x.strip("{}") for x in path_elements])
-            + f":{method.lower()}",  # noqa
+            "/".join([x.strip("{}") for x in path_elements]) + f":{method.lower()}",  # noqa
         )
 
         if action in versioned_methods:
@@ -376,9 +363,7 @@ class OpenStackServerSourceBase:
             for action, op_name in controller_actions.items():
                 logging.info("Action %s: %s", action, op_name)
                 (start_version, end_version) = (None, None)
-                action_impls: list[tuple[Callable, str | None, str | None]] = (
-                    []
-                )
+                action_impls: list[tuple[Callable, str | None, str | None]] = []
                 if isinstance(op_name, str):
                     # wsgi action value is a string
                     if op_name in versioned_methods:
@@ -391,9 +376,7 @@ class OpenStackServerSourceBase:
                                     ver_method.end_version,
                                 )
                             )
-                            logging.info(
-                                "Versioned action %s", ver_method.func
-                            )
+                            logging.info("Versioned action %s", ver_method.func)
                     elif hasattr(contr, op_name):
                         # ACTION with no version bounds
                         func = getattr(contr, op_name)
@@ -430,9 +413,7 @@ class OpenStackServerSourceBase:
                                     ver_method.end_version,
                                 )
                             )
-                            logging.info(
-                                "Versioned action %s", ver_method.func
-                            )
+                            logging.info("Versioned action %s", ver_method.func)
                     elif slf and key:
                         vm = getattr(slf, "versioned_methods", None)
                         if vm and key in vm:
@@ -450,9 +431,7 @@ class OpenStackServerSourceBase:
                                         ver_method.end_version,
                                     )
                                 )
-                            logging.info(
-                                "Versioned action %s", ver_method.func
-                            )
+                            logging.info("Versioned action %s", ver_method.func)
                     else:
                         action_impls.append((op_name, None, None))
 
@@ -595,9 +574,7 @@ class OpenStackServerSourceBase:
         if operation_spec.description:
             # Reading spec from yaml file it was converted back to regular
             # string. Therefore need to force it back to Literal block.
-            operation_spec.description = LiteralScalarString(
-                operation_spec.description
-            )
+            operation_spec.description = LiteralScalarString(operation_spec.description)
 
         action_name = None
         query_params_versions = []
@@ -614,22 +591,13 @@ class OpenStackServerSourceBase:
             if not (
                 "min-ver" in operation_spec.openstack
                 and tuple(
-                    [
-                        int(x)
-                        for x in operation_spec.openstack["min-ver"].split(".")
-                    ]
+                    [int(x) for x in operation_spec.openstack["min-ver"].split(".")]
                 )
                 < (self._api_ver(start_version))
             ):
-                operation_spec.openstack["min-ver"] = (
-                    start_version.get_string()
-                )
+                operation_spec.openstack["min-ver"] = start_version.get_string()
 
-        if (
-            mode != "action"
-            and end_version
-            and self._api_ver_major(end_version)
-        ):
+        if mode != "action" and end_version and self._api_ver_major(end_version):
             if self._api_ver_major(end_version) == 0:
                 operation_spec.openstack.pop("max-ver", None)
                 operation_spec.deprecated = None
@@ -641,18 +609,11 @@ class OpenStackServerSourceBase:
                 if not (
                     "max-ver" in operation_spec.openstack
                     and tuple(
-                        [
-                            int(x)
-                            for x in operation_spec.openstack["max-ver"].split(
-                                "."
-                            )
-                        ]
+                        [int(x) for x in operation_spec.openstack["max-ver"].split(".")]
                     )
                     > self._api_ver(end_version)
                 ):
-                    operation_spec.openstack["max-ver"] = (
-                        end_version.get_string()
-                    )
+                    operation_spec.openstack["max-ver"] = end_version.get_string()
 
         action_name = getattr(func, "wsgi_action", None)
         if action_name:
@@ -708,9 +669,7 @@ class OpenStackServerSourceBase:
         if query_params_versions:
             so = sorted(
                 query_params_versions,
-                key=lambda d: (
-                    tuple(map(int, d[1].split("."))) if d[1] else (0, 0)
-                ),
+                key=lambda d: (tuple(map(int, d[1].split("."))) if d[1] else (0, 0)),
             )
             for data, min_ver, max_ver in so:
                 self.process_query_parameters(
@@ -770,9 +729,7 @@ class OpenStackServerSourceBase:
                         "".join([x.title() for x in path_resource_names])
                         + (
                             operation_name.replace("index", "list").title()
-                            if not path_resource_names[-1].endswith(
-                                operation_name
-                            )
+                            if not path_resource_names[-1].endswith(operation_name)
                             else ""
                         )
                         + "Response"
@@ -805,24 +762,20 @@ class OpenStackServerSourceBase:
                                 curr_oneOf = curr_schema.oneOf
                                 curr_ref = curr_schema.ref
                             if curr_oneOf:
-                                if schema_ref not in [
-                                    x["$ref"] for x in curr_oneOf
-                                ]:
+                                if schema_ref not in [x["$ref"] for x in curr_oneOf]:
                                     curr_oneOf.append({"$ref": schema_ref})
                             elif curr_ref and curr_ref != schema_ref:
-                                rsp["content"]["application/json"][
-                                    "schema"
-                                ] = TypeSchema(
-                                    oneOf=[
-                                        {"$ref": curr_ref},
-                                        {"$ref": schema_ref},
-                                    ]
+                                rsp["content"]["application/json"]["schema"] = (
+                                    TypeSchema(
+                                        oneOf=[
+                                            {"$ref": curr_ref},
+                                            {"$ref": schema_ref},
+                                        ]
+                                    )
                                 )
                         else:
                             rsp["content"] = {
-                                "application/json": {
-                                    "schema": {"$ref": schema_ref}
-                                }
+                                "application/json": {"schema": {"$ref": schema_ref}}
                             }
 
         # Ensure operation tags are existing
@@ -830,9 +783,7 @@ class OpenStackServerSourceBase:
             if tag not in [x["name"] for x in openapi_spec.tags]:
                 openapi_spec.tags.append({"name": tag})
 
-        self._post_process_operation_hook(
-            openapi_spec, operation_spec, path=path
-        )
+        self._post_process_operation_hook(openapi_spec, operation_spec, path=path)
 
     def _post_process_operation_hook(
         self, openapi_spec, operation_spec, path: str | None = None
@@ -867,9 +818,7 @@ class OpenStackServerSourceBase:
                     # Nova added empty params since it was never validating them. Skip
                     param_attrs["schema"] = TypeSchema(type="string")
                 elif spec["type"] == "array":
-                    param_attrs["schema"] = TypeSchema(
-                        **copy.deepcopy(spec["items"])
-                    )
+                    param_attrs["schema"] = TypeSchema(**copy.deepcopy(spec["items"]))
                 else:
                     param_attrs["schema"] = TypeSchema(**copy.deepcopy(spec))
                 param_attrs["description"] = spec.get("description")
@@ -888,14 +837,10 @@ class OpenStackServerSourceBase:
                     **param_attrs,
                 )
                 if ref_name not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(
-                        ParameterSchema(ref=ref_name)
-                    )
+                    operation_spec.parameters.append(ParameterSchema(ref=ref_name))
 
         else:
-            raise RuntimeError(
-                "Query parameters %s is not an object as expected" % obj
-            )
+            raise RuntimeError("Query parameters %s is not an object as expected" % obj)
 
     def process_body_parameters(
         self,
@@ -918,9 +863,7 @@ class OpenStackServerSourceBase:
         if action_name:
             path_resource_names.append(action_name)
 
-        cont_schema_name = (
-            "".join([x.title() for x in path_resource_names]) + "Request"
-        )
+        cont_schema_name = "".join([x.title() for x in path_resource_names]) + "Request"
         cont_schema = None
 
         if body_schemas is not UNSET and len(body_schemas) == 1:
@@ -929,9 +872,7 @@ class OpenStackServerSourceBase:
             if True:  # body_schemas[0] is not UNSET:
                 if cont_schema_name in openapi_spec.components.schemas:
                     # if we have already oneOf - add there
-                    cont_schema = openapi_spec.components.schemas[
-                        cont_schema_name
-                    ]
+                    cont_schema = openapi_spec.components.schemas[cont_schema_name]
                     if cont_schema.oneOf and body_schemas[0] not in [
                         x["$ref"] for x in cont_schema.oneOf
                     ]:
@@ -951,9 +892,7 @@ class OpenStackServerSourceBase:
             )
             cont_schema = openapi_spec.components.schemas.setdefault(
                 cont_schema_name,
-                TypeSchema(
-                    oneOf=[], openstack={"discriminator": "microversion"}
-                ),
+                TypeSchema(oneOf=[], openstack={"discriminator": "microversion"}),
             )
             # Add new refs to the container oneOf if they are not already
             # there
@@ -1010,9 +949,7 @@ class OpenStackServerSourceBase:
             js_content = op_body.setdefault(mime_type, {})
             body_schema = js_content.setdefault("schema", {})
             one_of = body_schema.setdefault("oneOf", [])
-            if schema_ref and schema_ref not in [
-                x.get("$ref") for x in one_of
-            ]:
+            if schema_ref and schema_ref not in [x.get("$ref") for x in one_of]:
                 one_of.append({"$ref": schema_ref})
             os_ext = body_schema.setdefault("x-openstack", {})
             os_ext["discriminator"] = "action"
@@ -1022,13 +959,11 @@ class OpenStackServerSourceBase:
             op_body = operation_spec.requestBody.setdefault("content", {})
             js_content = op_body.setdefault(mime_type, {})
             body_schema = js_content.setdefault("schema", {})
-            operation_spec.requestBody["content"][mime_type]["schema"] = (
-                TypeSchema(ref=schema_ref)
+            operation_spec.requestBody["content"][mime_type]["schema"] = TypeSchema(
+                ref=schema_ref
             )
 
-    def _sanitize_schema(
-        self, schema, *, start_version=None, end_version=None
-    ):
+    def _sanitize_schema(self, schema, *, start_version=None, end_version=None):
         """Various schemas are broken in various ways"""
 
         if isinstance(schema, dict):
@@ -1052,11 +987,7 @@ class OpenStackServerSourceBase:
                 if typ == "array" and "additionalItems" in v:
                     # additionalItems have nothing to do under the type array (create servergroup)
                     schema.properties[k].pop("additionalItems")
-                if (
-                    typ == "array"
-                    and "items" in v
-                    and isinstance(v["items"], list)
-                ):
+                if typ == "array" and "items" in v and isinstance(v["items"], list):
                     # server_group create - type array "items" is a dict and not list
                     # NOTE: server_groups recently changed to "prefixItems",
                     # so this may be not necessary anymore
@@ -1092,9 +1023,7 @@ class OpenStackServerSourceBase:
         else:
             os_ext = None
         # Ensure global parameter is present
-        param = ParameterSchema(
-            location=param_location, name=param_name, **param_attrs
-        )
+        param = ParameterSchema(location=param_location, name=param_name, **param_attrs)
         if param_location == "path":
             param.required = True
         if not param.description and path:
@@ -1125,8 +1054,7 @@ class OpenStackServerSourceBase:
                 if (
                     old_max_ver
                     and max_ver
-                    and tuple(old_max_ver.split("."))
-                    > tuple(max_ver.split("."))
+                    and tuple(old_max_ver.split(".")) > tuple(max_ver.split("."))
                 ):
                     # Existing param has max_ver higher then what we have now. Keep old value
                     os_ext["max_ver"] = old_max_ver
@@ -1146,9 +1074,7 @@ class OpenStackServerSourceBase:
         action_name=None,
     ) -> tuple[str | None, str | None]:
         if schema_def is UNSET:
-            logging.warn(
-                "No Schema definition for %s[%s] is known", name, action_name
-            )
+            logging.warn("No Schema definition for %s[%s] is known", name, action_name)
             # Create dummy schema since we got no data for it
             schema_def = {
                 "type": "object",
@@ -1230,9 +1156,7 @@ class OpenStackServerSourceBase:
                 if isinstance(expected_errors, list):
                     expected_errors = [
                         str(x)
-                        for x in filter(
-                            lambda x: isinstance(x, int), expected_errors
-                        )
+                        for x in filter(lambda x: isinstance(x, int), expected_errors)
                     ]
                 elif isinstance(expected_errors, int):
                     expected_errors = [str(expected_errors)]
@@ -1254,21 +1178,15 @@ class OpenStackServerSourceBase:
                         typ_name = (
                             "".join([x.title() for x in path_resource_names])
                             + func.__name__.title()
-                            + (
-                                f"_{min_ver.replace('.', '')}"
-                                if min_ver
-                                else ""
-                            )
+                            + (f"_{min_ver.replace('.', '')}" if min_ver else "")
                         )
-                        comp_schema = (
-                            openapi_spec.components.schemas.setdefault(
-                                typ_name,
-                                self._sanitize_schema(
-                                    copy.deepcopy(obj),
-                                    start_version=start_version,
-                                    end_version=end_version,
-                                ),
-                            )
+                        comp_schema = openapi_spec.components.schemas.setdefault(
+                            typ_name,
+                            self._sanitize_schema(
+                                copy.deepcopy(obj),
+                                start_version=start_version,
+                                end_version=end_version,
+                            ),
                         )
 
                         if min_ver:
@@ -1378,9 +1296,7 @@ def _convert_wsme_to_jsonschema(body_spec):
     elif wtypes.isdict(body_spec):
         res = {
             "type": "object",
-            "additionalProperties": _convert_wsme_to_jsonschema(
-                body_spec.value_type
-            ),
+            "additionalProperties": _convert_wsme_to_jsonschema(body_spec.value_type),
         }
     elif wtypes.isusertype(body_spec):
         basetype = body_spec.basetype
@@ -1396,10 +1312,7 @@ def _convert_wsme_to_jsonschema(body_spec):
         res = {"type": "boolean"}
     elif body_spec is float:
         res = {"type": "number", "format": "float"}
-    elif (
-        isinstance(body_spec, wtypes.dt_types)
-        or body_spec is datetime.datetime
-    ):
+    elif isinstance(body_spec, wtypes.dt_types) or body_spec is datetime.datetime:
         res = {"type": "string", "format": "date-time"}
     else:
         raise RuntimeError("Unsupported object %s" % body_spec)

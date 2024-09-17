@@ -12,7 +12,6 @@
 #
 from typing import Any
 
-from cinder.api.validation import parameter_types
 
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import TypeSchema
@@ -99,9 +98,7 @@ VOLUME_TRANSFER_CONTAINER_SCHEMA: dict[str, Any] = {
 
 VOLUME_TRANSFERS_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "transfers": {"type": "array", "items": VOLUME_TRANSFER_SCHEMA}
-    },
+    "properties": {"transfers": {"type": "array", "items": VOLUME_TRANSFER_SCHEMA}},
 }
 
 OS_VOLUME_TRANSFERS_DETAIL_SCHEMA: dict[str, Any] = {
@@ -173,9 +170,7 @@ VOLUME_TRANSFER_LIST_PARAMETERS: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
@@ -184,9 +179,7 @@ def _post_process_operation_hook(
         "volume-transfers/detail:get",
     ]:
         for key, val in VOLUME_TRANSFER_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -198,9 +191,7 @@ def _post_process_operation_hook(
         # structure and just copy single param.
         key = "transfer_all_tenants"
         val = VOLUME_TRANSFER_LIST_PARAMETERS[key]
-        openapi_spec.components.parameters.setdefault(
-            key, ParameterSchema(**val)
-        )
+        openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
         ref = f"#/components/parameters/{key}"
         if ref not in [x.ref for x in operation_spec.parameters]:
             operation_spec.parameters.append(ParameterSchema(ref=ref))

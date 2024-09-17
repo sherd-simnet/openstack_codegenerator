@@ -35,9 +35,7 @@ FQAN_ALIAS_MAP = {
 }
 
 
-def _deep_merge(
-    dict1: dict[Any, Any], dict2: dict[Any, Any]
-) -> dict[Any, Any]:
+def _deep_merge(dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
     result = dict1.copy()
     for key, value in dict2.items():
         if key in result:
@@ -176,11 +174,7 @@ def find_resource_schema(
                 raise RuntimeError("No type in %s" % schema)
         schema_type = schema["type"]
         if schema_type == "array":
-            if (
-                parent
-                and resource_name
-                and parent == get_plural_form(resource_name)
-            ):
+            if parent and resource_name and parent == get_plural_form(resource_name):
                 items = schema["items"]
                 if (
                     items.get("type") == "object"
@@ -191,9 +185,7 @@ def find_resource_schema(
                     return (items["properties"][resource_name], parent)
                 else:
                     return (items, parent)
-            elif (
-                not parent and schema.get("items", {}).get("type") == "object"
-            ):
+            elif not parent and schema.get("items", {}).get("type") == "object":
                 # Array on the top level. Most likely we are searching for items
                 # directly
                 return (schema["items"], None)
@@ -236,9 +228,7 @@ def find_resource_schema(
                 else:
                     return (schema, None)
     except Exception as ex:
-        logging.exception(
-            f"Caught exception {ex} during processing of {schema}"
-        )
+        logging.exception(f"Caught exception {ex} during processing of {schema}")
         raise
     return (None, None)
 
@@ -285,9 +275,7 @@ def find_response_schema(
                     for candidate in oneof:
                         if (
                             action_name
-                            and candidate.get("x-openstack", {}).get(
-                                "action-name"
-                            )
+                            and candidate.get("x-openstack", {}).get("action-name")
                             == action_name
                         ):
                             if response_key in candidate.get("properties", {}):
@@ -375,24 +363,17 @@ def get_operation_variants(spec: dict, operation_name: str):
                         variant_spec = variant.get("x-openstack", {})
                         if variant_spec.get("action-name") == operation_name:
                             discriminator = variant_spec.get("discriminator")
-                            if (
-                                "oneOf" in variant
-                                and discriminator == "microversion"
-                            ):
+                            if "oneOf" in variant and discriminator == "microversion":
                                 logging.debug(
                                     "Microversion discriminator for action bodies"
                                 )
                                 for subvariant in variant["oneOf"]:
-                                    subvariant_spec = subvariant.get(
-                                        "x-openstack", {}
-                                    )
+                                    subvariant_spec = subvariant.get("x-openstack", {})
                                     operation_variants.append(
                                         {
                                             "body": subvariant,
                                             "mode": "action",
-                                            "min-ver": subvariant_spec.get(
-                                                "min-ver"
-                                            ),
+                                            "min-ver": subvariant_spec.get("min-ver"),
                                             "mime_type": mime_type,
                                         }
                                     )

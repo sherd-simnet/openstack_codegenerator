@@ -148,9 +148,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
 
         # Set global parameters
         for name, definition in volume.VOLUME_PARAMETERS.items():
-            openapi_spec.components.parameters[name] = ParameterSchema(
-                **definition
-            )
+            openapi_spec.components.parameters[name] = ParameterSchema(**definition)
 
         for route in self.router.map.matchlist:
             # if route.routepath.startswith("/{project"):
@@ -158,9 +156,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
             if route.routepath.endswith(".:(format)"):
                 continue
 
-            if route.routepath.startswith(
-                "/extensions"
-            ) or route.routepath.startswith(
+            if route.routepath.startswith("/extensions") or route.routepath.startswith(
                 "/{project_id:[0-9a-f\-]+}/extensions"
             ):
                 if route.defaults.get("action") != "index":

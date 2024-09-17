@@ -29,9 +29,7 @@ class JsonSchemaGenerator(BaseGenerator):
         properties = {}
         for k, v in res.attrs.items():
             field = v["attr"]
-            properties[field.name] = TypeSchema.from_sdk_field(
-                field
-            ).model_dump(
+            properties[field.name] = TypeSchema.from_sdk_field(field).model_dump(
                 exclude_none=True, exclude_defaults=True, by_alias=True
             )
             if "docs" in v:
@@ -56,9 +54,7 @@ class JsonSchemaGenerator(BaseGenerator):
                     "properties": properties,
                 }
             }
-        schema = TypeSchema(
-            type="object", properties=properties, description=""
-        )
+        schema = TypeSchema(type="object", properties=properties, description="")
         # if res.resource_class._store_unknown_attrs_as_properties:
         #    schema_attrs["additionalProperties"] = True
         # schema_attrs["properties"] = properties

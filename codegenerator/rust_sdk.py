@@ -58,11 +58,7 @@ class Enum(common_rust.Enum):
             + first_kind_name
             + "("
             + first_kind_val.data_type.get_sample()
-            + (
-                ".into()"
-                if isinstance(first_kind_val.data_type, String)
-                else ""
-            )
+            + (".into()" if isinstance(first_kind_val.data_type, String) else "")
             + ")"
         )
         return res
@@ -186,9 +182,7 @@ class BTreeMap(common_rust.Dictionary):
                     f".map(|(k, v)| (k, v.into_iter()))"
                 )
             else:
-                type_hint = self.value_type.type_hint.replace(
-                    "Cow<'a, str>", "String"
-                )
+                type_hint = self.value_type.type_hint.replace("Cow<'a, str>", "String")
                 return f"BTreeMap::<String, {type_hint}>::new().into_iter()"
 
     def get_mandatory_init(self):
@@ -247,9 +241,7 @@ class TypeManager(common_rust.TypeManager):
         model.CommaSeparatedList: CommaSeparatedList,
     }
 
-    request_parameter_class: Type[common_rust.RequestParameter] = (
-        RequestParameter
-    )
+    request_parameter_class: Type[common_rust.RequestParameter] = RequestParameter
 
     def set_parameters(self, parameters: list[model.RequestParameter]) -> None:
         """Set OpenAPI operation parameters into typemanager for conversion"""
@@ -316,9 +308,7 @@ class RustSdkGenerator(BaseGenerator):
             openapi_spec = common.get_openapi_spec(args.openapi_yaml_spec)
         if not operation_id:
             operation_id = args.openapi_operation_id
-        (path, method, spec) = common.find_openapi_operation(
-            openapi_spec, operation_id
-        )
+        (path, method, spec) = common.find_openapi_operation(openapi_spec, operation_id)
         if args.operation_type == "find":
             yield self.generate_find_mod(
                 target_dir,
@@ -344,12 +334,12 @@ class RustSdkGenerator(BaseGenerator):
         type_manager: TypeManager | None = None
         is_json_patch: bool = False
         # Collect all operation parameters
-        for param in openapi_spec["paths"][path].get(
+        for param in openapi_spec["paths"][path].get("parameters", []) + spec.get(
             "parameters", []
-        ) + spec.get("parameters", []):
-            if (
-                ("{" + param["name"] + "}") in path and param["in"] == "path"
-            ) or param["in"] != "path":
+        ):
+            if (("{" + param["name"] + "}") in path and param["in"] == "path") or param[
+                "in"
+            ] != "path":
                 # Respect path params that appear in path and not path params
                 param_ = openapi_parser.parse_parameter(param)
                 if param_.name in [
@@ -363,9 +353,7 @@ class RustSdkGenerator(BaseGenerator):
 
         # Process body information
         # List of operation variants (based on the body)
-        operation_variants = common.get_operation_variants(
-            spec, args.operation_name
-        )
+        operation_variants = common.get_operation_variants(spec, args.operation_name)
 
         api_ver_matches: re.Match | None = None
         path_elements = path.lstrip("/").split("/")
@@ -575,9 +563,9 @@ class RustSdkGenerator(BaseGenerator):
         operation_path_params: list[model.RequestParameter] = []
         operation_query_params: list[model.RequestParameter] = []
 
-        for param in openapi_spec["paths"][path].get(
+        for param in openapi_spec["paths"][path].get("parameters", []) + spec.get(
             "parameters", []
-        ) + spec.get("parameters", []):
+        ):
             if ("{" + param["name"] + "}") in path and param["in"] == "path":
                 # Respect path params that appear in path and not in path params
                 param_ = openapi_parser.parse_parameter(param)
@@ -603,9 +591,7 @@ class RustSdkGenerator(BaseGenerator):
             name_field=name_field,
             type_manager=type_manager,
             list_lifetime=(
-                "<'a>"
-                if operation_query_params or operation_path_params
-                else ""
+                "<'a>" if operation_query_params or operation_path_params else ""
             ),
         )
 

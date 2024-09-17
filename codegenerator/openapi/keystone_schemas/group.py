@@ -56,26 +56,20 @@ GROUP_USERS_LIST_PARAMETERS: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(
-    openapi_spec, operation_spec, path: str | None = None
-):
+def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
     if operationId == "groups:get":
         for key, val in GROUPS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
     elif operationId == "groups/group_id/users:get":
         for key, val in GROUP_USERS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(
-                key, ParameterSchema(**val)
-            )
+            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -92,9 +86,7 @@ def _get_schema_ref(
     ref: str
     # Groups
     if name == "GroupsGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**GROUPS_SCHEMA)
-        )
+        openapi_spec.components.schemas.setdefault(name, TypeSchema(**GROUPS_SCHEMA))
         ref = f"#/components/schemas/{name}"
     elif name in [
         "GroupsPostRequest",

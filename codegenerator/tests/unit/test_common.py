@@ -81,9 +81,7 @@ class TestFindResponseSchema(TestCase):
             },
             "204": {
                 "content": {
-                    "application/json": {
-                        "schema": {"oneOf": [foo_action, bar_action]}
-                    }
+                    "application/json": {"schema": {"oneOf": [foo_action, bar_action]}}
                 }
             },
         }

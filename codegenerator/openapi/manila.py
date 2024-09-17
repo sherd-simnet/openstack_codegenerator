@@ -38,7 +38,6 @@ class ManilaGenerator(OpenStackServerSourceBase):
 
     def _generate(self, target_dir, args):
         import fixtures
-        from oslo_config import cfg
         from oslo_config import fixture as config_fixture
         from oslo_concurrency import lockutils
 
@@ -58,15 +57,11 @@ class ManilaGenerator(OpenStackServerSourceBase):
         lock_path = self.useFixture(fixtures.TempDir()).path
         self.fixture = self.useFixture(config_fixture.Config(lockutils.CONF))
         self.fixture.config(lock_path=lock_path, group="oslo_concurrency")
-        self.fixture.config(
-            disable_process_locking=True, group="oslo_concurrency"
-        )
+        self.fixture.config(disable_process_locking=True, group="oslo_concurrency")
 
         rpc.init(CONF)
 
-        CONF.set_override(
-            "backend_url", "file://" + lock_path, group="coordination"
-        )
+        CONF.set_override("backend_url", "file://" + lock_path, group="coordination")
         coordination.LOCK_COORDINATOR.start()
 
         # config = cfg.ConfigOpts()

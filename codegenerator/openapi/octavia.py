@@ -385,9 +385,7 @@ class OctaviaGenerator(OpenStackServerSourceBase):
             self._process_route(route, openapi_spec, framework="pecan")
 
         if args.api_ref_src:
-            merge_api_ref_doc(
-                openapi_spec, args.api_ref_src, allow_strip_version=False
-            )
+            merge_api_ref_doc(openapi_spec, args.api_ref_src, allow_strip_version=False)
 
         self.dump_openapi(openapi_spec, Path(impl_path), args.validate)
 

@@ -160,9 +160,8 @@ class MetadataGenerator(BaseGenerator):
                         elif method == "put":
                             operation_key = "update"
                         elif method == "patch":
-                            if (
-                                "application/json"
-                                in operation.requestBody.get("content", {})
+                            if "application/json" in operation.requestBody.get(
+                                "content", {}
                             ):
                                 operation_key = "update"
                             else:
@@ -171,10 +170,7 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "create"
                         elif method == "delete":
                             operation_key = "delete"
-                    elif (
-                        path.endswith("/detail")
-                        and resource_name != "quota_set"
-                    ):
+                    elif path.endswith("/detail") and resource_name != "quota_set":
                         if method == "get":
                             operation_key = "list_detailed"
                     # elif path.endswith("/default"):
@@ -309,9 +305,8 @@ class MetadataGenerator(BaseGenerator):
                         elif method == "head":
                             operation_key = "check"
                         elif method == "patch":
-                            if (
-                                "application/json"
-                                in operation.requestBody.get("content", {})
+                            if "application/json" in operation.requestBody.get(
+                                "content", {}
                             ):
                                 operation_key = "update"
                             else:
@@ -340,9 +335,7 @@ class MetadataGenerator(BaseGenerator):
                     elif method == "delete":
                         operation_key = "delete"
                     if not operation_key:
-                        logging.warn(
-                            f"Cannot identify op name for {path}:{method}"
-                        )
+                        logging.warn(f"Cannot identify op name for {path}:{method}")
 
                     # Next hacks
                     if args.service_type == "identity" and resource_name in [
@@ -413,22 +406,16 @@ class MetadataGenerator(BaseGenerator):
                     if operation_key in resource_model:
                         raise RuntimeError("Operation name conflict")
                     else:
-                        if (
-                            operation_key == "action"
-                            and args.service_type
-                            in [
-                                "compute",
-                                "block-storage",
-                            ]
-                        ):
+                        if operation_key == "action" and args.service_type in [
+                            "compute",
+                            "block-storage",
+                        ]:
                             # For action we actually have multiple independent operations
                             try:
                                 body_schema = operation.requestBody["content"][
                                     "application/json"
                                 ]["schema"]
-                                bodies = body_schema.get(
-                                    "oneOf", [body_schema]
-                                )
+                                bodies = body_schema.get("oneOf", [body_schema])
                                 if len(bodies) > 1:
                                     discriminator = body_schema.get(
                                         "x-openstack", {}
@@ -439,23 +426,17 @@ class MetadataGenerator(BaseGenerator):
                                             % path
                                         )
                                 for body in bodies:
-                                    action_name = body.get(
-                                        "x-openstack", {}
-                                    ).get("action-name")
+                                    action_name = body.get("x-openstack", {}).get(
+                                        "action-name"
+                                    )
                                     if not action_name:
-                                        action_name = list(
-                                            body["properties"].keys()
-                                        )[0]
+                                        action_name = list(body["properties"].keys())[0]
                                     # Hardcode fixes
-                                    if (
-                                        resource_name == "flavor"
-                                        and action_name
-                                        in [
-                                            "update",
-                                            "create",
-                                            "delete",
-                                        ]
-                                    ):
+                                    if resource_name == "flavor" and action_name in [
+                                        "update",
+                                        "create",
+                                        "delete",
+                                    ]:
                                         # Flavor update/create/delete
                                         # operations are exposed ALSO as wsgi
                                         # actions. This is wrong and useless.
@@ -472,24 +453,16 @@ class MetadataGenerator(BaseGenerator):
                                             common.SPLIT_NAME_RE, action_name
                                         )
                                     ).lower()
-                                    rust_sdk_params = (
-                                        get_rust_sdk_operation_args(
-                                            "action",
-                                            operation_name=action_name,
-                                            module_name=get_module_name(
-                                                action_name
-                                            ),
-                                        )
+                                    rust_sdk_params = get_rust_sdk_operation_args(
+                                        "action",
+                                        operation_name=action_name,
+                                        module_name=get_module_name(action_name),
                                     )
-                                    rust_cli_params = (
-                                        get_rust_cli_operation_args(
-                                            "action",
-                                            operation_name=action_name,
-                                            module_name=get_module_name(
-                                                action_name
-                                            ),
-                                            resource_name=resource_name,
-                                        )
+                                    rust_cli_params = get_rust_cli_operation_args(
+                                        "action",
+                                        operation_name=action_name,
+                                        module_name=get_module_name(action_name),
+                                        resource_name=resource_name,
                                     )
 
                                     op_model = OperationModel(
@@ -498,12 +471,8 @@ class MetadataGenerator(BaseGenerator):
                                     )
                                     op_model.operation_type = "action"
 
-                                    op_model.targets["rust-sdk"] = (
-                                        rust_sdk_params
-                                    )
-                                    op_model.targets["rust-cli"] = (
-                                        rust_cli_params
-                                    )
+                                    op_model.targets["rust-sdk"] = rust_sdk_params
+                                    op_model.targets["rust-cli"] = rust_cli_params
 
                                     op_model = post_process_operation(
                                         args.service_type,
@@ -512,25 +481,17 @@ class MetadataGenerator(BaseGenerator):
                                         op_model,
                                     )
 
-                                    resource_model.operations[
-                                        operation_name
-                                    ] = op_model
+                                    resource_model.operations[operation_name] = op_model
 
                             except KeyError:
-                                raise RuntimeError(
-                                    "Cannot get bodies for %s" % path
-                                )
+                                raise RuntimeError("Cannot get bodies for %s" % path)
                         else:
                             if not operation_key:
                                 raise NotImplementedError
-                            operation_type = get_operation_type_by_key(
-                                operation_key
-                            )
+                            operation_type = get_operation_type_by_key(operation_key)
                             op_model.operation_type = operation_type
                             # NOTE: sdk gets operation_key and not operation_type
-                            rust_sdk_params = get_rust_sdk_operation_args(
-                                operation_key
-                            )
+                            rust_sdk_params = get_rust_sdk_operation_args(operation_key)
                             rust_cli_params = get_rust_cli_operation_args(
                                 operation_key, resource_name=resource_name
                             )
@@ -562,9 +523,7 @@ class MetadataGenerator(BaseGenerator):
                 list_op.targets.pop("rust-cli")
 
             # Prepare `find` operation data
-            if (list_op or list_detailed_op) and res_data.operations.get(
-                "show"
-            ):
+            if (list_op or list_detailed_op) and res_data.operations.get("show"):
                 show_op = res_data.operations["show"]
 
                 (path, _, spec) = common.find_openapi_operation(
@@ -623,8 +582,7 @@ class MetadataGenerator(BaseGenerator):
                         name_field = fqan.split(".")[-1]
                 name_filter_supported: bool = False
                 if name_field in [
-                    x.get("name")
-                    for x in list(list_spec.get("parameters", []))
+                    x.get("name") for x in list(list_spec.get("parameters", []))
                 ]:
                     name_filter_supported = True
 
@@ -808,9 +766,7 @@ def post_process_operation(
     return operation
 
 
-def post_process_compute_operation(
-    resource_name: str, operation_name: str, operation
-):
+def post_process_compute_operation(resource_name: str, operation_name: str, operation):
     if resource_name == "aggregate":
         if operation_name in ["set-metadata", "add-host", "remove-host"]:
             operation.targets["rust-sdk"].response_key = "aggregate"
@@ -826,9 +782,7 @@ def post_process_compute_operation(
             operation.targets["rust-cli"].sdk_mod_name = "list"
             operation.targets["rust-cli"].operation_name = "list"
             operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
-            operation.targets["rust-cli"].cli_full_command = (
-                "availability-zone list"
-            )
+            operation.targets["rust-cli"].cli_full_command = "availability-zone list"
         elif operation_name == "list_detailed":
             operation.operation_type = "list"
             operation.targets["rust-sdk"].operation_name = "list_detail"
@@ -838,9 +792,9 @@ def post_process_compute_operation(
             operation.targets["rust-cli"].operation_name = "list"
             operation.targets["rust-cli"].module_name = "list_detail"
             operation.targets["rust-cli"].sdk_mod_name = "list_detail"
-            operation.targets["rust-cli"].cli_full_command = (
-                "availability-zone list-detail"
-            )
+            operation.targets[
+                "rust-cli"
+            ].cli_full_command = "availability-zone list-detail"
 
     elif resource_name == "keypair":
         if operation_name == "list":
@@ -923,9 +877,7 @@ def post_process_compute_operation(
     return operation
 
 
-def post_process_identity_operation(
-    resource_name: str, operation_name: str, operation
-):
+def post_process_identity_operation(resource_name: str, operation_name: str, operation):
     if resource_name == "role/imply":
         if operation_name == "list":
             operation.targets["rust-cli"].response_key = "role_inference"
@@ -982,9 +934,7 @@ def post_process_identity_operation(
     return operation
 
 
-def post_process_image_operation(
-    resource_name: str, operation_name: str, operation
-):
+def post_process_image_operation(resource_name: str, operation_name: str, operation):
     if resource_name.startswith("schema"):
         # Image schemas are a JSON operation
         operation.targets["rust-cli"].operation_type = "json"
@@ -994,25 +944,16 @@ def post_process_image_operation(
     elif resource_name == "metadef/namespace" and operation_name != "list":
         operation.targets["rust-sdk"].response_key = "null"
         operation.targets["rust-cli"].response_key = "null"
-    elif (
-        resource_name == "metadef/namespace/property"
-        and operation_name == "list"
-    ):
+    elif resource_name == "metadef/namespace/property" and operation_name == "list":
         operation.targets["rust-cli"].operation_type = "list_from_struct"
         operation.targets["rust-cli"].response_key = "properties"
         operation.targets["rust-sdk"].response_key = "properties"
     elif resource_name == "metadef/namespace/resource_type":
-        operation.targets["rust-cli"].response_key = (
-            "resource_type_associations"
-        )
-        operation.targets["rust-sdk"].response_key = (
-            "resource_type_associations"
-        )
+        operation.targets["rust-cli"].response_key = "resource_type_associations"
+        operation.targets["rust-sdk"].response_key = "resource_type_associations"
         operation.targets["rust-cli"].cli_full_command = operation.targets[
             "rust-cli"
-        ].cli_full_command.replace(
-            "resource-type", "resource-type-association"
-        )
+        ].cli_full_command.replace("resource-type", "resource-type-association")
     elif resource_name == "image":
         if operation_name == "patch":
             operation.targets["rust-cli"].cli_full_command = operation.targets[
@@ -1069,9 +1010,7 @@ def post_process_block_storage_operation(
         if "update-snapshot-status" in operation_name:
             operation.targets["rust-cli"].cli_full_command = operation.targets[
                 "rust-cli"
-            ].cli_full_command.replace(
-                "update-snapshot-status", "update-status"
-            )
+            ].cli_full_command.replace("update-snapshot-status", "update-status")
 
     if resource_name in ["os_volume_transfer", "volume_transfer"]:
         if operation_name in ["list", "list_detailed"]:
@@ -1091,9 +1030,7 @@ def post_process_block_storage_operation(
             operation.targets["rust-cli"].sdk_mod_name = "list"
             operation.targets["rust-cli"].operation_name = "list"
             operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
-            operation.targets["rust-cli"].cli_full_command = (
-                "availability-zone list"
-            )
+            operation.targets["rust-cli"].cli_full_command = "availability-zone list"
     if resource_name == "qos_spec/association":
         operation.operation_type = "list"
         operation.targets["rust-sdk"].operation_name = "list"
@@ -1103,9 +1040,7 @@ def post_process_block_storage_operation(
         operation.targets["rust-cli"].sdk_mod_name = "list"
         operation.targets["rust-sdk"].response_key = "qos_associations"
         operation.targets["rust-cli"].response_key = "qos_associations"
-        operation.targets["rust-cli"].cli_full_command = (
-            "qos-spec association list"
-        )
+        operation.targets["rust-cli"].cli_full_command = "qos-spec association list"
 
     if resource_name == "limit" and operation_name == "list":
         # Limits API return object and not a list
@@ -1119,9 +1054,7 @@ def post_process_block_storage_operation(
     return operation
 
 
-def post_process_network_operation(
-    resource_name: str, operation_name: str, operation
-):
+def post_process_network_operation(resource_name: str, operation_name: str, operation):
     if resource_name.startswith("floatingip"):
         operation.targets["rust-cli"].cli_full_command = operation.targets[
             "rust-cli"
