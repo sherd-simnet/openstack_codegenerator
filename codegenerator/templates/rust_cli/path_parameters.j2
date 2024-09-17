@@ -31,6 +31,11 @@ struct {{ res_name | title }}Input {
       /// {{ res_name | title }} ID.
     #[arg(long, help_heading = "Path parameters", value_name = "{{ res_name | upper }}_ID")]
     {{ res_name }}_id: Option<String>,
+    {%- if res_name == "user" %}
+    /// Current authenticated user.
+    #[arg(long, help_heading = "Path parameters", action = clap::ArgAction::SetTrue)]
+    current_user: bool,
+    {%- endif %}
 }
   {%- endif %}
 {%- endfor %}

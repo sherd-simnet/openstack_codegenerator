@@ -1037,6 +1037,7 @@ class RustCliGenerator(BaseGenerator):
                     global_additional_imports.add(
                         f"openstack_sdk::api::{'::'.join(link_res_name.split('/'))}::find as find_{link_res_name.split('/')[-1]}"
                     )
+                    global_additional_imports.add("eyre::OptionExt")
 
         # List of operation variants (based on the body)
         operation_variants = common.get_operation_variants(spec, args.operation_name)

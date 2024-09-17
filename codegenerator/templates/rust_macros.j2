@@ -418,6 +418,18 @@ Some({{ val }})
                 }
             };
         }
+        {%- if res_name == "user" and v.remote_name == "user_id" %}
+        else if self.path.{{ res_name }}.current_{{ res_name }} {
+            {{ builder }}.{{ v.remote_name }}(
+                client
+                    .get_auth_info()
+                    .ok_or_eyre("Cannot determine current authentication information")?
+                    .token
+                    .user
+                    .id,
+            );
+        }
+        {%- endif %}
   {%- else %}
   {%- if not v.is_required %}
     {%- if k != "project_id" %}
