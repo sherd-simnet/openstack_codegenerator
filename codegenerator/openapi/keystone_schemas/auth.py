@@ -27,14 +27,8 @@ SCOPE_SCHEMA: dict[str, Any] = {
         "project": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "Project Name",
-                },
-                "id": {
-                    "type": "string",
-                    "description": "Project Id",
-                },
+                "name": {"type": "string", "description": "Project Name"},
+                "id": {"type": "string", "description": "Project Id"},
                 "domain": {
                     "type": "object",
                     "properties": {
@@ -53,29 +47,17 @@ SCOPE_SCHEMA: dict[str, Any] = {
         "domain": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "string",
-                    "description": "Domain id",
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Domain name",
-                },
+                "id": {"type": "string", "description": "Domain id"},
+                "name": {"type": "string", "description": "Domain name"},
             },
         },
         "OS-TRUST:trust": {
             "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                },
-            },
+            "properties": {"id": {"type": "string"}},
         },
         "system": {
             "type": "object",
-            "properties": {
-                "all": {"type": "boolean"},
-            },
+            "properties": {"all": {"type": "boolean"}},
         },
     },
 }
@@ -131,7 +113,7 @@ AUTH_TOKEN_ISSUE_SCHEMA: dict[str, Any] = replace_refs(
                                                 "$ref": "#/definitions/user_domain"
                                             },
                                         },
-                                    },
+                                    }
                                 },
                             },
                             "token": {
@@ -142,11 +124,9 @@ AUTH_TOKEN_ISSUE_SCHEMA: dict[str, Any] = replace_refs(
                                         "type": "string",
                                         "format": "password",
                                         "description": "Authorization Token value",
-                                    },
+                                    }
                                 },
-                                "required": [
-                                    "id",
-                                ],
+                                "required": ["id"],
                             },
                             "totp": {
                                 "type": "object",
@@ -173,11 +153,9 @@ AUTH_TOKEN_ISSUE_SCHEMA: dict[str, Any] = replace_refs(
                                             },
                                         },
                                         "required": ["passcode"],
-                                    },
+                                    }
                                 },
-                                "required": [
-                                    "user",
-                                ],
+                                "required": ["user"],
                             },
                             "application_credential": {
                                 "type": "object",
@@ -217,32 +195,25 @@ AUTH_TOKEN_ISSUE_SCHEMA: dict[str, Any] = replace_refs(
                                 "required": ["secret"],
                             },
                         },
-                        "required": [
-                            "methods",
-                        ],
+                        "required": ["methods"],
                     },
                     "scope": SCOPE_SCHEMA,
                 },
-                "required": [
-                    "identity",
-                ],
-            },
+                "required": ["identity"],
+            }
         },
         "definitions": {
             "user_domain": {
                 "type": "object",
                 "description": "User Domain object",
                 "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "User Domain ID",
-                    },
+                    "id": {"type": "string", "description": "User Domain ID"},
                     "name": {
                         "type": "string",
                         "description": "User Domain Name",
                     },
                 },
-            },
+            }
         },
     },
     proxies=False,
@@ -454,9 +425,7 @@ AUTH_TOKEN_SCHEMA: dict[str, Any] = {
 AUTH_SCOPED_TOKEN_SCHEMA: dict[str, Any] = copy.deepcopy(AUTH_TOKEN_SCHEMA)
 AUTH_SCOPED_TOKEN_SCHEMA["properties"]["token"]["properties"].update(
     **{
-        "is_domain": {
-            "type": "boolean",
-        },
+        "is_domain": {"type": "boolean"},
         "domain": {
             "type": "object",
             "description": "A domain object including the id and name representing the domain the token is scoped to. This is only included in tokens that are scoped to a domain.",
@@ -466,10 +435,7 @@ AUTH_SCOPED_TOKEN_SCHEMA["properties"]["token"]["properties"].update(
                     "format": "uuid",
                     "description": "A domain UUID",
                 },
-                "name": {
-                    "type": "string",
-                    "description": "A domain name",
-                },
+                "name": {"type": "string", "description": "A domain name"},
             },
         },
         "project": {
@@ -498,10 +464,7 @@ AUTH_SCOPED_TOKEN_SCHEMA["properties"]["token"]["properties"].update(
                         "format": "uuid",
                         "description": "A role UUID",
                     },
-                    "name": {
-                        "type": "string",
-                        "description": "A role name",
-                    },
+                    "name": {"type": "string", "description": "A role name"},
                 },
             },
         },
@@ -546,7 +509,9 @@ AUTH_RECEIPT_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
@@ -561,16 +526,14 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
                     "$ref": "#/components/headers/Openstack-Auth-Receipt"
                 }
             },
-            "content": {receipt_mime_type: {"schema": {"$ref": receipt_schema_ref}}},
+            "content": {
+                receipt_mime_type: {"schema": {"$ref": receipt_schema_ref}}
+            },
         }
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
@@ -578,14 +541,12 @@ def _get_schema_ref(
     # Auth
     if name == "AuthTokensPostRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**AUTH_TOKEN_ISSUE_SCHEMA),
+            name, TypeSchema(**AUTH_TOKEN_ISSUE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in ["AuthTokensGetResponse", "AuthTokensPostResponse"]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**AUTH_SCOPED_TOKEN_SCHEMA),
+            name, TypeSchema(**AUTH_SCOPED_TOKEN_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "AuthReceiptSchema":
@@ -593,16 +554,12 @@ def _get_schema_ref(
             name, TypeSchema(**AUTH_RECEIPT_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name in [
-        "AuthProjectsGetResponse",
-    ]:
+    elif name in ["AuthProjectsGetResponse"]:
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**AUTH_PROJECTS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name in [
-        "AuthDomainsGetResponse",
-    ]:
+    elif name in ["AuthDomainsGetResponse"]:
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**AUTH_DOMAINS_SCHEMA)
         )

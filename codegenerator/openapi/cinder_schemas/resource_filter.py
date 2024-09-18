@@ -26,9 +26,7 @@ RESOURCE_FILTERS_SCHEMA: dict[str, Any] = {
                     "filters": {
                         "type": "array",
                         "description": "The resource filter array",
-                        "items": {
-                            "type": "string",
-                        },
+                        "items": {"type": "string"},
                     },
                     "resource": {
                         "type": "string",
@@ -42,11 +40,7 @@ RESOURCE_FILTERS_SCHEMA: dict[str, Any] = {
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str

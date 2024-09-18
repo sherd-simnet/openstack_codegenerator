@@ -44,21 +44,21 @@ class AnsibleGenerator(BaseGenerator):
 
     def generate(self, res, target_dir, args=None):
         """Generate code for the Ansible"""
-        logging.debug("Generating Ansible code in %s" % target_dir)
+        logging.debug(f"Generating Ansible code in {target_dir}")
         ansible_path = ["plugins", "modules"]
 
-        context = dict(
-            res=res.resource_class,
-            sdk_mod_name=res.mod_name,
-            class_name=res.class_name,
-            resource_name=res.class_name.lower(),
-            sdk_service_name=res.service_name,
-            proxy=res.proxy_obj,
-            fqcn=res.fqcn,
-            registry_name=res.registry_name,
-            attrs=res.attrs,
-            target_name=res.class_name.lower(),
-        )
+        context = {
+            "res": res.resource_class,
+            "sdk_mod_name": res.mod_name,
+            "class_name": res.class_name,
+            "resource_name": res.class_name.lower(),
+            "sdk_service_name": res.service_name,
+            "proxy": res.proxy_obj,
+            "fqcn": res.fqcn,
+            "registry_name": res.registry_name,
+            "attrs": res.attrs,
+            "target_name": res.class_name.lower(),
+        }
         if args and args.alternative_target_name:
             context["target_name"] = args.alternative_target_name
         context["ansible_module_name"] = "".join(
@@ -96,6 +96,4 @@ class AnsibleGenerator(BaseGenerator):
         # Format rendered code to have less flake complains. This will still
         # not guarantee code is fitting perfect, since there might be too long
         # lines
-        self._format_code(
-            Path(work_dir, "/".join(ansible_path)),
-        )
+        self._format_code(Path(work_dir, "/".join(ansible_path)))

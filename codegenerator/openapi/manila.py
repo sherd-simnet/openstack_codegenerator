@@ -15,17 +15,13 @@ from pathlib import Path
 
 from ruamel.yaml.scalarstring import LiteralScalarString
 
-from codegenerator.common.schema import (
-    SpecSchema,
-)
+from codegenerator.common.schema import SpecSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.utils import merge_api_ref_doc
 
 
 class ManilaGenerator(OpenStackServerSourceBase):
-    URL_TAG_MAP = {
-        "/versions": "version",
-    }
+    URL_TAG_MAP = {"/versions": "version"}
 
     def _api_ver_major(self, ver):
         return ver._ver_major
@@ -57,11 +53,15 @@ class ManilaGenerator(OpenStackServerSourceBase):
         lock_path = self.useFixture(fixtures.TempDir()).path
         self.fixture = self.useFixture(config_fixture.Config(lockutils.CONF))
         self.fixture.config(lock_path=lock_path, group="oslo_concurrency")
-        self.fixture.config(disable_process_locking=True, group="oslo_concurrency")
+        self.fixture.config(
+            disable_process_locking=True, group="oslo_concurrency"
+        )
 
         rpc.init(CONF)
 
-        CONF.set_override("backend_url", "file://" + lock_path, group="coordination")
+        CONF.set_override(
+            "backend_url", "file://" + lock_path, group="coordination"
+        )
         coordination.LOCK_COORDINATOR.start()
 
         # config = cfg.ConfigOpts()
@@ -85,24 +85,24 @@ class ManilaGenerator(OpenStackServerSourceBase):
         openapi_spec = self.load_openapi(impl_path)
         if not openapi_spec:
             openapi_spec = SpecSchema(
-                info=dict(
-                    title="OpenStack Shared-File-System API",
-                    description=LiteralScalarString(
+                info={
+                    "title": "OpenStack Shared-File-System API",
+                    "description": LiteralScalarString(
                         "Shared File System API provided by Manila service"
                     ),
-                    version=self.api_version,
-                ),
+                    "version": self.api_version,
+                },
                 openapi="3.1.0",
                 security=[{"ApiKeyAuth": []}],
-                components=dict(
-                    securitySchemes={
+                components={
+                    "securitySchemes": {
                         "ApiKeyAuth": {
                             "type": "apiKey",
                             "in": "header",
                             "name": "X-Auth-Token",
                         }
-                    },
-                ),
+                    }
+                },
             )
 
         for route in self.router.map.matchlist:
@@ -119,9 +119,7 @@ class ManilaGenerator(OpenStackServerSourceBase):
 
         if args.api_ref_src:
             merge_api_ref_doc(
-                openapi_spec,
-                args.api_ref_src,
-                allow_strip_version=False,
+                openapi_spec, args.api_ref_src, allow_strip_version=False
             )
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)

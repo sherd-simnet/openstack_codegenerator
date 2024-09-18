@@ -119,27 +119,24 @@ DOMAIN_LIST_PARAMETERS: dict[str, dict] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
 
     operationId = operation_spec.operationId
     if operationId == "domains:get":
-        for (
-            key,
-            val,
-        ) in DOMAIN_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+        for key, val in DOMAIN_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
@@ -156,7 +153,9 @@ def _get_schema_ref(
         )
         ref = "#/components/schemas/Domain"
     elif name == "DomainsGetResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**DOMAINS_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**DOMAINS_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
 
     # Domain Config
@@ -171,8 +170,7 @@ def _get_schema_ref(
         "DomainsConfigDefaultGetResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            "DomainConfig",
-            TypeSchema(**DOMAIN_CONFIGS_SCHEMA),
+            "DomainConfig", TypeSchema(**DOMAIN_CONFIGS_SCHEMA)
         )
         ref = "#/components/schemas/DomainConfig"
     elif name in [
@@ -184,8 +182,7 @@ def _get_schema_ref(
         "DomainsConfigGroupPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            "DomainConfigGroup",
-            TypeSchema(**DOMAIN_CONFIG_GROUP_SCHEMA),
+            "DomainConfigGroup", TypeSchema(**DOMAIN_CONFIG_GROUP_SCHEMA)
         )
         ref = "#/components/schemas/DomainConfigGroup"
 

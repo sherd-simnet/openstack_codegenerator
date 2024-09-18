@@ -65,10 +65,7 @@ GROUP_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A volume group object.",
     "properties": {
-        "name": {
-            "type": ["string", "null"],
-            "description": "The group name.",
-        },
+        "name": {"type": ["string", "null"], "description": "The group name."},
         "id": {
             "type": "string",
             "format": "uuid",
@@ -145,10 +142,7 @@ GROUPS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A container with list of group objects.",
     "properties": {
-        "groups": {
-            "type": "array",
-            "items": copy.deepcopy(GROUP_SCHEMA),
-        },
+        "groups": {"type": "array", "items": copy.deepcopy(GROUP_SCHEMA)}
     },
 }
 
@@ -159,7 +153,7 @@ GROUPS_DETAIL_SCHEMA: dict[str, Any] = {
         "groups": {
             "type": "array",
             "items": copy.deepcopy(GROUP_DETAIL_SCHEMA),
-        },
+        }
     },
 }
 
@@ -207,7 +201,9 @@ GROUP_REPLICATION_TARGETS_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [
@@ -217,18 +213,16 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
         "groups/detail:get",
     ]:
         for key, val in GROUP_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
@@ -238,12 +232,11 @@ def _get_schema_ref(
         )
         ref = f"#/components/schemas/{name}"
     elif name == "GroupsListResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**GROUPS_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**GROUPS_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
-    elif name in [
-        "GroupsCreateResponse",
-        "GroupShowResponse",
-    ]:
+    elif name in ["GroupsCreateResponse", "GroupShowResponse"]:
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**GROUP_CONTAINER_SCHEMA)
         )

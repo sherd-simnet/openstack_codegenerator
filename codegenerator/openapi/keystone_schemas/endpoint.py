@@ -90,7 +90,9 @@ ENDPOINTS_LIST_PARAMETERS = {
     },
 }
 
-ENDPOINT_CREATE_SCHEMA: dict[str, Any] = copy.deepcopy(ENDPOINT_CONTAINER_SCHEMA)
+ENDPOINT_CREATE_SCHEMA: dict[str, Any] = copy.deepcopy(
+    ENDPOINT_CONTAINER_SCHEMA
+)
 ENDPOINT_CREATE_SCHEMA["properties"]["endpoint"]["properties"].pop("id")
 ENDPOINT_CREATE_SCHEMA["properties"]["endpoint"]["required"] = [
     "interface",
@@ -99,34 +101,30 @@ ENDPOINT_CREATE_SCHEMA["properties"]["endpoint"]["required"] = [
 ]
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId == "endpoints:get":
-        for (
-            key,
-            val,
-        ) in ENDPOINTS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+        for key, val in ENDPOINTS_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     # ### Endpoints
     if name == "EndpointsGetResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**ENDPOINTS_SCHEMA),
+            name, TypeSchema(**ENDPOINTS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -136,14 +134,12 @@ def _get_schema_ref(
         "EndpointPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            "Endpoint",
-            TypeSchema(**ENDPOINT_CONTAINER_SCHEMA),
+            "Endpoint", TypeSchema(**ENDPOINT_CONTAINER_SCHEMA)
         )
         ref = "#/components/schemas/Endpoint"
     elif name == "EndpointsPostRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**ENDPOINT_CREATE_SCHEMA),
+            name, TypeSchema(**ENDPOINT_CREATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 

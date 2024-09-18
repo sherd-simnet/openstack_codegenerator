@@ -15,17 +15,13 @@ from pathlib import Path
 
 from ruamel.yaml.scalarstring import LiteralScalarString
 
-from codegenerator.common.schema import (
-    SpecSchema,
-)
+from codegenerator.common.schema import SpecSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.utils import merge_api_ref_doc
 
 
 class PlacementGenerator(OpenStackServerSourceBase):
-    URL_TAG_MAP = {
-        "/versions": "version",
-    }
+    URL_TAG_MAP = {"/versions": "version"}
 
     def _api_ver_major(self, ver):
         return ver.ver_major
@@ -65,24 +61,24 @@ class PlacementGenerator(OpenStackServerSourceBase):
         openapi_spec = self.load_openapi(impl_path)
         if not openapi_spec:
             openapi_spec = SpecSchema(
-                info=dict(
-                    title="OpenStack Placement API",
-                    description=LiteralScalarString(
+                info={
+                    "title": "OpenStack Placement API",
+                    "description": LiteralScalarString(
                         "Placement API provided by Placement service"
                     ),
-                    version=self.api_version,
-                ),
+                    "version": self.api_version,
+                },
                 openapi="3.1.0",
                 security=[{"ApiKeyAuth": []}],
-                components=dict(
-                    securitySchemes={
+                components={
+                    "securitySchemes": {
                         "ApiKeyAuth": {
                             "type": "apiKey",
                             "in": "header",
                             "name": "X-Auth-Token",
                         }
-                    },
-                ),
+                    }
+                },
             )
 
         for route in self.router.matchlist:
@@ -92,9 +88,7 @@ class PlacementGenerator(OpenStackServerSourceBase):
 
         if args.api_ref_src:
             merge_api_ref_doc(
-                openapi_spec,
-                args.api_ref_src,
-                allow_strip_version=False,
+                openapi_spec, args.api_ref_src, allow_strip_version=False
             )
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)

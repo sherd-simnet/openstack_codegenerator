@@ -156,7 +156,7 @@ LINKS_SCHEMA: dict[str, Any] = {
 METADATA_SCHEMA: dict[str, Any] = {
     "type": "object",
     "patternProperties": {
-        "^[a-zA-Z0-9-_:. /]{1,255}$": {"type": "string", "maxLength": 255},
+        "^[a-zA-Z0-9-_:. /]{1,255}$": {"type": "string", "maxLength": 255}
     },
     "additionalProperties": False,
     "description": "A metadata object. Contains one or more metadata key and value pairs that are associated with the resource.",

@@ -48,10 +48,7 @@ ROLE_INFO_SCHEMA: dict[str, Any] = {
             "format": "uuid",
             "description": "The role ID.",
         },
-        "name": {
-            "type": "string",
-            "description": "The role name.",
-        },
+        "name": {"type": "string", "description": "The role name."},
         "description": {
             "type": "string",
             "description": "The role description.",
@@ -111,7 +108,7 @@ ROLE_LIST_PARAMETERS: dict[str, Any] = {
         "name": "domain_id",
         "description": "Filters the response by a domain ID.",
         "schema": {"type": "string", "format": "uuid"},
-    },
+    }
 }
 
 
@@ -135,10 +132,7 @@ ROLES_INFERENCE_SCHEMA: dict[str, Any] = {
             "type": "object",
             "properties": {
                 "prior_role": ROLE_INFO_SCHEMA,
-                "implies": {
-                    "type": "array",
-                    "items": ROLE_INFO_SCHEMA,
-                },
+                "implies": {"type": "array", "items": ROLE_INFO_SCHEMA},
             },
         }
     },
@@ -153,10 +147,7 @@ ROLES_INFERENCES_SCHEMA: dict[str, Any] = {
                 "type": "object",
                 "properties": {
                     "prior_role": ROLE_INFO_SCHEMA,
-                    "implies": {
-                        "type": "array",
-                        "items": ROLE_INFO_SCHEMA,
-                    },
+                    "implies": {"type": "array", "items": ROLE_INFO_SCHEMA},
                 },
             },
         }
@@ -213,10 +204,7 @@ ROLE_ASSIGNMENT_SCHEMA: dict[str, Any] = {
                     "format": "uri",
                     "description": "a link to the assignment that gave rise to this entity",
                 },
-                "membership": {
-                    "type": "string",
-                    "format": "uri",
-                },
+                "membership": {"type": "string", "format": "uri"},
             },
         },
     },
@@ -298,16 +286,17 @@ ROLE_ASSIGNMENT_LIST_PARAMETERS: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
     if operationId == "roles:get":
-        for (
-            key,
-            val,
-        ) in ROLE_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+        for key, val in ROLE_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
 
             if ref not in [x.ref for x in operation_spec.parameters]:
@@ -317,10 +306,7 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
             ROLE_ASSIGNMENTS_QUERY_PARAMETERS,
             ROLE_ASSIGNMENT_LIST_PARAMETERS,
         ]:
-            for (
-                key,
-                val,
-            ) in map.items():
+            for key, val in map.items():
                 openapi_spec.components.parameters.setdefault(
                     key, ParameterSchema(**val)
                 )
@@ -329,11 +315,10 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
     elif operationId == "role_assignments:head":
-        for (
-            key,
-            val,
-        ) in ROLE_ASSIGNMENTS_QUERY_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+        for key, val in ROLE_ASSIGNMENTS_QUERY_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
 
             if ref not in [x.ref for x in operation_spec.parameters]:
@@ -341,17 +326,15 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     # Roles
     if name == "RolesGetResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**ROLES_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**ROLES_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
     elif name in [
         "RolesPostRequest",
@@ -368,8 +351,7 @@ def _get_schema_ref(
     # Role Implies
     elif name == "RolesImpliesGetResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**ROLES_INFERENCE_SCHEMA),
+            name, TypeSchema(**ROLES_INFERENCE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "RolesImplyGetResponse":
