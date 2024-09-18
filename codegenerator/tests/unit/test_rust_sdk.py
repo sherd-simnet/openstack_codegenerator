@@ -51,7 +51,7 @@ class TestRustSdkModel(TestCase):
                 ),
                 "g": model.StructField(
                     data_type=model.Dictionary(
-                        value_type=model.PrimitiveString(),
+                        value_type=model.PrimitiveString()
                     )
                 ),
             },
@@ -120,7 +120,7 @@ class TestRustSdkModel(TestCase):
         self.assertEqual(
             field.type_hint, "Option<BTreeMap<Cow<'a, str>, Cow<'a, str>>>"
         )
-        self.assertEqual(set(["'a"]), mod.lifetimes)
+        self.assertEqual({"'a"}, mod.lifetimes)
 
     def test_get_submodels(self):
         logging.basicConfig(level=logging.DEBUG)
@@ -128,15 +128,13 @@ class TestRustSdkModel(TestCase):
         type_manager.set_models(test_model.EXPECTED_DATA_TYPES)
         # res = type_manager.get_subtypes()
         self.assertEqual(
-            set(
-                [
-                    "std::collections::BTreeMap",
-                    "std::borrow::Cow",
-                    "serde::Deserialize",
-                    "serde::Serialize",
-                    "serde_json::Value",
-                ]
-            ),
+            {
+                "std::collections::BTreeMap",
+                "std::borrow::Cow",
+                "serde::Deserialize",
+                "serde::Serialize",
+                "serde_json::Value",
+            },
             type_manager.get_imports(),
         )
 

@@ -29,7 +29,7 @@ MANAGEABLE_SNAPSHOT_SCHEMA: dict[str, Any] = {
                 "source-name": {
                     "type": "string",
                     "description": "The resource's name.",
-                },
+                }
             },
         },
         "safe_to_manage": {
@@ -53,12 +53,7 @@ MANAGEABLE_SNAPSHOT_SCHEMA: dict[str, Any] = {
         },
     },
     "additionalProperties": False,
-    "required": [
-        "source_reference",
-        "safe_to_manage",
-        "reference",
-        "size",
-    ],
+    "required": ["source_reference", "safe_to_manage", "reference", "size"],
 }
 
 MANAGEABLE_SNAPSHOT_DETAIL_SCHEMA: dict[str, Any] = {
@@ -108,7 +103,9 @@ MANAGEABLE_SNAPSHOT_CREATE_REQUEST_SCHEMA: dict[str, Any] = copy.deepcopy(
 MANAGEABLE_SNAPSHOT_CREATE_REQUEST_SCHEMA["properties"].pop("type", None)
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [
@@ -131,11 +128,7 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str

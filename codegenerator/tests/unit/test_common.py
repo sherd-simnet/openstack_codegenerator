@@ -81,7 +81,9 @@ class TestFindResponseSchema(TestCase):
             },
             "204": {
                 "content": {
-                    "application/json": {"schema": {"oneOf": [foo_action, bar_action]}}
+                    "application/json": {
+                        "schema": {"oneOf": [foo_action, bar_action]}
+                    }
                 }
             },
         }
@@ -94,7 +96,7 @@ class TestFindResponseSchema(TestCase):
             common.find_response_schema(responses, "foo", "bar-action"),
         )
         self.assertIsNone(
-            common.find_response_schema(responses, "foo", "baz-action"),
+            common.find_response_schema(responses, "foo", "baz-action")
         )
         self.assertEqual(
             responses["200"]["content"]["application/json"]["schema"],
@@ -104,11 +106,7 @@ class TestFindResponseSchema(TestCase):
     def test_no_candidates_returns_root(self):
         responses = {
             "200": {
-                "content": {
-                    "application/json": {
-                        "schema": self.FOO["foo"],
-                    }
-                }
+                "content": {"application/json": {"schema": self.FOO["foo"]}}
             }
         }
         self.assertEqual(

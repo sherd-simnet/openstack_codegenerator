@@ -43,7 +43,7 @@ GROUPS_LIST_PARAMETERS: dict[str, Any] = {
         "name": "domain_id",
         "description": "Filters the response by a domain ID.",
         "schema": {"type": "string", "format": "uuid"},
-    },
+    }
 }
 
 GROUP_USERS_LIST_PARAMETERS: dict[str, Any] = {
@@ -52,41 +52,45 @@ GROUP_USERS_LIST_PARAMETERS: dict[str, Any] = {
         "name": "password_expires_at",
         "description": "Filter results based on which user passwords have expired. The query should include an operator and a timestamp with a colon (:) separating the two, for example: `password_expires_at={operator}:{timestamp}`.\nValid operators are: `lt`, `lte`, `gt`, `gte`, `eq`, and `neq`.\nValid timestamps are of the form: YYYY-MM-DDTHH:mm:ssZ.",
         "schema": {"type": "string", "format": "date-time"},
-    },
+    }
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
     if operationId == "groups:get":
         for key, val in GROUPS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
     elif operationId == "groups/group_id/users:get":
         for key, val in GROUP_USERS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     # Groups
     if name == "GroupsGetResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**GROUPS_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**GROUPS_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
     elif name in [
         "GroupsPostRequest",

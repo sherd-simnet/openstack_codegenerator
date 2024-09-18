@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -45,11 +44,7 @@ from sphinx.util import logging
 linklogger = logging.getLogger("sphinx.ext.extlinks")
 linklogger.setLevel(40)  # Ignore messages less severe than ERROR
 
-extensions = [
-    "openstackdocstheme",
-    "reno.sphinxext",
-    "sphinx.ext.extlinks",
-]
+extensions = ["openstackdocstheme", "reno.sphinxext", "sphinx.ext.extlinks"]
 
 # openstackdocstheme options
 openstackdocs_repo_name = "openstack/codegenerator"
@@ -132,9 +127,7 @@ html_theme = "openstackdocs"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    "display_toc": False,
-}
+html_theme_options = {"display_toc": False}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []

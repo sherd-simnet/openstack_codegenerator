@@ -61,12 +61,16 @@ IDENTITY_PROVIDER_CONTAINER_SCHEMA: dict[str, Any] = {
 
 IDENTITY_PROVIDER_CREATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {"identity_provider": federation_schema.identity_provider_create},
+    "properties": {
+        "identity_provider": federation_schema.identity_provider_create
+    },
 }
 
 IDENTITY_PROVIDER_UPDATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {"identity_provider": federation_schema.identity_provider_update},
+    "properties": {
+        "identity_provider": federation_schema.identity_provider_update
+    },
 }
 
 IDENTITY_PROVIDERS_SCHEMA: dict[str, Any] = {
@@ -133,8 +137,7 @@ IDENTITY_PROVIDER_PROTOCOL_UPDATE_SCHEMA: dict[str, Any] = {
 }
 
 MAPPING_PROPERTIES = replace_refs(
-    federation_mapping_schema.IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0,
-    proxies=False,
+    federation_mapping_schema.IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0, proxies=False
 )
 MAPPING_PROPERTIES.pop("definitions", None)
 MAPPING_PROPERTIES["properties"]["schema_version"] = {
@@ -215,24 +218,29 @@ FEDERATION_SERVICE_PROVIDERS_SCHEMA: dict[str, Any] = {
 
 FEDERATION_SERVICE_PROVIDER_CREATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {"service_provider": federation_schema.service_provider_create},
+    "properties": {
+        "service_provider": federation_schema.service_provider_create
+    },
 }
 
 FEDERATION_SERVICE_PROVIDER_UPDATE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {"service_provider": federation_schema.service_provider_update},
+    "properties": {
+        "service_provider": federation_schema.service_provider_update
+    },
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId == "OS-FEDERATION/identity_providers:get":
-        for (
-            key,
-            val,
-        ) in IDENTITY_PROVIDERS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+        for key, val in IDENTITY_PROVIDERS_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -247,11 +255,7 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str | None
@@ -260,9 +264,7 @@ def _get_schema_ref(
             name, TypeSchema(**auth.AUTH_PROJECTS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name in [
-        "Os_FederationDomainsGetResponse",
-    ]:
+    elif name in ["Os_FederationDomainsGetResponse"]:
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**auth.AUTH_DOMAINS_SCHEMA)
         )
@@ -272,8 +274,7 @@ def _get_schema_ref(
         "AuthOs_FederationSaml2EcpPostRequest",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**auth.AUTH_TOKEN_ISSUE_SCHEMA),
+            name, TypeSchema(**auth.AUTH_TOKEN_ISSUE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -312,8 +313,7 @@ def _get_schema_ref(
     # ### Identity provider
     elif name == "Os_FederationIdentity_ProvidersGetResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDERS_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDERS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -322,27 +322,23 @@ def _get_schema_ref(
         "Os_FederationIdentity_ProviderPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDER_CONTAINER_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDER_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Os_FederationIdentity_ProviderPutRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDER_CREATE_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDER_CREATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Os_FederationIdentity_ProviderPatchRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDER_UPDATE_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDER_UPDATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     # ### Identity provider protocols
     elif name == "Os_FederationIdentity_ProvidersProtocolsGetResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDER_PROTOCOLS_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDER_PROTOCOLS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -351,27 +347,23 @@ def _get_schema_ref(
         "Os_FederationIdentity_ProvidersProtocolPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_CONTAINER_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Os_FederationIdentity_ProvidersProtocolPutRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_CREATE_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_CREATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Os_FederationIdentity_ProvidersProtocolPatchRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_UPDATE_SCHEMA),
+            name, TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_UPDATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     # ### Identity provider mapping
     elif name == "Os_FederationMappingsGetResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**MAPPINGS_SCHEMA),
+            name, TypeSchema(**MAPPINGS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -380,8 +372,7 @@ def _get_schema_ref(
         "Os_FederationMappingPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**MAPPING_CONTAINER_SCHEMA),
+            name, TypeSchema(**MAPPING_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -389,15 +380,13 @@ def _get_schema_ref(
         "Os_FederationMappingPatchRequest",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**MAPPING_CREATE_SCHEMA),
+            name, TypeSchema(**MAPPING_CREATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     # ### Identity provider service provider
     elif name == "Os_FederationService_ProvidersGetResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**FEDERATION_SERVICE_PROVIDERS_SCHEMA),
+            name, TypeSchema(**FEDERATION_SERVICE_PROVIDERS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -406,20 +395,17 @@ def _get_schema_ref(
         "Os_FederationService_ProviderPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**FEDERATION_SERVICE_PROVIDER_CONTAINER_SCHEMA),
+            name, TypeSchema(**FEDERATION_SERVICE_PROVIDER_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Os_FederationService_ProviderPutRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**FEDERATION_SERVICE_PROVIDER_CREATE_SCHEMA),
+            name, TypeSchema(**FEDERATION_SERVICE_PROVIDER_CREATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Os_FederationService_ProviderPatchRequest":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**FEDERATION_SERVICE_PROVIDER_UPDATE_SCHEMA),
+            name, TypeSchema(**FEDERATION_SERVICE_PROVIDER_UPDATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     # SAML2 Metadata
