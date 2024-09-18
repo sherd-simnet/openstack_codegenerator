@@ -42,21 +42,23 @@ class OSCGenerator(BaseGenerator):
 
     def generate(self, res, target_dir, args=None):
         """Generate code for the OpenStackClient"""
-        logging.debug("Generating OpenStackClient code in %s" % target_dir)
+        logging.debug(f"Generating OpenStackClient code in {target_dir}")
         osc_path = res.mod_name.split(".")[1:]
 
-        context = dict(
-            res=res.resource_class,
-            sdk_mod_name=res.mod_name,
-            osc_mod_name=res.mod_name.replace("openstack.", "openstackclient."),
-            class_name=res.class_name,
-            resource_name=res.class_name.lower(),
-            sdk_service_name=res.service_name,
-            proxy=res.proxy_obj,
-            fqcn=res.fqcn,
-            registry_name=res.registry_name,
-            attrs=res.attrs,
-        )
+        context = {
+            "res": res.resource_class,
+            "sdk_mod_name": res.mod_name,
+            "osc_mod_name": res.mod_name.replace(
+                "openstack.", "openstackclient."
+            ),
+            "class_name": res.class_name,
+            "resource_name": res.class_name.lower(),
+            "sdk_service_name": res.service_name,
+            "proxy": res.proxy_obj,
+            "fqcn": res.fqcn,
+            "registry_name": res.registry_name,
+            "attrs": res.attrs,
+        }
 
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
@@ -78,7 +80,9 @@ class OSCGenerator(BaseGenerator):
                 context,
                 osc_path,
                 "osc/impl_list.py.j2",
-                Path(work_dir, "openstackclient", "/".join(osc_path), "list.py"),
+                Path(
+                    work_dir, "openstackclient", "/".join(osc_path), "list.py"
+                ),
                 "osc/test_unit_list.py.j2",
                 Path(
                     work_dir,
@@ -96,7 +100,9 @@ class OSCGenerator(BaseGenerator):
                 context,
                 osc_path,
                 "osc/impl_show.py.j2",
-                Path(work_dir, "openstackclient", "/".join(osc_path), "show.py"),
+                Path(
+                    work_dir, "openstackclient", "/".join(osc_path), "show.py"
+                ),
                 "osc/test_unit_show.py.j2",
                 Path(
                     work_dir,
@@ -161,10 +167,7 @@ class OSCGenerator(BaseGenerator):
                 osc_path,
                 "osc/impl_set.py.j2",
                 Path(
-                    work_dir,
-                    "openstackclient",
-                    "/".join(osc_path),
-                    "set.py",
+                    work_dir, "openstackclient", "/".join(osc_path), "set.py"
                 ),
                 "osc/test_unit_set.py.j2",
                 Path(
@@ -183,10 +186,7 @@ class OSCGenerator(BaseGenerator):
                 osc_path,
                 "osc/impl_unset.py.j2",
                 Path(
-                    work_dir,
-                    "openstackclient",
-                    "/".join(osc_path),
-                    "unset.py",
+                    work_dir, "openstackclient", "/".join(osc_path), "unset.py"
                 ),
                 "osc/test_unit_unset.py.j2",
                 Path(

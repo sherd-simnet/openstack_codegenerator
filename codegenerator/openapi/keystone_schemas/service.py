@@ -33,10 +33,7 @@ SERVICE_SCHEMA: dict[str, Any] = {
             "description": "The UUID of the service to which the endpoint belongs.",
             "readOnly": True,
         },
-        "name": {
-            "type": "string",
-            "description": "The service name.",
-        },
+        "name": {"type": "string", "description": "The service name."},
         "type": {
             "type": "string",
             "description": "The service type, which describes the API implemented by the ",
@@ -60,38 +57,34 @@ SERVICES_LIST_PARAMETERS = {
         "name": "service",
         "description": "Filters the response by a domain ID.",
         "schema": {"type": "string"},
-    },
+    }
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId == "services:get":
-        for (
-            key,
-            val,
-        ) in SERVICES_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+        for key, val in SERVICES_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     # ### Services
     if name == "ServicesGetResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**SERVICES_SCHEMA),
+            name, TypeSchema(**SERVICES_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -102,8 +95,7 @@ def _get_schema_ref(
         "ServicePatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            "Service",
-            TypeSchema(**SERVICE_CONTAINER_SCHEMA),
+            "Service", TypeSchema(**SERVICE_CONTAINER_SCHEMA)
         )
         ref = "#/components/schemas/Service"
 

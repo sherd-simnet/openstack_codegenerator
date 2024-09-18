@@ -44,9 +44,7 @@ SERVER_TAGS_SCHEMA: dict[str, Any] = {
         "tags": {
             "type": "array",
             "description": "A list of tags. The maximum count of tags in this list is 50.",
-            "items": {
-                "type": "string",
-            },
+            "items": {"type": "string"},
         }
     },
 }
@@ -65,9 +63,7 @@ SERVER_TOPOLOGY_SCHEMA: dict[str, Any] = {
                     "cpu_pinning": {
                         "type": "object",
                         "description": "The mapping of server cores to host physical CPU",
-                        "additionalProperties": {
-                            "type": "integer",
-                        },
+                        "additionalProperties": {"type": "integer"},
                     },
                     "vcpu_set": {
                         "type": "array",
@@ -192,7 +188,9 @@ FLAVORS_LIST_SCHEMA: dict[str, Any] = {
 FLAVORS_LIST_DETAIL_SCHEMA: dict[str, Any] = {
     "description": "Detailed flavors list response",
     "type": "object",
-    "properties": {"flavors": {"type": "array", "items": copy.deepcopy(FLAVOR_SCHEMA)}},
+    "properties": {
+        "flavors": {"type": "array", "items": copy.deepcopy(FLAVOR_SCHEMA)}
+    },
 }
 
 FLAVOR_ACCESS_SCHEMA: dict[str, Any] = {
@@ -270,7 +268,7 @@ LIMITS_SCHEMA: dict[str, Any] = {
                         },
                     },
                     "additionalProperties": {"type": "integer"},
-                },
+                }
             },
         }
     },
@@ -467,16 +465,16 @@ REMOTE_CONSOLE_SCHEMA: dict[str, Any] = {
             "properties": {
                 "protocol": {
                     "type": "string",
-                    "enum": remote_consoles.create_v28["properties"]["remote_console"][
-                        "properties"
-                    ]["protocol"]["enum"],
+                    "enum": remote_consoles.create_v28["properties"][
+                        "remote_console"
+                    ]["properties"]["protocol"]["enum"],
                     "description": "The protocol of remote console. The valid values are vnc, spice, rdp, serial and mks. The protocol mks is added since Microversion 2.8.",
                 },
                 "type": {
                     "type": "string",
-                    "enum": remote_consoles.create_v28["properties"]["remote_console"][
-                        "properties"
-                    ]["type"]["enum"],
+                    "enum": remote_consoles.create_v28["properties"][
+                        "remote_console"
+                    ]["properties"]["type"]["enum"],
                     "description": "The type of remote console. The valid values are novnc, rdp-html5, spice-html5, serial, and webmks. The type webmks is added since Microversion 2.8.",
                 },
                 "url": {
@@ -786,9 +784,7 @@ KEYPAIR_LIST_SCHEMA: dict[str, Any] = {
             "description": "Array of Keypair objects",
             "items": {
                 "type": "object",
-                "properties": {
-                    "keypair": copy.deepcopy(KEYPAIR_SHORT_SCHEMA),
-                },
+                "properties": {"keypair": copy.deepcopy(KEYPAIR_SHORT_SCHEMA)},
             },
         },
         "keypairs_links": copy.deepcopy(LINKS_SCHEMA),
@@ -833,8 +829,12 @@ KEYPAIR_CONTAINER_SCHEMA: dict[str, Any] = {
     "properties": {"keypair": KEYPAIR_SCHEMA},
 }
 
-KEYPAIR_CREATED_SCHEMA: dict[str, Any] = copy.deepcopy(KEYPAIR_CONTAINER_SCHEMA)
-KEYPAIR_CREATED_SCHEMA["properties"]["keypair"]["properties"]["private_key"] = {
+KEYPAIR_CREATED_SCHEMA: dict[str, Any] = copy.deepcopy(
+    KEYPAIR_CONTAINER_SCHEMA
+)
+KEYPAIR_CREATED_SCHEMA["properties"]["keypair"]["properties"][
+    "private_key"
+] = {
     "type": "string",
     "description": "If you do not provide a public key on create, a new keypair will be built for you, and the private key will be returned during the initial create call. Make sure to save this, as there is no way to get this private key again in the future.",
     "x-openstack": {"max-ver": "2.91"},
@@ -1031,7 +1031,7 @@ SERVER_MIGRATION_LIST_SCHEMA: dict[str, Any] = {
         "migrations": {
             "type": "array",
             "items": copy.deepcopy(SERVER_MIGRATION_SCHEMA),
-        },
+        }
     },
 }
 SERVER_MIGRATION_CONTAINER_SCHEMA: dict[str, Any] = {
@@ -1272,7 +1272,7 @@ SERVER_GROUP_SCHEMA: dict[str, Any] = {
             "type": "object",
             "description": "The rules field, which is a dict, can be applied to the policy. Currently, only the max_server_per_host rule is supported for the anti-affinity policy. The max_server_per_host rule allows specifying how many members of the anti-affinity group can reside on the same compute host. If not specified, only one member from the same anti-affinity group can reside on a given host.",
             "properties": {
-                "max_server_per_host": parameter_types.positive_integer,
+                "max_server_per_host": parameter_types.positive_integer
             },
             "additionalProperties": False,
             "x-openstack": {"min-ver": "2.64"},
@@ -2267,7 +2267,7 @@ SERVER_SECURITY_GROUPS_LIST_SCHEMA: dict[str, Any] = {
                     },
                 },
             },
-        },
+        }
     },
 }
 

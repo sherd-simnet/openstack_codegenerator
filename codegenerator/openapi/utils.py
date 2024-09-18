@@ -40,7 +40,7 @@ def merge_api_ref_doc(
     processed_operations: set[str] = set()
     # Iterate over api-ref docs
     for api_ref_doc in api_ref_src:
-        with open(api_ref_doc, "r") as fp:
+        with open(api_ref_doc) as fp:
             html_doc = fp.read()
 
         # openapi_spec = jsonref.replace_refs(openapi_spec)
@@ -71,7 +71,9 @@ def merge_api_ref_doc(
                         # TODO(gtema): notes are aside of main "p" and not
                         # underneath
             # Iterate over URLs
-            operation_url_containers = section.find_all("div", class_="operation-grp")
+            operation_url_containers = section.find_all(
+                "div", class_="operation-grp"
+            )
             for op in operation_url_containers:
                 ep = op.find("div", class_="endpoint-container")
                 ep_divs = ep.find_all("div")
@@ -108,7 +110,9 @@ def merge_api_ref_doc(
                                 # Paths have different length. Skip
                                 continue
                             is_search_aborted = False
-                            for source, doc in zip(existing_path_parts, doc_url_parts):
+                            for source, doc in zip(
+                                existing_path_parts, doc_url_parts
+                            ):
                                 source_ = source.strip("{}")
                                 doc_ = doc.strip("{}")
                                 if (
@@ -147,18 +151,19 @@ def merge_api_ref_doc(
                                 break
 
                 if not path_spec:
-                    logging.info("Cannot find path %s in the spec" % url)
+                    logging.info(f"Cannot find path {url} in the spec")
                     continue
 
                 op_spec = getattr(path_spec, method.lower(), None)
                 if not op_spec:
                     logging.warn(
-                        "Cannot find %s operation for %s in the spec" % (method, url)
+                        f"Cannot find {method} operation for {url} in the spec"
                     )
                     continue
 
-                if op_spec.operationId in processed_operations and not url.endswith(
-                    "/action"
+                if (
+                    op_spec.operationId in processed_operations
+                    and not url.endswith("/action")
                 ):
                     # Do not update operation we have already processed
                     continue
@@ -169,7 +174,9 @@ def merge_api_ref_doc(
                 # details section
                 details_button = op.find("button")
                 details_section_id = details_button["data-target"].strip("#")
-                details_section = section.find("section", id=details_section_id)
+                details_section = section.find(
+                    "section", id=details_section_id
+                )
                 description = []
                 action_name = None
                 # Gather description section paragraphs to construct operation description
@@ -179,9 +186,11 @@ def merge_api_ref_doc(
 
                     elif details_child.name == "section":
                         if (
-                            details_child.h3 and "Request" in details_child.h3.strings
+                            details_child.h3
+                            and "Request" in details_child.h3.strings
                         ) or (
-                            details_child.h4 and "Request" in details_child.h4.strings
+                            details_child.h4
+                            and "Request" in details_child.h4.strings
                         ):
                             # Found request details
                             if not details_child.table:
@@ -210,13 +219,15 @@ def merge_api_ref_doc(
                                     method,
                                 )
                                 continue
-                            (schema_specs, action_name) = _get_schema_candidates(
-                                openapi_spec,
-                                url,
-                                spec_body,
-                                action_name,
-                                summary,
-                                description,
+                            (schema_specs, action_name) = (
+                                _get_schema_candidates(
+                                    openapi_spec,
+                                    url,
+                                    spec_body,
+                                    action_name,
+                                    summary,
+                                    description,
+                                )
                             )
 
                             _doc_process_operation_table(
@@ -235,13 +246,15 @@ def merge_api_ref_doc(
                             details_child.h3
                             and (
                                 "Response" in details_child.h3.strings
-                                or "Response Parameters" in details_child.h3.strings
+                                or "Response Parameters"
+                                in details_child.h3.strings
                             )
                         ) or (
                             details_child.h4
                             and (
                                 "Response" in details_child.h4.strings
-                                or "Response Parameters" in details_child.h4.strings
+                                or "Response Parameters"
+                                in details_child.h4.strings
                             )
                         ):
                             # Found response details
@@ -275,8 +288,10 @@ def merge_api_ref_doc(
                                     op_spec.operationId,
                                 )
                                 continue
-                            (schema_specs, action_name) = _get_schema_candidates(
-                                openapi_spec, url, spec_body, action_name
+                            (schema_specs, action_name) = (
+                                _get_schema_candidates(
+                                    openapi_spec, url, spec_body, action_name
+                                )
                             )
                             try:
                                 _doc_process_operation_table(
@@ -301,11 +316,7 @@ def merge_api_ref_doc(
 
 
 def _doc_process_operation_table(
-    tbody,
-    openapi_spec,
-    op_spec,
-    schema_specs,
-    doc_source_param_mapping,
+    tbody, openapi_spec, op_spec, schema_specs, doc_source_param_mapping
 ):
     """Process DOC table (Request/Reseponse) and try to set description to
     the matching schema property"""
@@ -335,7 +346,9 @@ def _doc_process_operation_table(
                     param_def.location == doc_param_location
                     and param_def.name == doc_param_name
                 ):
-                    param_def.description = LiteralScalarString(doc_param_descr)
+                    param_def.description = LiteralScalarString(
+                        doc_param_descr
+                    )
         elif doc_param_location == "body":
             # Body param. Traverse through body information
             for schema in schema_specs:
@@ -362,7 +375,9 @@ def _find_schema_property(schema, target_prop_name):
             return
         for prop_name, prop_def in props.items():
             prop_type = (
-                prop_def.get("type") if isinstance(prop_def, dict) else prop_def.type
+                prop_def.get("type")
+                if isinstance(prop_def, dict)
+                else prop_def.type
             )
             if prop_name == target_prop_name:
                 return prop_def
@@ -397,7 +412,9 @@ def _find_schema_property(schema, target_prop_name):
 
     elif xtype == "array":
         items_schema = (
-            schema.items if isinstance(schema, TypeSchema) else schema.get("items")
+            schema.items
+            if isinstance(schema, TypeSchema)
+            else schema.get("items")
         )
         candidate = _find_schema_property(items_schema, target_prop_name)
         if candidate:
@@ -434,7 +451,9 @@ def _get_schema_candidates(
         ref = spec_body.get("$ref")
         oneOf = spec_body.get("oneOf")
     if spec_body and ref:
-        candidate_schema = openapi_spec.components.schemas.get(ref.split("/")[-1])
+        candidate_schema = openapi_spec.components.schemas.get(
+            ref.split("/")[-1]
+        )
         if candidate_schema.oneOf:
             for x in candidate_schema.oneOf:
                 ref = x.get("$ref") if isinstance(x, dict) else x.ref
@@ -476,7 +495,9 @@ def _get_schema_candidates(
 
                 elif not action_name and section_description:
                     if candidate_action_name and (
-                        re.search(rf"\b{candidate_action_name}\b", section_summary)
+                        re.search(
+                            rf"\b{candidate_action_name}\b", section_summary
+                        )
                         or (
                             url.endswith("/volumes/{volume_id}/action")
                             # Cinder doc does not contain action name in the
@@ -496,7 +517,9 @@ def _get_schema_candidates(
                             itms = res.get("oneOf")
                         if itms:
                             for itm in itms:
-                                schema_specs.append(get_schema(openapi_spec, itm))
+                                schema_specs.append(
+                                    get_schema(openapi_spec, itm)
+                                )
                         schema_specs.append(res)
                         # Set the action name. Since
                         # Request normally comes before

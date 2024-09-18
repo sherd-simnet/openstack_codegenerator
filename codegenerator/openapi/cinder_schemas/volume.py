@@ -112,10 +112,7 @@ VOLUME_SCHEMA: dict[str, Any] = {
             "type": "boolean",
             "description": "If true, this volume can attach to more than one instance.",
         },
-        "status": {
-            "type": "string",
-            "description": "The volume status.",
-        },
+        "status": {"type": "string", "description": "The volume status."},
         "migration_status": {
             "type": "string",
             "description": "The volume migration status. Admin only.",
@@ -215,7 +212,7 @@ VOLUMES_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": copy.deepcopy(VOLUME_SHORT_SCHEMA),
             "description": "A list of volume objects.",
-        },
+        }
     },
 }
 
@@ -227,7 +224,7 @@ VOLUMES_DETAIL_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": copy.deepcopy(VOLUME_SCHEMA),
             "description": "A list of volume objects.",
-        },
+        }
     },
 }
 
@@ -235,34 +232,25 @@ VOLUME_PARAMETERS: dict[str, Any] = {
     "all_tenants": {
         "in": "query",
         "name": "all_tenants",
-        "schema": {
-            "type": "boolean",
-        },
+        "schema": {"type": "boolean"},
         "description": "Shows details for all project. Admin only.",
     },
     "sort": {
         "in": "query",
         "name": "sort",
-        "schema": {
-            "type": "string",
-        },
+        "schema": {"type": "string"},
         "description": "Comma-separated list of sort keys and optional sort directions in the form of < key > [: < direction > ]. A valid direction is asc (ascending) or desc (descending).",
     },
     "sort_key": {
         "in": "query",
         "name": "sort_key",
-        "schema": {
-            "type": "string",
-        },
+        "schema": {"type": "string"},
         "description": "Sorts by an attribute. A valid value is name, status, container_format, disk_format, size, id, created_at, or updated_at. Default is created_at. The API uses the natural sorting direction of the sort_key attribute value. Deprecated in favour of the combined sort parameter.",
     },
     "sort_dir": {
         "in": "query",
         "name": "sort_dir",
-        "schema": {
-            "type": "string",
-            "enum": ["asc", "desc"],
-        },
+        "schema": {"type": "string", "enum": ["asc", "desc"]},
         "description": "Sorts by one or more sets of attribute and sort direction combinations. If you omit the sort direction in a set, default is desc. Deprecated in favour of the combined sort parameter.",
     },
     "limit": {
@@ -274,55 +262,40 @@ VOLUME_PARAMETERS: dict[str, Any] = {
     "offset": {
         "in": "query",
         "name": "offset",
-        "schema": {
-            "type": "integer",
-        },
+        "schema": {"type": "integer"},
         "description": "Used in conjunction with limit to return a slice of items. offset is where to start in the list.",
     },
     "marker": {
         "in": "query",
         "name": "marker",
-        "schema": {
-            "type": "string",
-            "format": "uuid",
-        },
+        "schema": {"type": "string", "format": "uuid"},
         "description": "The ID of the last-seen item. Use the limit parameter to make an initial limited request and use the ID of the last-seen item from the response as the marker parameter value in a subsequent limited request.",
     },
     "with_count": {
         "in": "query",
         "name": "with_count",
-        "schema": {
-            "type": "boolean",
-        },
+        "schema": {"type": "boolean"},
         "description": "Whether to show count in API response or not, default is False.",
         "x-openstack": {"min-ver": "3.45"},
     },
     "created_at": {
         "in": "query",
         "name": "created_at",
-        "schema": {
-            "type": "string",
-            "format": "date-time",
-        },
+        "schema": {"type": "string", "format": "date-time"},
         "description": "Filters reuslts by a time that resources are created at with time comparison operators: gt/gte/eq/neq/lt/lte.",
         "x-openstack": {"min-ver": "3.60"},
     },
     "updated_at": {
         "in": "query",
         "name": "updated_at",
-        "schema": {
-            "type": "string",
-            "format": "date-time",
-        },
+        "schema": {"type": "string", "format": "date-time"},
         "description": "Filters reuslts by a time that resources are updated at with time comparison operators: gt/gte/eq/neq/lt/lte.",
         "x-openstack": {"min-ver": "3.60"},
     },
     "consumes_quota": {
         "in": "query",
         "name": "consumes_quota",
-        "schema": {
-            "type": "boolean",
-        },
+        "schema": {"type": "boolean"},
         "description": "Filters results by consumes_quota field. Resources that don’t use quotas are usually temporary internal resources created to perform an operation. Default is to not filter by it. Filtering by this option may not be always possible in a cloud, see List Resource Filters to determine whether this filter is available in your cloud.",
         "x-openstack": {"min-ver": "3.65"},
     },
@@ -388,7 +361,9 @@ VOLUME_UPLOAD_IMAGE_RESPONSE_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [
@@ -413,29 +388,23 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
             ref = f"#/components/parameters/{pname}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
-    elif operationId in [
-        "project_id/volumes/summary:get",
-    ]:
-        for pname in [
-            "all_tenants",
-        ]:
+    elif operationId in ["project_id/volumes/summary:get"]:
+        for pname in ["all_tenants"]:
             ref = f"#/components/parameters/{pname}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     # ### Volume
     if name == "VolumesListResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**VOLUMES_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**VOLUMES_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
     if name == "VolumesDetailResponse":
         openapi_spec.components.schemas.setdefault(
@@ -506,8 +475,7 @@ def _get_schema_ref(
         return (None, None, True)
     elif name == "VolumesActionOs-Volume_Upload_ImageResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_UPLOAD_IMAGE_RESPONSE_SCHEMA),
+            name, TypeSchema(**VOLUME_UPLOAD_IMAGE_RESPONSE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     else:

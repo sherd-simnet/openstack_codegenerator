@@ -21,10 +21,7 @@ sys.path.insert(0, os.path.abspath("."))
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = [
-    "sphinx.ext.autodoc",
-    "openstackdocstheme",
-]
+extensions = ["sphinx.ext.autodoc", "openstackdocstheme"]
 
 # openstackdocstheme options
 openstackdocs_repo_name = "openstack/codegenerator"
@@ -86,7 +83,7 @@ latex_documents = [
         "OpenStackCodegenerator Documentation",
         "OpenStack Foundation",
         "manual",
-    ),
+    )
 ]
 
 # Allow deeper levels of nesting for \begin...\end stanzas

@@ -109,10 +109,7 @@ HOSTS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A container with list of host objects.",
     "properties": {
-        "hosts": {
-            "type": "array",
-            "items": copy.deepcopy(HOST_SCHEMA),
-        },
+        "hosts": {"type": "array", "items": copy.deepcopy(HOST_SCHEMA)}
     },
 }
 
@@ -120,27 +117,18 @@ HOSTS_DETAIL_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A container with list of host objects.",
     "properties": {
-        "hosts": {
-            "type": "array",
-            "items": copy.deepcopy(HOST_DETAIL_SCHEMA),
-        },
+        "hosts": {"type": "array", "items": copy.deepcopy(HOST_DETAIL_SCHEMA)}
     },
 }
 
 HOST_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "host": {"type": "array", "items": HOST_DETAIL_SCHEMA},
-    },
+    "properties": {"host": {"type": "array", "items": HOST_DETAIL_SCHEMA}},
 }
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str

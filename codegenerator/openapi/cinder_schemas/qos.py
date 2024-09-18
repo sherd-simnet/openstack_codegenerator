@@ -20,10 +20,7 @@ from codegenerator.common.schema import TypeSchema
 QOS_SPEC_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "consumer": {
-            "type": "string",
-            "description": "The consumer type.",
-        },
+        "consumer": {"type": "string", "description": "The consumer type."},
         "specs": {
             "type": ["object", "null"],
             "description": "A specs object.",
@@ -120,16 +117,17 @@ QOS_SPEC_LIST_PARAMETERS: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
-    if operationId in [
-        "project_id/qos-specs:get",
-        "qos-specs:get",
-    ]:
+    if operationId in ["project_id/qos-specs:get", "qos-specs:get"]:
         for key, val in QOS_SPEC_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -147,19 +145,14 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
 
     if name == "Qos_SpecsListResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**QOS_SPECS_SCHEMA),
+            name, TypeSchema(**QOS_SPECS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -168,16 +161,12 @@ def _get_schema_ref(
         "Qos_SpecUpdateResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**QOS_SPEC_CONTAINER_SCHEMA),
+            name, TypeSchema(**QOS_SPEC_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name in [
-        "Qos_SpecsAssociationsResponse",
-    ]:
+    elif name in ["Qos_SpecsAssociationsResponse"]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**QOS_SPEC_ASSOCIATIONS_SCHEMA),
+            name, TypeSchema(**QOS_SPEC_ASSOCIATIONS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 

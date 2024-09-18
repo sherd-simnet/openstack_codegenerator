@@ -60,7 +60,9 @@ VOLUME_TYPE_CONTAINER_SCHEMA: dict[str, Any] = {
 
 VOLUME_TYPES_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {"volume_types": {"type": "array", "items": VOLUME_TYPE_SCHEMA}},
+    "properties": {
+        "volume_types": {"type": "array", "items": VOLUME_TYPE_SCHEMA}
+    },
 }
 
 VOLUME_TYPE_LIST_PARAMETERS: dict[str, Any] = {
@@ -114,7 +116,7 @@ VOLUME_TYPE_EXTRA_SPECS_SCHEMA: dict[str, Any] = {
         "extra_specs": {
             "description": "A key and value pair that contains additional specifications that are associated with the volume type. Examples include capabilities, capacity, compression, and so on, depending on the storage driver in use.",
             **parameter_types.extra_specs_with_no_spaces_key,
-        },
+        }
     },
 }
 
@@ -204,7 +206,7 @@ VOLUME_TYPE_ENCRYPTION_SHOW_SCHEMA: dict[str, Any] = {
         "cipher": {
             "type": "string",
             "description": "The encryption algorithm or mode. For example, aes-xts-plain64. The default value is None.",
-        },
+        }
     },
 }
 
@@ -226,7 +228,9 @@ DEFAULT_TYPE_SCHEMA: dict[str, Any] = {
 
 DEFAULT_TYPES_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {"default_types": {"type": "array", "items": DEFAULT_TYPE_SCHEMA}},
+    "properties": {
+        "default_types": {"type": "array", "items": DEFAULT_TYPE_SCHEMA}
+    },
 }
 
 DEFAULT_TYPE_CONTAINER_SCHEMA: dict[str, Any] = {
@@ -235,26 +239,24 @@ DEFAULT_TYPE_CONTAINER_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
-    if operationId in [
-        "project_id/types:get",
-    ]:
+    if operationId in ["project_id/types:get"]:
         for key, val in VOLUME_TYPE_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
@@ -262,8 +264,7 @@ def _get_schema_ref(
     # ### Volume Type
     if name == "TypesListResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPES_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPES_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -272,8 +273,7 @@ def _get_schema_ref(
         "TypeUpdateResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPE_CONTAINER_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPE_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -281,8 +281,7 @@ def _get_schema_ref(
         "TypesExtra_SpecsCreateResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPE_EXTRA_SPECS_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPE_EXTRA_SPECS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 
@@ -291,15 +290,13 @@ def _get_schema_ref(
         "TypesExtra_SpecUpdateResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPE_EXTRA_SPEC_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPE_EXTRA_SPEC_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 
     elif name == "TypesOs_Volume_Type_AccessListResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPE_ACCESS_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPE_ACCESS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -312,14 +309,12 @@ def _get_schema_ref(
     # this is not really a list operation, but who cares
     elif name == "TypesEncryptionListResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPE_ENCRYPTION_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPE_ENCRYPTION_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "TypesEncryptionShowResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPE_ENCRYPTION_SHOW_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPE_ENCRYPTION_SHOW_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -327,14 +322,12 @@ def _get_schema_ref(
         "TypesEncryptionUpdateResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TYPE_ENCRYPTION_CONTAINER_SCHEMA),
+            name, TypeSchema(**VOLUME_TYPE_ENCRYPTION_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Default_TypesListResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**DEFAULT_TYPES_SCHEMA),
+            name, TypeSchema(**DEFAULT_TYPES_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 
@@ -343,8 +336,7 @@ def _get_schema_ref(
         "Default_TypeDetailResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**DEFAULT_TYPE_CONTAINER_SCHEMA),
+            name, TypeSchema(**DEFAULT_TYPE_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 

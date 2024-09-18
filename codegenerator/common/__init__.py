@@ -35,7 +35,9 @@ FQAN_ALIAS_MAP = {
 }
 
 
-def _deep_merge(dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
+def _deep_merge(
+    dict1: dict[Any, Any], dict2: dict[Any, Any]
+) -> dict[Any, Any]:
     result = dict1.copy()
     for key, value in dict2.items():
         if key in result:
@@ -51,7 +53,7 @@ def _deep_merge(dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
 
 class BasePrimitiveType(BaseModel):
     lifetimes: set[str] | None = None
-    builder_macros: set[str] = set([])
+    builder_macros: set[str] = set()
 
 
 class BaseCombinedType(BaseModel):
@@ -70,7 +72,7 @@ class BaseCompoundType(BaseModel):
 
 def get_openapi_spec(path: str | Path):
     """Load OpenAPI spec from a file"""
-    with open(path, "r") as fp:
+    with open(path) as fp:
         spec_data = jsonref.replace_refs(yaml.safe_load(fp), proxies=False)
     return Spec.from_dict(spec_data)
 
@@ -83,7 +85,7 @@ def find_openapi_operation(spec, operationId: str):
                 continue
             if method_spec.get("operationId") == operationId:
                 return (path, method, method_spec)
-    raise RuntimeError("Cannot find operation %s specification" % operationId)
+    raise RuntimeError(f"Cannot find operation {operationId} specification")
 
 
 def get_plural_form(resource: str) -> str:
@@ -171,10 +173,14 @@ def find_resource_schema(
             elif "properties" in schema:
                 schema["type"] = "object"
             else:
-                raise RuntimeError("No type in %s" % schema)
+                raise RuntimeError(f"No type in {schema}")
         schema_type = schema["type"]
         if schema_type == "array":
-            if parent and resource_name and parent == get_plural_form(resource_name):
+            if (
+                parent
+                and resource_name
+                and parent == get_plural_form(resource_name)
+            ):
                 items = schema["items"]
                 if (
                     items.get("type") == "object"
@@ -185,7 +191,9 @@ def find_resource_schema(
                     return (items["properties"][resource_name], parent)
                 else:
                     return (items, parent)
-            elif not parent and schema.get("items", {}).get("type") == "object":
+            elif (
+                not parent and schema.get("items", {}).get("type") == "object"
+            ):
                 # Array on the top level. Most likely we are searching for items
                 # directly
                 return (schema["items"], None)
@@ -228,7 +236,9 @@ def find_resource_schema(
                 else:
                     return (schema, None)
     except Exception as ex:
-        logging.exception(f"Caught exception {ex} during processing of {schema}")
+        logging.exception(
+            f"Caught exception {ex} during processing of {schema}"
+        )
         raise
     return (None, None)
 
@@ -275,7 +285,9 @@ def find_response_schema(
                     for candidate in oneof:
                         if (
                             action_name
-                            and candidate.get("x-openstack", {}).get("action-name")
+                            and candidate.get("x-openstack", {}).get(
+                                "action-name"
+                            )
                             == action_name
                         ):
                             if response_key in candidate.get("properties", {}):
@@ -363,17 +375,24 @@ def get_operation_variants(spec: dict, operation_name: str):
                         variant_spec = variant.get("x-openstack", {})
                         if variant_spec.get("action-name") == operation_name:
                             discriminator = variant_spec.get("discriminator")
-                            if "oneOf" in variant and discriminator == "microversion":
+                            if (
+                                "oneOf" in variant
+                                and discriminator == "microversion"
+                            ):
                                 logging.debug(
                                     "Microversion discriminator for action bodies"
                                 )
                                 for subvariant in variant["oneOf"]:
-                                    subvariant_spec = subvariant.get("x-openstack", {})
+                                    subvariant_spec = subvariant.get(
+                                        "x-openstack", {}
+                                    )
                                     operation_variants.append(
                                         {
                                             "body": subvariant,
                                             "mode": "action",
-                                            "min-ver": subvariant_spec.get("min-ver"),
+                                            "min-ver": subvariant_spec.get(
+                                                "min-ver"
+                                            ),
                                             "mime_type": mime_type,
                                         }
                                     )
@@ -392,8 +411,7 @@ def get_operation_variants(spec: dict, operation_name: str):
                             break
                     if not operation_variants:
                         raise RuntimeError(
-                            "Cannot find body specification for action %s"
-                            % operation_name
+                            f"Cannot find body specification for action {operation_name}"
                         )
             else:
                 operation_variants.append(
@@ -527,20 +545,14 @@ def get_resource_names_from_url(path: str):
 
 def get_rust_sdk_mod_path(service_type: str, api_version: str, path: str):
     """Construct mod path for rust sdk"""
-    mod_path = [
-        service_type.replace("-", "_"),
-        api_version,
-    ]
+    mod_path = [service_type.replace("-", "_"), api_version]
     mod_path.extend([x.lower() for x in get_resource_names_from_url(path)])
     return mod_path
 
 
 def get_rust_cli_mod_path(service_type: str, api_version: str, path: str):
     """Construct mod path for rust sdk"""
-    mod_path = [
-        service_type.replace("-", "_"),
-        api_version,
-    ]
+    mod_path = [service_type.replace("-", "_"), api_version]
     mod_path.extend([x.lower() for x in get_resource_names_from_url(path)])
     return mod_path
 

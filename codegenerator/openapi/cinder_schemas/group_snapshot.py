@@ -126,7 +126,7 @@ GROUP_SNAPSHOTS_SCHEMA: dict[str, Any] = {
         "group_snapshots": {
             "type": "array",
             "items": copy.deepcopy(GROUP_SNAPSHOT_SCHEMA),
-        },
+        }
     },
 }
 
@@ -137,7 +137,7 @@ GROUP_SNAPSHOTS_DETAIL_SCHEMA: dict[str, Any] = {
         "group_snapshots": {
             "type": "array",
             "items": copy.deepcopy(GROUP_SNAPSHOT_DETAIL_SCHEMA),
-        },
+        }
     },
 }
 
@@ -147,7 +147,9 @@ GROUP_SNAPSHOT_CONTAINER_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [
@@ -157,18 +159,16 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
         "group_snapshots/detail:get",
     ]:
         for key, val in GROUP_SNAPSHOT_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str

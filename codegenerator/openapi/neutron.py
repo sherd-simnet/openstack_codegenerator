@@ -210,17 +210,11 @@ class NeutronGenerator(OpenStackServerSourceBase):
             fp.write(PASTE_CONFIG)
 
         neutron_config.init([])
-        cfg.CONF.set_override(
-            "service_plugins",
-            [
-                "router",
-                "vpnaas",
-            ],
-        )
+        cfg.CONF.set_override("service_plugins", ["router", "vpnaas"])
         cfg.CONF.set_override(
             "service_provider",
             [
-                "VPN:dummy:neutron_vpnaas.tests.unit.dummy_ipsec.DummyIPsecVPNDriver:default",
+                "VPN:dummy:neutron_vpnaas.tests.unit.dummy_ipsec.DummyIPsecVPNDriver:default"
             ],
             group="service_providers",
         )
@@ -261,27 +255,27 @@ class NeutronGenerator(OpenStackServerSourceBase):
         openapi_spec = self.load_openapi(Path(impl_path))
         if not openapi_spec:
             openapi_spec = SpecSchema(
-                info=dict(
-                    title="OpenStack Network API",
-                    description=LiteralScalarString(
+                info={
+                    "title": "OpenStack Network API",
+                    "description": LiteralScalarString(
                         "Network API provided by Neutron service"
                     ),
-                    version=self.api_version,
-                ),
+                    "version": self.api_version,
+                },
                 openapi="3.1.0",
                 security=[{"ApiKeyAuth": []}],
                 tags=[],
                 paths={},
-                components=dict(
-                    securitySchemes={
+                components={
+                    "securitySchemes": {
                         "ApiKeyAuth": {
                             "type": "apiKey",
                             "in": "header",
                             "name": "X-Auth-Token",
                         }
                     },
-                    headers={},
-                    parameters={
+                    "headers": {},
+                    "parameters": {
                         "limit": ParameterSchema(
                             name="limit",
                             location="query",
@@ -310,11 +304,13 @@ class NeutronGenerator(OpenStackServerSourceBase):
                             name="sort_dir",
                             location="query",
                             description="Sort direction. This is an optional feature and may be silently ignored by the server.",
-                            type_schema=TypeSchema(type="string", enum=["asc", "desc"]),
+                            type_schema=TypeSchema(
+                                type="string", enum=["asc", "desc"]
+                            ),
                         ),
                     },
-                    schemas={},
-                ),
+                    "schemas": {},
+                },
             )
         lnk = Path(impl_path.parent, "v2.yaml")
         lnk.unlink(missing_ok=True)
@@ -363,7 +359,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
 
         # merge descriptions from api-ref doc
         if args.api_ref_src:
-            merge_api_ref_doc(openapi_spec, args.api_ref_src, allow_strip_version=False)
+            merge_api_ref_doc(
+                openapi_spec, args.api_ref_src, allow_strip_version=False
+            )
 
         self.dump_openapi(openapi_spec, Path(impl_path), args.validate)
 
@@ -378,39 +376,50 @@ class NeutronGenerator(OpenStackServerSourceBase):
             #    continue
             # if "networks" not in route.routepath:
             #    continue
-            if route.routepath.endswith("/edit") or route.routepath.endswith("/new"):
+            if route.routepath.endswith("/edit") or route.routepath.endswith(
+                "/new"
+            ):
                 # NEUTRON folks - please fix
-                logging.warning("Skipping processing %s route", route.routepath)
+                logging.warning(
+                    "Skipping processing %s route", route.routepath
+                )
                 continue
-            if "/qos/ports" in route.routepath or "/qos/networks" in route.routepath:
+            if (
+                "/qos/ports" in route.routepath
+                or "/qos/networks" in route.routepath
+            ):
                 # NEUTRON folks - please fix
-                logging.warning("Skipping processing %s route", route.routepath)
+                logging.warning(
+                    "Skipping processing %s route", route.routepath
+                )
                 continue
             if (
                 route.routepath.endswith("/tags")
                 and route.conditions["method"][0] == "POST"
             ):
-                logging.warning("Skipping processing POST %s route", route.routepath)
+                logging.warning(
+                    "Skipping processing POST %s route", route.routepath
+                )
                 continue
-            if route.routepath.startswith("/extensions") and route.conditions["method"][
-                0
-            ] in ["POST", "DELETE", "PUT"]:
-                continue
-            if route.routepath.startswith("/availability_zones") and route.conditions[
+            if route.routepath.startswith("/extensions") and route.conditions[
                 "method"
             ][0] in ["POST", "DELETE", "PUT"]:
                 continue
-            if route.routepath.startswith("/availability_zones/") and route.conditions[
-                "method"
-            ][0] in ["GET"]:
+            if route.routepath.startswith(
+                "/availability_zones"
+            ) and route.conditions["method"][0] in ["POST", "DELETE", "PUT"]:
+                continue
+            if route.routepath.startswith(
+                "/availability_zones/"
+            ) and route.conditions["method"][0] in ["GET"]:
                 # There is no "show" for AZ
                 continue
             if route.routepath in ["/quotas/tenant", "/quotas/project"]:
                 # Tenant and Project quota are not a thing
                 continue
-            if route.routepath == "/quotas" and route.conditions["method"][0] in [
-                "POST"
-            ]:
+            if route.routepath == "/quotas" and route.conditions["method"][
+                0
+            ] in ["POST"]:
                 # Tenant and Project quota is the same
                 continue
 
@@ -496,8 +505,12 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 path += part
 
         if "method" not in route.conditions:
-            raise RuntimeError("Method not set for %s" % route)
-        method = route.conditions.get("method", "GET")[0] if route.conditions else "GET"
+            raise RuntimeError(f"Method not set for {route}")
+        method = (
+            route.conditions.get("method", "GET")[0]
+            if route.conditions
+            else "GET"
+        )
 
         wsgi_controller = controller or route.defaults["controller"]
         # collection_name = route.collection_name
@@ -523,7 +536,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
             logging.warning("Skipping duplicated route %s", processed_key)
             return
 
-        logging.info("Path: %s; method: %s; operation: %s", path, method, action)
+        logging.info(
+            "Path: %s; method: %s; operation: %s", path, method, action
+        )
 
         # Get Path elements
         path_elements: list[str] = list(filter(None, path.split("/")))
@@ -554,15 +569,17 @@ class NeutronGenerator(OpenStackServerSourceBase):
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
-                global_param_name = f"{global_param_name_prefix}_{param_name}".replace(
-                    ":", "_"
+                global_param_name = (
+                    f"{global_param_name_prefix}_{param_name}".replace(
+                        ":", "_"
+                    )
                 )
 
                 if global_param_name == "_project_id":
                     global_param_name = "project_id"
                 param_ref_name = f"#/components/parameters/{global_param_name}"
                 # Ensure reference to the param is in the path_params
-                if param_ref_name not in [k.ref for k in [p for p in path_params]]:
+                if param_ref_name not in [k.ref for k in list(path_params)]:
                     path_params.append(ParameterSchema(ref=param_ref_name))
                 # Ensure global parameter is present
                 path_param = ParameterSchema(
@@ -570,10 +587,14 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 )
                 # openapi_spec.components["parameters"].setdefault(global_param_name, dict())
                 if not path_param.description:
-                    path_param.description = f"{param_name} parameter for {path} API"
+                    path_param.description = (
+                        f"{param_name} parameter for {path} API"
+                    )
                 # We can only assume the param type. For path it is logically a string only
                 path_param.type_schema = TypeSchema(type="string")
-                openapi_spec.components.parameters[global_param_name] = path_param
+                openapi_spec.components.parameters[global_param_name] = (
+                    path_param
+                )
             else:
                 path_resource_names.append(path_element.replace("-", "_"))
 
@@ -591,7 +612,8 @@ class NeutronGenerator(OpenStackServerSourceBase):
         operation_id = re.sub(
             r"^(/?v[0-9.]*/)",
             "",
-            "/".join([x.strip("{}") for x in path_elements]) + f":{method.lower()}",  # noqa
+            "/".join([x.strip("{}") for x in path_elements])
+            + f":{method.lower()}",  # noqa
         )
 
         path_spec = openapi_spec.paths.setdefault(
@@ -629,10 +651,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
         method=None,
         path=None,
     ):
-        logging.info(
-            "Operation: %s",
-            operation_name,
-        )
+        logging.info("Operation: %s", operation_name)
 
         attr_info = getattr(controller, "_attr_info", {})
         collection = getattr(controller, "_collection", None)
@@ -675,16 +694,22 @@ class NeutronGenerator(OpenStackServerSourceBase):
             for field, data in attr_info.items():
                 # operation_spec.setdefault("parameters", [])
                 if data.get("is_filter", False):
-                    global_param_name = f"{collection}_{field}".replace(":", "_")
-                    param_ref_name = f"#/components/parameters/{global_param_name}"
+                    global_param_name = f"{collection}_{field}".replace(
+                        ":", "_"
+                    )
+                    param_ref_name = (
+                        f"#/components/parameters/{global_param_name}"
+                    )
                     # Ensure global parameter is present
-                    query_param = openapi_spec.components.parameters.setdefault(
-                        global_param_name,
-                        ParameterSchema(
-                            location="query",
-                            name=field,
-                            type_schema=get_schema(data),
-                        ),
+                    query_param = (
+                        openapi_spec.components.parameters.setdefault(
+                            global_param_name,
+                            ParameterSchema(
+                                location="query",
+                                name=field,
+                                type_schema=get_schema(data),
+                            ),
+                        )
                     )
                     if not query_param.description:
                         query_param.description = (
@@ -715,7 +740,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         )
                         query_param.style = "form"
                         query_param.explode = False
-                    if param_ref_name not in [x.ref for x in operation_spec.parameters]:
+                    if param_ref_name not in [
+                        x.ref for x in operation_spec.parameters
+                    ]:
                         operation_spec.parameters.append(
                             ParameterSchema(ref=param_ref_name)
                         )
@@ -755,7 +782,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 response_code = "204"
 
         if response_code:
-            rsp = responses_spec.setdefault(response_code, dict(description="Ok"))
+            rsp = responses_spec.setdefault(
+                response_code, {"description": "Ok"}
+            )
             if response_code != "204" and method != "DELETE":
                 # Arrange response placeholder
                 schema_name = (
@@ -799,8 +828,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
         schema = openapi_spec.components.schemas.setdefault(
             name,
             TypeSchema(
-                type="object",
-                description=LiteralScalarString(description),
+                type="object", description=LiteralScalarString(description)
             ),
         )
         # Here come schemas that are not present in Neutron
@@ -849,8 +877,12 @@ class NeutronGenerator(OpenStackServerSourceBase):
             "QuotasDefaultDefaultResponse",
             "QuotasProjectProjectResponse",
         ]:
-            schema.properties = {"quota": copy.deepcopy(neutron_schemas.QUOTA_SCHEMA)}
-        elif name.endswith("TagUpdateRequest") or name.endswith("TagUpdateResponse"):
+            schema.properties = {
+                "quota": copy.deepcopy(neutron_schemas.QUOTA_SCHEMA)
+            }
+        elif name.endswith("TagUpdateRequest") or name.endswith(
+            "TagUpdateResponse"
+        ):
             # PUT tag does not have request body
             return None
 
@@ -885,12 +917,16 @@ class NeutronGenerator(OpenStackServerSourceBase):
             send_props = {}
             return_props = {}
             # Consume request name to required fields mapping
-            required_fields = neutron_schemas.REQUIRED_FIELDS_MAPPING.get(name, [])
+            required_fields = neutron_schemas.REQUIRED_FIELDS_MAPPING.get(
+                name, []
+            )
             for field, data in schema_def.items():
                 js_schema = get_schema(data)
                 # Dirty hacks for corrupted schemas
                 if field in ["availability_zones", "tags"]:
-                    js_schema.update({"type": "array", "items": {"type": "string"}})
+                    js_schema.update(
+                        {"type": "array", "items": {"type": "string"}}
+                    )
                 elif field == "revision_number":
                     js_schema.update({"type": "integer"})
                 elif field == "subnets":
@@ -917,14 +953,15 @@ class NeutronGenerator(OpenStackServerSourceBase):
                                         "type": "string",
                                         "format": "hostname",
                                     },
-                                    "ip_address": {
-                                        "type": "string",
-                                    },
+                                    "ip_address": {"type": "string"},
                                 },
                             },
                         }
                     )
-                elif resource_key == "floatingip" and field == "port_forwardings":
+                elif (
+                    resource_key == "floatingip"
+                    and field == "port_forwardings"
+                ):
                     js_schema.update(
                         {
                             "type": "array",
@@ -1014,7 +1051,8 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         }
                     )
                 elif (
-                    resource_key == "security_group" and field == "security_group_rules"
+                    resource_key == "security_group"
+                    and field == "security_group_rules"
                 ):
                     js_schema.update(
                         {
@@ -1085,7 +1123,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
                                         "maxLength": 255,
                                         "description": "A human-readable description for the resource.",
                                     },
-                                    "normalized_cidr": {"type": ["string", "null"]},
+                                    "normalized_cidr": {
+                                        "type": ["string", "null"]
+                                    },
                                     "remote_address_group_id": {
                                         "type": "string",
                                         "description": "The remote address group UUID that is associated with this\nsecurity group rule.",
@@ -1112,7 +1152,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         "items": {
                             "type": "object",
                             "properties": (
-                                send_props if name.endswith("Request") else return_props
+                                send_props
+                                if name.endswith("Request")
+                                else return_props
                             ),
                         },
                     }
@@ -1123,7 +1165,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         resource_key: {
                             "type": "object",
                             "properties": (
-                                send_props if name.endswith("Request") else return_props
+                                send_props
+                                if name.endswith("Request")
+                                else return_props
                             ),
                         }
                     }
@@ -1132,7 +1176,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
                             required_fields
                         )
         else:
-            logging.warning("No Schema information for %s" % name)
+            logging.warning(f"No Schema information for {name}")
 
         return f"#/components/schemas/{name}"
 
@@ -1287,34 +1331,22 @@ def get_schema(param_data):
                 },
             }
         elif "type:list_of_any_key_specs_or_none" in validate:
-            logging.warning("TODO: Implement type:list_of_any_key_specs_or_none")
+            logging.warning(
+                "TODO: Implement type:list_of_any_key_specs_or_none"
+            )
             schema = {
                 "type": "array",
-                "items": {
-                    "type": "object",
-                    "extraProperties": True,
-                },
+                "items": {"type": "object", "extraProperties": True},
                 "x-openstack": {"todo": "implementme"},
             }
         elif "type:subnet_list" in validate:
-            schema = {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                },
-            }
+            schema = {"type": "array", "items": {"type": "string"}}
         elif "type:service_plugin_type" in validate:
-            schema = {
-                "type": "string",
-            }
+            schema = {"type": "string"}
         elif "type:ip_address" in validate:
-            schema = {
-                "type": "string",
-            }
+            schema = {"type": "string"}
         elif "type:ip_address_or_none" in validate:
-            schema = {
-                "type": "string",
-            }
+            schema = {"type": "string"}
         elif "type:subnet_or_none" in validate:
             schema = {"type": ["string", "null"]}
         elif "type:fip_dns_host_name" in validate:
@@ -1346,19 +1378,12 @@ def get_schema(param_data):
                 },
             }
         elif "type:nameservers" in validate:
-            schema = {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                },
-            }
+            schema = {"type": "array", "items": {"type": "string"}}
         elif "type:list_of_subnet_service_types" in validate:
             schema = {
                 "type": "array",
                 "description": "The service types associated with the subnet",
-                "items": {
-                    "type": "string",
-                },
+                "items": {"type": "string"},
             }
         elif "type:dict_or_nodata" in validate:
             schema = get_schema(validate["type:dict_or_nodata"])
@@ -1367,7 +1392,7 @@ def get_schema(param_data):
         elif "type:list_of_subnets_or_none" in validate:
             schema = {"type": "array", "items": {"type": "string"}}
         else:
-            raise RuntimeError("Unsupported type %s in %s" % (validate, param_data))
+            raise RuntimeError(f"Unsupported type {validate} in {param_data}")
             schema = {"type": "string"}
     if convert_to:
         # Nice way to get type of the field, isn't it?
