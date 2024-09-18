@@ -41,10 +41,7 @@ CLUSTER_SCHEMA: dict[str, Any] = {
         "status": {
             "type": "string",
             "description": "The status of the cluster.",
-            "enum": [
-                "enabled",
-                "disabled",
-            ],
+            "enum": ["enabled", "disabled"],
         },
     },
 }
@@ -101,10 +98,7 @@ CLUSTER_CONTAINER_SCHEMA: dict[str, Any] = {
 CLUSTERS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "clusters": {
-            "type": "array",
-            "items": copy.deepcopy(CLUSTER_SCHEMA),
-        }
+        "clusters": {"type": "array", "items": copy.deepcopy(CLUSTER_SCHEMA)}
     },
 }
 
@@ -215,15 +209,16 @@ CLUSTERS_LIST_DETAIL_PARAMETERS: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
-    if operationId in [
-        "project_id/clusters:get",
-        "clusters:get",
-    ]:
+    if operationId in ["project_id/clusters:get", "clusters:get"]:
         for key, val in CLUSTERS_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -233,18 +228,16 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
         "clusters/detail:get",
     ]:
         for key, val in CLUSTERS_LIST_DETAIL_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
@@ -254,17 +247,16 @@ def _get_schema_ref(
         )
         ref = f"#/components/schemas/{name}"
     elif name == "ClustersListResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**CLUSTERS_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**CLUSTERS_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
     elif name == "ClusterUpdateRequest":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**CLUSTER_UPDATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name in [
-        "ClusterShowResponse",
-        "ClusterUpdateResponse",
-    ]:
+    elif name in ["ClusterShowResponse", "ClusterUpdateResponse"]:
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**CLUSTER_CONTAINER_SCHEMA)
         )

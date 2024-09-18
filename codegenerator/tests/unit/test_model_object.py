@@ -27,7 +27,11 @@ class TestParserObject(TestCase):
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={"foo": model.StructField(data_type=model.ConstraintString())}
+                fields={
+                    "foo": model.StructField(
+                        data_type=model.ConstraintString()
+                    )
+                }
             ),
             res,
         )
@@ -36,15 +40,17 @@ class TestParserObject(TestCase):
     def test_parse_props_additional_props_forbidden(self):
         schema = {
             "type": "object",
-            "properties": {
-                "foo": {"type": "string"},
-            },
+            "properties": {"foo": {"type": "string"}},
             "additionalProperties": False,
         }
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={"foo": model.StructField(data_type=model.ConstraintString())}
+                fields={
+                    "foo": model.StructField(
+                        data_type=model.ConstraintString()
+                    )
+                }
             ),
             res,
         )
@@ -53,15 +59,17 @@ class TestParserObject(TestCase):
     def test_parse_props_additional_props_allowed(self):
         schema = {
             "type": "object",
-            "properties": {
-                "foo": {"type": "string"},
-            },
+            "properties": {"foo": {"type": "string"}},
             "additionalProperties": True,
         }
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={"foo": model.StructField(data_type=model.ConstraintString())},
+                fields={
+                    "foo": model.StructField(
+                        data_type=model.ConstraintString()
+                    )
+                },
                 additional_fields=model.PrimitiveAny(),
             ),
             res,
@@ -71,15 +79,17 @@ class TestParserObject(TestCase):
     def test_parse_props_additional_props_type(self):
         schema = {
             "type": "object",
-            "properties": {
-                "foo": {"type": "string"},
-            },
+            "properties": {"foo": {"type": "string"}},
             "additionalProperties": {"type": "string"},
         }
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={"foo": model.StructField(data_type=model.ConstraintString())},
+                fields={
+                    "foo": model.StructField(
+                        data_type=model.ConstraintString()
+                    )
+                },
                 additional_fields=model.ConstraintString(),
             ),
             res,
@@ -87,14 +97,10 @@ class TestParserObject(TestCase):
         self.assertEqual(1, len(all))
 
     def test_parse_only_additional_props(self):
-        schema = {
-            "type": "object",
-            "additionalProperties": {"type": "string"},
-        }
+        schema = {"type": "object", "additionalProperties": {"type": "string"}}
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
-            model.Dictionary(value_type=model.ConstraintString()),
-            res,
+            model.Dictionary(value_type=model.ConstraintString()), res
         )
         self.assertEqual(1, len(all))
 
@@ -184,18 +190,18 @@ class TestParserObject(TestCase):
     def test_parse_pattern_props(self):
         schema = {
             "type": "object",
-            "properties": {
-                "foo": {"type": "string"},
-            },
+            "properties": {"foo": {"type": "string"}},
             "patternProperties": {"^A": {"type": "string"}},
         }
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
             model.Struct(
-                fields={"foo": model.StructField(data_type=model.ConstraintString())},
-                pattern_properties={
-                    "^A": model.ConstraintString(),
+                fields={
+                    "foo": model.StructField(
+                        data_type=model.ConstraintString()
+                    )
                 },
+                pattern_properties={"^A": model.ConstraintString()},
             ),
             res,
         )
@@ -208,19 +214,15 @@ class TestParserObject(TestCase):
         }
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
-            model.Dictionary(value_type=model.ConstraintString()),
-            res,
+            model.Dictionary(value_type=model.ConstraintString()), res
         )
         self.assertEqual(1, len(all))
 
     def test_parse_empty(self):
-        schema = {
-            "type": "object",
-        }
+        schema = {"type": "object"}
         (res, all) = self.parser.parse(schema)
         self.assertEqual(
-            model.Dictionary(value_type=model.PrimitiveAny()),
-            res,
+            model.Dictionary(value_type=model.PrimitiveAny()), res
         )
         self.assertEqual(1, len(all))
 
@@ -228,16 +230,8 @@ class TestParserObject(TestCase):
         schema = {
             "type": "object",
             "oneOf": [
-                {
-                    "properties": {
-                        "foo": {"type": "string"},
-                    }
-                },
-                {
-                    "properties": {
-                        "bar": {"type": "string"},
-                    }
-                },
+                {"properties": {"foo": {"type": "string"}}},
+                {"properties": {"bar": {"type": "string"}}},
             ],
         }
         (res, all) = self.parser.parse(schema)
@@ -246,13 +240,17 @@ class TestParserObject(TestCase):
                 kinds=[
                     model.Struct(
                         fields={
-                            "foo": model.StructField(data_type=model.ConstraintString())
-                        },
+                            "foo": model.StructField(
+                                data_type=model.ConstraintString()
+                            )
+                        }
                     ),
                     model.Struct(
                         fields={
-                            "bar": model.StructField(data_type=model.ConstraintString())
-                        },
+                            "bar": model.StructField(
+                                data_type=model.ConstraintString()
+                            )
+                        }
                     ),
                 ]
             ),
@@ -265,11 +263,7 @@ class TestParserObject(TestCase):
         schema = {
             "type": "object",
             "allOf": [
-                {
-                    "properties": {
-                        "foo": {"type": "string"},
-                    }
-                },
+                {"properties": {"foo": {"type": "string"}}},
                 {
                     "properties": {
                         "foo": {"type": "string"},
@@ -286,8 +280,10 @@ class TestParserObject(TestCase):
                     "foo": model.StructField(
                         data_type=model.ConstraintString(), is_required=True
                     ),
-                    "bar": model.StructField(data_type=model.ConstraintString()),
-                },
+                    "bar": model.StructField(
+                        data_type=model.ConstraintString()
+                    ),
+                }
             ),
             res,
         )

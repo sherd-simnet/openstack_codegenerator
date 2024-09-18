@@ -24,18 +24,18 @@ from codegenerator.common import rust as common_rust
 
 
 class String(common_rust.String):
-    lifetimes: set[str] = set(["'a"])
+    lifetimes: set[str] = {"'a"}
     type_hint: str = "Cow<'a, str>"
 
     @property
     def imports(self) -> set[str]:
-        return set(["std::borrow::Cow"])
+        return {"std::borrow::Cow"}
 
 
 class Enum(common_rust.Enum):
     @property
     def builder_macros(self):
-        macros: set[str] = set(["setter(into)"])
+        macros: set[str] = {"setter(into)"}
         return macros
 
     @property
@@ -51,14 +51,18 @@ class Enum(common_rust.Enum):
         return "#[derive(Debug, Deserialize, Clone, Serialize)]"
 
     def get_sample(self):
-        (first_kind_name, first_kind_val) = list(sorted(self.kinds.items()))[0]
+        (first_kind_name, first_kind_val) = sorted(self.kinds.items())[0]
         res = (
             self.name
             + "::"
             + first_kind_name
             + "("
             + first_kind_val.data_type.get_sample()
-            + (".into()" if isinstance(first_kind_val.data_type, String) else "")
+            + (
+                ".into()"
+                if isinstance(first_kind_val.data_type, String)
+                else ""
+            )
             + ")"
         )
         return res
@@ -67,7 +71,7 @@ class Enum(common_rust.Enum):
 class StructField(common_rust.StructField):
     @property
     def builder_macros(self):
-        macros: set[str] = set([])
+        macros: set[str] = set()
         if not isinstance(self.data_type, BaseCompoundType):
             macros.update(self.data_type.builder_macros)
         elif not isinstance(self.data_type, common_rust.StringEnum):
@@ -86,7 +90,7 @@ class StructField(common_rust.StructField):
 
     @property
     def serde_macros(self):
-        macros = set([])
+        macros = set()
         if self.local_name != self.remote_name:
             macros.add(f'rename="{self.remote_name}"')
         if self.is_optional:
@@ -145,7 +149,7 @@ class Struct(common_rust.Struct):
 
 
 class BTreeMap(common_rust.Dictionary):
-    builder_macros: set[str] = set(["private"])
+    builder_macros: set[str] = {"private"}
     requires_builder_private_setter: bool = True
 
     @property
@@ -154,13 +158,13 @@ class BTreeMap(common_rust.Dictionary):
 
     @property
     def imports(self):
-        imports = set(["std::collections::BTreeMap"])
+        imports = {"std::collections::BTreeMap"}
         imports.update(self.value_type.imports)
         return imports
 
     @property
     def lifetimes(self):
-        lt = set(["'a"])
+        lt = {"'a"}
         if self.value_type.lifetimes:
             lt.update(self.value_type.lifetimes)
         return lt
@@ -182,7 +186,9 @@ class BTreeMap(common_rust.Dictionary):
                     f".map(|(k, v)| (k, v.into_iter()))"
                 )
             else:
-                type_hint = self.value_type.type_hint.replace("Cow<'a, str>", "String")
+                type_hint = self.value_type.type_hint.replace(
+                    "Cow<'a, str>", "String"
+                )
                 return f"BTreeMap::<String, {type_hint}>::new().into_iter()"
 
     def get_mandatory_init(self):
@@ -190,7 +196,7 @@ class BTreeMap(common_rust.Dictionary):
 
 
 class BTreeSet(common_rust.BTreeSet):
-    builder_macros: set[str] = set(["private"])
+    builder_macros: set[str] = {"private"}
     requires_builder_private_setter: bool = True
 
 
@@ -201,7 +207,7 @@ class CommaSeparatedList(common_rust.CommaSeparatedList):
 
     @property
     def imports(self):
-        imports: set[str] = set([])
+        imports: set[str] = set()
         imports.add("crate::api::common::CommaSeparatedList")
         imports.update(self.item_type.imports)
         return imports
@@ -241,7 +247,9 @@ class TypeManager(common_rust.TypeManager):
         model.CommaSeparatedList: CommaSeparatedList,
     }
 
-    request_parameter_class: Type[common_rust.RequestParameter] = RequestParameter
+    request_parameter_class: Type[common_rust.RequestParameter] = (
+        RequestParameter
+    )
 
     def set_parameters(self, parameters: list[model.RequestParameter]) -> None:
         """Set OpenAPI operation parameters into typemanager for conversion"""
@@ -285,10 +293,7 @@ class RustSdkGenerator(BaseGenerator):
         return parser
 
     def _render_command(
-        self,
-        context: dict,
-        impl_template: str,
-        impl_dest: Path,
+        self, context: dict, impl_template: str, impl_dest: Path
     ):
         """Render command code"""
         self._render(impl_template, context, impl_dest.parent, impl_dest.name)
@@ -308,7 +313,9 @@ class RustSdkGenerator(BaseGenerator):
             openapi_spec = common.get_openapi_spec(args.openapi_yaml_spec)
         if not operation_id:
             operation_id = args.openapi_operation_id
-        (path, method, spec) = common.find_openapi_operation(openapi_spec, operation_id)
+        (path, method, spec) = common.find_openapi_operation(
+            openapi_spec, operation_id
+        )
         if args.operation_type == "find":
             yield self.generate_find_mod(
                 target_dir,
@@ -334,12 +341,12 @@ class RustSdkGenerator(BaseGenerator):
         type_manager: TypeManager | None = None
         is_json_patch: bool = False
         # Collect all operation parameters
-        for param in openapi_spec["paths"][path].get("parameters", []) + spec.get(
+        for param in openapi_spec["paths"][path].get(
             "parameters", []
-        ):
-            if (("{" + param["name"] + "}") in path and param["in"] == "path") or param[
-                "in"
-            ] != "path":
+        ) + spec.get("parameters", []):
+            if (
+                ("{" + param["name"] + "}") in path and param["in"] == "path"
+            ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
                 param_ = openapi_parser.parse_parameter(param)
                 if param_.name in [
@@ -353,7 +360,9 @@ class RustSdkGenerator(BaseGenerator):
 
         # Process body information
         # List of operation variants (based on the body)
-        operation_variants = common.get_operation_variants(spec, args.operation_name)
+        operation_variants = common.get_operation_variants(
+            spec, args.operation_name
+        )
 
         api_ver_matches: re.Match | None = None
         path_elements = path.lstrip("/").split("/")
@@ -366,7 +375,7 @@ class RustSdkGenerator(BaseGenerator):
                 ver_prefix = path_elements[0]
 
         for operation_variant in operation_variants:
-            logging.debug("Processing variant %s" % operation_variant)
+            logging.debug(f"Processing variant {operation_variant}")
             # TODO(gtema): if we are in MV variants filter out unsupported query
             # parameters
             # TODO(gtema): previously we were ensuring `router_id` path param
@@ -449,13 +458,12 @@ class RustSdkGenerator(BaseGenerator):
                         if "application/json" in content:
                             response_spec = content["application/json"]
                             try:
-                                (
-                                    _,
-                                    response_key,
-                                ) = common.find_resource_schema(
-                                    response_spec["schema"],
-                                    None,
-                                    res_name.lower(),
+                                (_, response_key) = (
+                                    common.find_resource_schema(
+                                        response_spec["schema"],
+                                        None,
+                                        res_name.lower(),
+                                    )
                                 )
                             except Exception:
                                 # Most likely we have response which is oneOf.
@@ -465,42 +473,35 @@ class RustSdkGenerator(BaseGenerator):
                                 # response_def = (None,)
                                 response_key = None
 
-            context = dict(
-                operation_id=operation_id,
-                operation_type=spec.get(
+            context = {
+                "operation_id": operation_id,
+                "operation_type": spec.get(
                     "x-openstack-operation-type", args.operation_type
                 ),
-                command_description=common_rust.sanitize_rust_docstrings(
+                "command_description": common_rust.sanitize_rust_docstrings(
                     common.make_ascii_string(spec.get("description"))
                 ),
-                class_name=class_name,
-                sdk_service_name=common.get_rust_service_type_from_str(
+                "class_name": class_name,
+                "sdk_service_name": common.get_rust_service_type_from_str(
                     args.service_type
                 ),
-                url=path.lstrip("/").lstrip(ver_prefix).lstrip("/"),
-                method=method,
-                type_manager=type_manager,
-                response_key=response_key,
-                response_list_item_key=args.response_list_item_key,
-                mime_type=mime_type,
-                is_json_patch=is_json_patch,
-                api_ver=api_ver,
-            )
+                "url": path.lstrip("/").lstrip(ver_prefix).lstrip("/"),
+                "method": method,
+                "type_manager": type_manager,
+                "response_key": response_key,
+                "response_list_item_key": args.response_list_item_key,
+                "mime_type": mime_type,
+                "is_json_patch": is_json_patch,
+                "api_ver": api_ver,
+            }
 
             work_dir = Path(target_dir, "rust", "openstack_sdk", "src")
             impl_path = Path(
-                work_dir,
-                "api",
-                "/".join(mod_path),
-                f"{mod_name}.rs",
+                work_dir, "api", "/".join(mod_path), f"{mod_name}.rs"
             )
 
             # Generate methods for the GET resource command
-            self._render_command(
-                context,
-                "rust_sdk/impl.rs.j2",
-                impl_path,
-            )
+            self._render_command(context, "rust_sdk/impl.rs.j2", impl_path)
 
             self._format_code(impl_path)
 
@@ -512,26 +513,19 @@ class RustSdkGenerator(BaseGenerator):
         """Generate collection module (include individual modules)"""
         work_dir = Path(target_dir, "rust", "openstack_sdk", "src")
         impl_path = Path(
-            work_dir,
-            "api",
-            "/".join(mod_path[0:-1]),
-            f"{mod_path[-1]}.rs",
+            work_dir, "api", "/".join(mod_path[0:-1]), f"{mod_path[-1]}.rs"
         )
 
-        context = dict(
-            mod_list=mod_list,
-            mod_path=mod_path,
-            url=url,
-            resource_name=resource_name,
-            service_name=service_name,
-        )
+        context = {
+            "mod_list": mod_list,
+            "mod_path": mod_path,
+            "url": url,
+            "resource_name": resource_name,
+            "service_name": service_name,
+        }
 
         # Generate methods for the GET resource command
-        self._render_command(
-            context,
-            "rust_sdk/mod.rs.j2",
-            impl_path,
-        )
+        self._render_command(context, "rust_sdk/mod.rs.j2", impl_path)
 
         self._format_code(impl_path)
 
@@ -550,12 +544,7 @@ class RustSdkGenerator(BaseGenerator):
     ):
         """Generate `find` operation module"""
         work_dir = Path(target_dir, "rust", "openstack_sdk", "src")
-        impl_path = Path(
-            work_dir,
-            "api",
-            "/".join(mod_path),
-            "find.rs",
-        )
+        impl_path = Path(work_dir, "api", "/".join(mod_path), "find.rs")
         # Collect all operation parameters
         openapi_parser = model.OpenAPISchemaParser()
         path_resources = common.get_resource_names_from_url(path)
@@ -563,9 +552,9 @@ class RustSdkGenerator(BaseGenerator):
         operation_path_params: list[model.RequestParameter] = []
         operation_query_params: list[model.RequestParameter] = []
 
-        for param in openapi_spec["paths"][path].get("parameters", []) + spec.get(
+        for param in openapi_spec["paths"][path].get(
             "parameters", []
-        ):
+        ) + spec.get("parameters", []):
             if ("{" + param["name"] + "}") in path and param["in"] == "path":
                 # Respect path params that appear in path and not in path params
                 param_ = openapi_parser.parse_parameter(param)
@@ -583,24 +572,22 @@ class RustSdkGenerator(BaseGenerator):
         type_manager = TypeManager()
         type_manager.set_parameters(operation_path_params)
 
-        context = dict(
-            mod_path=mod_path,
-            resource_name=resource_name,
-            list_mod=list_mod,
-            name_filter_supported=name_filter_supported,
-            name_field=name_field,
-            type_manager=type_manager,
-            list_lifetime=(
-                "<'a>" if operation_query_params or operation_path_params else ""
+        context = {
+            "mod_path": mod_path,
+            "resource_name": resource_name,
+            "list_mod": list_mod,
+            "name_filter_supported": name_filter_supported,
+            "name_field": name_field,
+            "type_manager": type_manager,
+            "list_lifetime": (
+                "<'a>"
+                if operation_query_params or operation_path_params
+                else ""
             ),
-        )
+        }
 
         # Generate methods for the GET resource command
-        self._render_command(
-            context,
-            "rust_sdk/find.rs.j2",
-            impl_path,
-        )
+        self._render_command(context, "rust_sdk/find.rs.j2", impl_path)
 
         self._format_code(impl_path)
 

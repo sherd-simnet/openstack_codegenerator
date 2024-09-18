@@ -42,7 +42,7 @@ class Reference(BaseModel):
 
     #: Name of the object that uses the type under reference
     name: str
-    type: Type | None = None
+    type: Any = None
     hash_: str | None = None
     parent: Reference | None = None
 
@@ -131,7 +131,7 @@ class OneOfType(ADT):
 class Enum(AbstractCollection):
     """Enum: a unique collection of primitives"""
 
-    base_types: list[Type[PrimitiveType]] = []
+    base_types: list[type[PrimitiveType]] = []
     literals: set[Any] = set()
 
 
@@ -182,10 +182,12 @@ class JsonSchemaParser:
 
     def parse(
         self, schema, ignore_read_only: bool = False
-    ) -> ty.Tuple[ADT | None, list[ADT]]:
+    ) -> tuple[ADT | None, list[ADT]]:
         """Parse JsonSchema object into internal DataModel"""
         results: list[ADT] = []
-        res = self.parse_schema(schema, results, ignore_read_only=ignore_read_only)
+        res = self.parse_schema(
+            schema, results, ignore_read_only=ignore_read_only
+        )
         return (res, results)
 
     def parse_schema(
@@ -353,9 +355,7 @@ class JsonSchemaParser:
                 if ref:
                     field = StructField(data_type=ref)
                 else:
-                    field = StructField(
-                        data_type=data_type,
-                    )
+                    field = StructField(data_type=data_type)
 
                 field.description = v.get("description")
                 if k in required:
@@ -407,7 +407,9 @@ class JsonSchemaParser:
             if pattern_props and not additional_properties_type:
                 # `"type": "object", "pattern_properties": ...`
                 if len(list(pattern_props.values())) == 1:
-                    obj = Dictionary(value_type=list(pattern_props.values())[0])
+                    obj = Dictionary(
+                        value_type=list(pattern_props.values())[0]
+                    )
                 else:
                     obj = Struct(pattern_properties=pattern_props)
             elif not pattern_props and additional_properties_type:
@@ -448,9 +450,15 @@ class JsonSchemaParser:
 
         if obj:
             obj.description = schema.get("description")
-            if obj.reference and f"{obj.reference.name}{obj.reference.type}" in [
-                f"{x.reference.name}{x.reference.type}" for x in results if x.reference
-            ]:
+            if (
+                obj.reference
+                and f"{obj.reference.name}{obj.reference.type}"
+                in [
+                    f"{x.reference.name}{x.reference.type}"
+                    for x in results
+                    if x.reference
+                ]
+            ):
                 if obj.reference.__hash__() in [
                     x.reference.__hash__() for x in results if x.reference
                 ]:
@@ -466,9 +474,9 @@ class JsonSchemaParser:
                     if parent and name:
                         new_name = parent.name + "_" + name
 
-                        if Reference(name=new_name, type=obj.reference.type) in [
-                            x.reference for x in results
-                        ]:
+                        if Reference(
+                            name=new_name, type=obj.reference.type
+                        ) in [x.reference for x in results]:
                             raise NotImplementedError
                         else:
                             obj.reference.name = new_name
@@ -523,10 +531,7 @@ class JsonSchemaParser:
             # Bad schema with type being a list of 1 entry
             schema["type"] = schema["type"][0]
             obj = self.parse_schema(
-                schema,
-                results,
-                name=name,
-                ignore_read_only=ignore_read_only,
+                schema, results, name=name, ignore_read_only=ignore_read_only
             )
             return obj
 
@@ -598,7 +603,7 @@ class JsonSchemaParser:
         # todo: decide whether some constraints can be under items
         literals = schema.get("enum")
         obj = Enum(literals=literals, base_types=[])
-        literal_types = set([type(x) for x in literals])
+        literal_types = {type(x) for x in literals}
         for literal_type in literal_types:
             if literal_type is str:
                 obj.base_types.append(ConstraintString)
@@ -699,24 +704,24 @@ class OpenAPISchemaParser(JsonSchemaParser):
                     dt = Set(item_type=ConstraintString())
                 else:
                     raise NotImplementedError(
-                        "Parameter serialization %s not supported" % schema
+                        f"Parameter serialization {schema} not supported"
                     )
 
         elif isinstance(param_typ, list):
             # Param type can be anything. Process supported combinations first
             if param_location == "query" and param_name == "limit":
                 dt = ConstraintInteger(minimum=0)
-            elif param_location == "query" and sorted(["string", "boolean"]) == sorted(
-                param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "boolean"]
+            ) == sorted(param_typ):
                 dt = PrimitiveBoolean()
-            elif param_location == "query" and sorted(["string", "integer"]) == sorted(
-                param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "integer"]
+            ) == sorted(param_typ):
                 dt = ConstraintInteger(**param_schema)
-            elif param_location == "query" and sorted(["string", "number"]) == sorted(
-                param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "number"]
+            ) == sorted(param_typ):
                 dt = ConstraintNumber(**param_schema)
 
         if isinstance(dt, ADT):
@@ -728,7 +733,9 @@ class OpenAPISchemaParser(JsonSchemaParser):
         is_flag: bool = False
         os_ext = schema.get("x-openstack", {})
         if not isinstance(os_ext, dict):
-            raise RuntimeError(f"x-openstack must be a dictionary inside {schema}")
+            raise RuntimeError(
+                f"x-openstack must be a dictionary inside {schema}"
+            )
         if "is-flag" in os_ext:
             is_flag = os_ext["is-flag"]
 
@@ -742,6 +749,6 @@ class OpenAPISchemaParser(JsonSchemaParser):
                 is_flag=is_flag,
                 resource_link=os_ext.get("resource_link", None),
             )
-        raise NotImplementedError("Parameter %s is not covered yet" % schema)
+        raise NotImplementedError(f"Parameter {schema} is not covered yet")
 
-        raise RuntimeError("Parameter %s is not supported yet" % schema)
+        raise RuntimeError(f"Parameter {schema} is not supported yet")

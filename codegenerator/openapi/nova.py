@@ -68,24 +68,24 @@ class NovaGenerator(OpenStackServerSourceBase):
         openapi_spec = self.load_openapi(impl_path)
         if not openapi_spec:
             openapi_spec = SpecSchema(
-                info=dict(
-                    title="OpenStack Compute API",
-                    description=LiteralScalarString(
+                info={
+                    "title": "OpenStack Compute API",
+                    "description": LiteralScalarString(
                         "Compute API provided by Nova service"
                     ),
-                    version=self.api_version,
-                ),
+                    "version": self.api_version,
+                },
                 openapi="3.1.0",
                 security=[{"ApiKeyAuth": []}],
-                components=dict(
-                    securitySchemes={
+                components={
+                    "securitySchemes": {
                         "ApiKeyAuth": {
                             "type": "apiKey",
                             "in": "header",
                             "name": "X-Auth-Token",
                         }
-                    },
-                ),
+                    }
+                },
             )
 
         for route in self.router.map.matchlist:
@@ -226,7 +226,9 @@ class NovaGenerator(OpenStackServerSourceBase):
         ]:
             schema = openapi_spec.components.schemas.setdefault(
                 name,
-                TypeSchema(**nova_schemas.SERVER_ACTION_CREATE_IMAGE_RESPONSE_SCHEMA),
+                TypeSchema(
+                    **nova_schemas.SERVER_ACTION_CREATE_IMAGE_RESPONSE_SCHEMA
+                ),
             )
             ref = f"#/components/schemas/{name}"
         elif name in [
@@ -241,7 +243,9 @@ class NovaGenerator(OpenStackServerSourceBase):
         elif name == "ServersActionOs-GetconsoleoutputResponse":
             schema = openapi_spec.components.schemas.setdefault(
                 name,
-                TypeSchema(**nova_schemas.SERVER_ACTION_GET_CONSOLE_OUTPUT_SCHEMA),
+                TypeSchema(
+                    **nova_schemas.SERVER_ACTION_GET_CONSOLE_OUTPUT_SCHEMA
+                ),
             )
             ref = f"#/components/schemas/{name}"
         elif name in [
@@ -271,7 +275,9 @@ class NovaGenerator(OpenStackServerSourceBase):
         elif name == "ServersIpShowResponse":
             schema = openapi_spec.components.schemas.setdefault(
                 name,
-                TypeSchema(maxProperties=1, **nova_schemas.SERVER_ADDRESSES_SCHEMA),
+                TypeSchema(
+                    maxProperties=1, **nova_schemas.SERVER_ADDRESSES_SCHEMA
+                ),
             )
             ref = f"#/components/schemas/{name}"
         # /servers/id/metadata
@@ -299,7 +305,9 @@ class NovaGenerator(OpenStackServerSourceBase):
         elif name == "ServersOs_Instance_ActionShowResponse":
             schema = openapi_spec.components.schemas.setdefault(
                 name,
-                TypeSchema(**nova_schemas.SERVER_INSTANCE_ACTION_CONTAINER_SCHEMA),
+                TypeSchema(
+                    **nova_schemas.SERVER_INSTANCE_ACTION_CONTAINER_SCHEMA
+                ),
             )
             ref = f"#/components/schemas/{name}"
         # /server/id/os-interface-attachment
@@ -315,7 +323,9 @@ class NovaGenerator(OpenStackServerSourceBase):
         ]:
             schema = openapi_spec.components.schemas.setdefault(
                 name,
-                TypeSchema(**nova_schemas.INTERFACE_ATTACHMENT_CONTAINER_SCHEMA),
+                TypeSchema(
+                    **nova_schemas.INTERFACE_ATTACHMENT_CONTAINER_SCHEMA
+                ),
             )
             ref = f"#/components/schemas/{name}"
         # /server/id/os-server-password
@@ -639,8 +649,12 @@ class NovaGenerator(OpenStackServerSourceBase):
         """Hook to allow service specific generator to modify details"""
         if operation_spec.operationId == "servers/id/action:post":
             # Sereral server actions may return Location header
-            operation_spec.responses.setdefault("202", {"description": "Accepted"})
-            headers_202 = operation_spec.responses["202"].setdefault("headers", {})
+            operation_spec.responses.setdefault(
+                "202", {"description": "Accepted"}
+            )
+            headers_202 = operation_spec.responses["202"].setdefault(
+                "headers", {}
+            )
             headers_202.setdefault(
                 "Location",
                 HeaderSchema(

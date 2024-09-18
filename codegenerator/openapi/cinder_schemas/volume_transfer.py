@@ -98,7 +98,9 @@ VOLUME_TRANSFER_CONTAINER_SCHEMA: dict[str, Any] = {
 
 VOLUME_TRANSFERS_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {"transfers": {"type": "array", "items": VOLUME_TRANSFER_SCHEMA}},
+    "properties": {
+        "transfers": {"type": "array", "items": VOLUME_TRANSFER_SCHEMA}
+    },
 }
 
 OS_VOLUME_TRANSFERS_DETAIL_SCHEMA: dict[str, Any] = {
@@ -170,7 +172,9 @@ VOLUME_TRANSFER_LIST_PARAMETERS: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
@@ -179,7 +183,9 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
         "volume-transfers/detail:get",
     ]:
         for key, val in VOLUME_TRANSFER_LIST_PARAMETERS.items():
-            openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
             ref = f"#/components/parameters/{key}"
             if ref not in [x.ref for x in operation_spec.parameters]:
                 operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -191,7 +197,9 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
         # structure and just copy single param.
         key = "transfer_all_tenants"
         val = VOLUME_TRANSFER_LIST_PARAMETERS[key]
-        openapi_spec.components.parameters.setdefault(key, ParameterSchema(**val))
+        openapi_spec.components.parameters.setdefault(
+            key, ParameterSchema(**val)
+        )
         ref = f"#/components/parameters/{key}"
         if ref not in [x.ref for x in operation_spec.parameters]:
             operation_spec.parameters.append(ParameterSchema(ref=ref))
@@ -200,25 +208,19 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
 
     if name == "Os_Volume_TransferListResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TRANSFERS_SCHEMA),
+            name, TypeSchema(**VOLUME_TRANSFERS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Os_Volume_TransferDetailResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**OS_VOLUME_TRANSFERS_DETAIL_SCHEMA),
+            name, TypeSchema(**OS_VOLUME_TRANSFERS_DETAIL_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -227,21 +229,18 @@ def _get_schema_ref(
         "Os_Volume_TransferShowResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**OS_VOLUME_TRANSFER_CONTAINER_SCHEMA),
+            name, TypeSchema(**OS_VOLUME_TRANSFER_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 
     elif name == "Volume_TransfersListResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TRANSFERS_SCHEMA),
+            name, TypeSchema(**VOLUME_TRANSFERS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "Volume_TransfersDetailResponse":
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TRANSFERS_DETAIL_SCHEMA),
+            name, TypeSchema(**VOLUME_TRANSFERS_DETAIL_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
@@ -250,8 +249,7 @@ def _get_schema_ref(
         "Volume_TransferShowResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**VOLUME_TRANSFER_CONTAINER_SCHEMA),
+            name, TypeSchema(**VOLUME_TRANSFER_CONTAINER_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 

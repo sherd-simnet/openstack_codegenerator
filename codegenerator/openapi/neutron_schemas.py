@@ -167,10 +167,7 @@ ROUTER_UPDATE_INTERFACE_REQUEST_SCHEMA: dict[str, Any] = {
             "description": "The ID of the port. One of subnet_id or port_id must be specified.",
         },
     },
-    "oneOf": [
-        {"required": ["subnet_id"]},
-        {"required": ["port_id"]},
-    ],
+    "oneOf": [{"required": ["subnet_id"]}, {"required": ["port_id"]}],
 }
 
 ROUTER_INTERFACE_RESPONSE_SCHEMA: dict[str, Any] = {
@@ -189,10 +186,7 @@ ROUTER_INTERFACE_RESPONSE_SCHEMA: dict[str, Any] = {
         "subnet_ids": {
             "type": "array",
             "description": "A list of the ID of the subnet which the router interface belongs to. The list contains only one member.",
-            "items": {
-                "type": "string",
-                "format": "uuid",
-            },
+            "items": {"type": "string", "format": "uuid"},
             "minItems": 1,
             "maxItems": 1,
         },
@@ -237,23 +231,17 @@ ROUTER_UPDATE_EXTRAROUTES_REQUEST_SCHEMA: dict[str, Any] = {
                     "items": {
                         "type": "object",
                         "properties": {
-                            "destination": {
-                                "type": "string",
-                            },
+                            "destination": {"type": "string"},
                             "nexthop": {
                                 "type": "string",
                                 "oneOf": [
-                                    {
-                                        "format": "ipv4",
-                                    },
-                                    {
-                                        "format": "ipv6",
-                                    },
+                                    {"format": "ipv4"},
+                                    {"format": "ipv6"},
                                 ],
                             },
                         },
                     },
-                },
+                }
             },
         }
     },
@@ -281,18 +269,12 @@ ROUTER_EXTRAROUTES_RESPONSE_SCHEMA: dict[str, Any] = {
                     "items": {
                         "type": "object",
                         "properties": {
-                            "destination": {
-                                "type": "string",
-                            },
+                            "destination": {"type": "string"},
                             "nexthop": {
                                 "type": "string",
                                 "oneOf": [
-                                    {
-                                        "format": "ipv4",
-                                    },
-                                    {
-                                        "format": "ipv6",
-                                    },
+                                    {"format": "ipv4"},
+                                    {"format": "ipv6"},
                                 ],
                             },
                         },
@@ -306,9 +288,7 @@ ROUTER_EXTRAROUTES_RESPONSE_SCHEMA: dict[str, Any] = {
 EXTERNAL_GATEWAY_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "enable_snat": {
-            "type": "boolean",
-        },
+        "enable_snat": {"type": "boolean"},
         "external_fixed_ips": {
             "type": "array",
             "items": {
@@ -316,15 +296,9 @@ EXTERNAL_GATEWAY_SCHEMA: dict[str, Any] = {
                 "properties": {
                     "ip_address": {
                         "type": "string",
-                        "oneOf": [
-                            {"format": "ipv4"},
-                            {"format": "ipv6"},
-                        ],
+                        "oneOf": [{"format": "ipv4"}, {"format": "ipv6"}],
                     },
-                    "subnet_id": {
-                        "type": "string",
-                        "format": "uuid",
-                    },
+                    "subnet_id": {"type": "string", "format": "uuid"},
                 },
             },
         },
@@ -343,7 +317,7 @@ ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = {
                     "type": "array",
                     "description": "The list of external gateways of the router.",
                     "items": EXTERNAL_GATEWAY_SCHEMA,
-                },
+                }
             },
         }
     },
@@ -352,15 +326,15 @@ ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = {
 ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = copy.deepcopy(
     ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
 )
-ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"]["properties"][
-    "external_gateways"
-]["items"]["properties"]["network_id"]["readOnly"] = True
+ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"][
+    "properties"
+]["external_gateways"]["items"]["properties"]["network_id"]["readOnly"] = True
 ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = copy.deepcopy(
     ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
 )
-ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"]["properties"][
-    "external_gateways"
-]["items"]["properties"].pop("enable_snat")
+ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"][
+    "properties"
+]["external_gateways"]["items"]["properties"].pop("enable_snat")
 
 ADDRESS_GROUP_ADDRESS_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -371,9 +345,7 @@ ADDRESS_GROUP_ADDRESS_SCHEMA: dict[str, Any] = {
                 "addresses": {
                     "type": "array",
                     "description": "A list of IP addresses.",
-                    "items": {
-                        "type": "string",
-                    },
+                    "items": {"type": "string"},
                 }
             },
         }
@@ -474,10 +446,7 @@ L3_ROUTER_AGENTS_SCHEMA: dict[str, Any] = {
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
+    openapi_spec, name, description=None, schema_def=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
@@ -518,12 +487,18 @@ def _get_schema_ref(
             **ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "RoutersUpdate_External_GatewaysUpdate_External_GatewaysRequest":
+    elif (
+        name
+        == "RoutersUpdate_External_GatewaysUpdate_External_GatewaysRequest"
+    ):
         openapi_spec.components.schemas[name] = TypeSchema(
             **ROUTER_UPDATE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "RoutersRemove_External_GatewaysRemove_External_GatewaysRequest":
+    elif (
+        name
+        == "RoutersRemove_External_GatewaysRemove_External_GatewaysRequest"
+    ):
         openapi_spec.components.schemas[name] = TypeSchema(
             **ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA
         )
@@ -552,10 +527,14 @@ def _get_schema_ref(
         ref = "#/components/schemas/Address_GroupShowResponse"
 
     elif name == "AgentsL3_RoutersIndexResponse":
-        openapi_spec.components.schemas[name] = TypeSchema(**L3_ROUTER_AGENTS_SCHEMA)
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **L3_ROUTER_AGENTS_SCHEMA
+        )
         ref = f"#/components/schemas/{name}"
     elif name == "AgentsL3_RoutersIndexResponse":
-        openapi_spec.components.schemas[name] = TypeSchema(**L3_ROUTER_AGENTS_SCHEMA)
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **L3_ROUTER_AGENTS_SCHEMA
+        )
         ref = f"#/components/schemas/{name}"
     elif name == "AgentsL3_RoutersCreateRequest":
         openapi_spec.components.schemas[name] = TypeSchema(
