@@ -33,7 +33,9 @@ LINKS_SCHEMA: dict[str, Any] = {
 }
 
 
-TAG_SCHEMA: dict[str, Any] = copy.deepcopy(ks_schema._project_tag_name_properties)
+TAG_SCHEMA: dict[str, Any] = copy.deepcopy(
+    ks_schema._project_tag_name_properties
+)
 
 TAGS_SCHEMA: dict[str, Any] = {
     "type": "object",

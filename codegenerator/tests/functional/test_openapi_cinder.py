@@ -31,5 +31,7 @@ class TestGenerator(TestCase):
         generator.generate(work_dir.name, Args(validate=True))
 
         self.assertTrue(
-            Path(work_dir.name, "openapi_specs", "block-storage", "v3.yaml").exists()
+            Path(
+                work_dir.name, "openapi_specs", "block-storage", "v3.yaml"
+            ).exists()
         )

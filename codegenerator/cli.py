@@ -39,14 +39,16 @@ class ResourceProcessor:
     def __init__(self, mod_name, class_name):
         self.mod_name = mod_name
         self.class_name = class_name
-        self.class_plural_name = class_name + "s" if class_name[:-1] != "y" else "ies"
+        self.class_plural_name = (
+            class_name + "s" if class_name[:-1] != "y" else "ies"
+        )
 
         spec = importlib.util.find_spec(self.mod_name)
         if not spec:
-            raise RuntimeError("Module %s not found" % self.mod_name)
+            raise RuntimeError(f"Module {self.mod_name} not found")
         self.module = importlib.util.module_from_spec(spec)
         if not self.module:
-            raise RuntimeError("Error loading module %s" % self.mod_name)
+            raise RuntimeError(f"Error loading module {self.mod_name}")
         sys.modules[self.mod_name] = self.module
         if not spec.loader:
             raise RuntimeError("No module loader available")
@@ -58,10 +60,10 @@ class ResourceProcessor:
         proxy_mod_name = srv_ver_mod + "._proxy"
         proxy_spec = importlib.util.find_spec(proxy_mod_name)
         if not proxy_spec:
-            raise RuntimeError("Module %s not found" % proxy_mod_name)
+            raise RuntimeError(f"Module {proxy_mod_name} not found")
         self.proxy_mod = importlib.util.module_from_spec(proxy_spec)
         if not self.proxy_mod:
-            raise RuntimeError("Error loading module %s" % proxy_mod_name)
+            raise RuntimeError(f"Error loading module {proxy_mod_name}")
         sys.modules[proxy_mod_name] = self.proxy_mod
         if not proxy_spec.loader:
             raise RuntimeError("No module loader available")
@@ -81,7 +83,7 @@ class ResourceProcessor:
             ):
                 self.registry_name = f"{self.service_name}.{k}"
 
-        self.attrs = dict()
+        self.attrs = {}
         self.process()
 
     def process(self):
@@ -95,7 +97,7 @@ class ResourceProcessor:
                 doc = "Name"
             elif not doc and k == "tags":
                 doc = f"{self.class_name} Tags."
-            self.attrs[k] = dict(attr=v, docs=doc)
+            self.attrs[k] = {"attr": v, "docs": doc}
 
     def get_attr_docs(self):
         mod = pycode.ModuleAnalyzer.for_module(self.mod_name)
@@ -121,11 +123,13 @@ class Generator:
     def get_openapi_spec(self, path: Path):
         logging.debug("Fetch %s", path)
         if path.as_posix() not in self.schemas:
-            self.schemas[path.as_posix()] = common.get_openapi_spec(path.as_posix())
+            self.schemas[path.as_posix()] = common.get_openapi_spec(
+                path.as_posix()
+            )
         return self.schemas[path.as_posix()]
 
     def load_metadata(self, path: Path):
-        with open(path, "r") as fp:
+        with open(path) as fp:
             data = yaml.safe_load(fp)
         self.metadata = Metadata(**data)
 
@@ -158,45 +162,30 @@ def main():
         ],
         help="Target for which to generate code",
     )
-    parser.add_argument("--work-dir", help="Working directory for the generated code")
     parser.add_argument(
-        "--alternative-module-path",
-        help=("Optional new module path"),
+        "--work-dir", help="Working directory for the generated code"
+    )
+    parser.add_argument(
+        "--alternative-module-path", help=("Optional new module path")
     )
     parser.add_argument(
         "--alternative-module-name",
         help=("Optional new module name " "(rename get into list)"),
     )
     parser.add_argument(
-        "--openapi-yaml-spec",
-        help=("Path to the OpenAPI spec file (yaml)"),
+        "--openapi-yaml-spec", help=("Path to the OpenAPI spec file (yaml)")
     )
-    parser.add_argument(
-        "--openapi-operation-id",
-        help=("OpenAPI operationID"),
-    )
-    parser.add_argument(
-        "--service-type",
-        help=("Catalog service type"),
-    )
+    parser.add_argument("--openapi-operation-id", help=("OpenAPI operationID"))
+    parser.add_argument("--service-type", help=("Catalog service type"))
 
     parser.add_argument(
         "--api-version",
         help=("Api version (used in path for resulting code, i.e. v1)"),
     )
 
-    parser.add_argument(
-        "--metadata",
-        help=("Metadata file to load"),
-    )
-    parser.add_argument(
-        "--service",
-        help=("Metadata service name filter"),
-    )
-    parser.add_argument(
-        "--resource",
-        help=("Metadata resource name filter"),
-    )
+    parser.add_argument("--metadata", help=("Metadata file to load"))
+    parser.add_argument("--service", help=("Metadata service name filter"))
+    parser.add_argument("--resource", help=("Metadata resource name filter"))
     parser.add_argument(
         "--validate",
         action="store_true",
@@ -246,11 +235,13 @@ def main():
                     openapi_spec = generator.get_openapi_spec(
                         Path(
                             # metadata_path.parent,
-                            op_data.spec_file or res_data.spec_file,
+                            op_data.spec_file or res_data.spec_file
                         ).resolve()
                     )
 
-                    for mod_path, mod_name, path in generators[args.target].generate(
+                    for mod_path, mod_name, path in generators[
+                        args.target
+                    ].generate(
                         res,
                         args.work_dir,
                         openapi_spec=openapi_spec,
@@ -278,16 +269,19 @@ def main():
                     )
 
         if args.target == "rust-sdk" and not args.resource:
-            resource_results: dict[str, dict] = dict()
+            resource_results: dict[str, dict] = {}
             for mod_path, mod_name, path in res_mods:
                 mn = "/".join(mod_path)
-                x = resource_results.setdefault(mn, {"path": path, "mods": set()})
+                x = resource_results.setdefault(
+                    mn, {"path": path, "mods": set()}
+                )
                 x["mods"].add(mod_name)
             changed = True
             while changed:
                 changed = False
                 for mod_path in [
-                    mod_path_str.split("/") for mod_path_str in resource_results.keys()
+                    mod_path_str.split("/")
+                    for mod_path_str in resource_results.keys()
                 ]:
                     if len(mod_path) < 3:
                         continue

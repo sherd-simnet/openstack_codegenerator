@@ -49,7 +49,7 @@ class BaseGenerator:
         content = template.render(**context)
         dest.mkdir(parents=True, exist_ok=True)
         with open(Path(dest, fname), "w") as fp:
-            logging.debug("Writing %s" % (fp.name))
+            logging.debug(f"Writing {fp.name}")
             fp.write(content)
 
     def _format_code(self, *args):

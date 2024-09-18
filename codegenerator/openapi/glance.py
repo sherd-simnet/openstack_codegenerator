@@ -91,7 +91,9 @@ IMAGE_PARAMETERS = {
     "status": {
         "in": "query",
         "name": "status",
-        "description": LiteralScalarString("Filters the response by an image status."),
+        "description": LiteralScalarString(
+            "Filters the response by an image status."
+        ),
         "schema": {"type": "string"},
     },
     "size_min": {
@@ -124,9 +126,7 @@ IMAGE_PARAMETERS = {
         "description": LiteralScalarString(
             'When true, filters the response to display only "hidden" images. By default, "hidden" images are not included in the image-list response. (Since Image API v2.7)'
         ),
-        "schema": {
-            "type": "boolean",
-        },
+        "schema": {"type": "boolean"},
         "x-openstack": {"min-ver": "2.7"},
     },
     "sort_key": {
@@ -287,29 +287,31 @@ class GlanceGenerator(OpenStackServerSourceBase):
         openapi_spec = self.load_openapi(impl_path)
         if not openapi_spec:
             openapi_spec = SpecSchema(
-                info=dict(
-                    title="OpenStack Image API",
-                    description=LiteralScalarString(
+                info={
+                    "title": "OpenStack Image API",
+                    "description": LiteralScalarString(
                         "Image API provided by Glance service"
                     ),
-                    version=self.api_version,
-                ),
+                    "version": self.api_version,
+                },
                 openapi="3.1.0",
                 security=[{"ApiKeyAuth": []}],
-                components=dict(
-                    securitySchemes={
+                components={
+                    "securitySchemes": {
                         "ApiKeyAuth": {
                             "type": "apiKey",
                             "in": "header",
                             "name": "X-Auth-Token",
                         }
-                    },
-                ),
+                    }
+                },
             )
 
         # Set global headers and parameters
         for name, definition in IMAGE_PARAMETERS.items():
-            openapi_spec.components.parameters[name] = ParameterSchema(**definition)
+            openapi_spec.components.parameters[name] = ParameterSchema(
+                **definition
+            )
         for name, definition in IMAGE_HEADERS.items():
             openapi_spec.components.headers[name] = HeaderSchema(**definition)
 
@@ -372,7 +374,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
             key = "OpenStack-image-store-ids"
             ref = f"#/components/headers/{key}"
             operation_spec.responses["201"].setdefault("headers", {})
-            operation_spec.responses["201"]["headers"].update({key: {"$ref": ref}})
+            operation_spec.responses["201"]["headers"].update(
+                {key: {"$ref": ref}}
+            )
 
         elif operationId == "images/image_id/file:put":
             for ref in [
@@ -382,21 +386,17 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
         elif operationId == "images/image_id/file:get":
-            for ref in [
-                "#/components/parameters/range",
-            ]:
+            for ref in ["#/components/parameters/range"]:
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
             for code in ["200", "206"]:
                 operation_spec.responses[code].setdefault("headers", {})
                 for hdr in ["Content-Type", "Content-Md5", "Content-Length"]:
                     operation_spec.responses[code]["headers"].setdefault(
-                        hdr,
-                        {"$ref": f"#/components/headers/{hdr}"},
+                        hdr, {"$ref": f"#/components/headers/{hdr}"}
                     )
             operation_spec.responses["206"]["headers"].setdefault(
-                "Content-Range",
-                {"$ref": "#/components/headers/Content-Range"},
+                "Content-Range", {"$ref": "#/components/headers/Content-Range"}
             )
 
     def _get_schema_ref(
@@ -433,7 +433,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
                                 "type": "array",
                                 "items": {
                                     "type": "object",
-                                    "properties": copy.deepcopy(schema_def.properties),
+                                    "properties": copy.deepcopy(
+                                        schema_def.properties
+                                    ),
                                 },
                             },
                         },
@@ -451,7 +453,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
             openapi_spec.components.schemas.setdefault(
                 name,
                 self._get_glance_schema(
-                    glance_schema.CollectionSchema("tasks", tasks.get_task_schema()),
+                    glance_schema.CollectionSchema(
+                        "tasks", tasks.get_task_schema()
+                    ),
                     name,
                 ),
             )
@@ -470,7 +474,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
                                     "uri": {"type": "string"},
                                     "glance_image_id": {"type": "string"},
                                     "glance_region": {"type": "string"},
-                                    "glance_service_interface": {"type": "string"},
+                                    "glance_service_interface": {
+                                        "type": "string"
+                                    },
                                 },
                             },
                             "stores": {
@@ -496,12 +502,12 @@ class GlanceGenerator(OpenStackServerSourceBase):
         elif name == "ImagesMembersListResponse":
             openapi_spec.components.schemas.setdefault(
                 name,
-                self._get_glance_schema(image_members.get_collection_schema(), name),
+                self._get_glance_schema(
+                    image_members.get_collection_schema(), name
+                ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "InfoImportGet_Image_ImportResponse",
-        ]:
+        elif name in ["InfoImportGet_Image_ImportResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
@@ -524,9 +530,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "InfoStoresGet_StoresResponse",
-        ]:
+        elif name in ["InfoStoresGet_StoresResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
@@ -549,9 +553,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "InfoStoresDetailGet_Stores_DetailResponse",
-        ]:
+        elif name in ["InfoStoresDetailGet_Stores_DetailResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
@@ -580,9 +582,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "MetadefsNamespacesListResponse",
-        ]:
+        elif name in ["MetadefsNamespacesListResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 self._get_glance_schema(
@@ -590,17 +590,15 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "MetadefsNamespacesObjectsListResponse",
-        ]:
+        elif name in ["MetadefsNamespacesObjectsListResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
-                self._get_glance_schema(metadef_objects.get_collection_schema(), name),
+                self._get_glance_schema(
+                    metadef_objects.get_collection_schema(), name
+                ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "MetadefsNamespacesPropertiesListResponse",
-        ]:
+        elif name in ["MetadefsNamespacesPropertiesListResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 self._get_glance_schema(
@@ -608,9 +606,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "MetadefsResource_TypesListResponse",
-        ]:
+        elif name in ["MetadefsResource_TypesListResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
@@ -648,9 +644,7 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "MetadefsNamespacesResource_TypesShowResponse",
-        ]:
+        elif name in ["MetadefsNamespacesResource_TypesShowResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 self._get_glance_schema(
@@ -658,12 +652,12 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "MetadefsNamespacesTagsListResponse",
-        ]:
+        elif name in ["MetadefsNamespacesTagsListResponse"]:
             openapi_spec.components.schemas.setdefault(
                 name,
-                self._get_glance_schema(metadef_tags.get_collection_schema(), name),
+                self._get_glance_schema(
+                    metadef_tags.get_collection_schema(), name
+                ),
             )
             ref = f"#/components/schemas/{name}"
         elif name == "ImageUpdateRequest":
@@ -674,26 +668,19 @@ class GlanceGenerator(OpenStackServerSourceBase):
             #     ),
             # )
             openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**{"type": "string", "format": "RFC 6902"}),
+                name, TypeSchema(**{"type": "string", "format": "RFC 6902"})
             )
             mime_type = "application/openstack-images-v2.1-json-patch"
             ref = f"#/components/schemas/{name}"
-        elif name in [
-            "ImagesFileUploadRequest",
-        ]:
+        elif name in ["ImagesFileUploadRequest"]:
             openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**{"type": "string", "format": "binary"}),
+                name, TypeSchema(**{"type": "string", "format": "binary"})
             )
             ref = f"#/components/schemas/{name}"
             mime_type = "application/octet-stream"
-        elif name in [
-            "ImagesFileDownloadResponse",
-        ]:
+        elif name in ["ImagesFileDownloadResponse"]:
             openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**{"type": "string", "format": "binary"}),
+                name, TypeSchema(**{"type": "string", "format": "binary"})
             )
             ref = f"#/components/schemas/{name}"
             mime_type = "application/octet-stream"
@@ -734,9 +721,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
                 for field in i32_fixes:
                     res["properties"][field]["format"] = "int64"
             elif name == "MetadefsNamespacesPropertiesListResponse":
-                res["properties"]["properties"]["additionalProperties"]["type"] = (
-                    "object"
-                )
+                res["properties"]["properties"]["additionalProperties"][
+                    "type"
+                ] = "object"
         return TypeSchema(**res)
 
     @classmethod

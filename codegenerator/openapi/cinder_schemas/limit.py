@@ -93,16 +93,14 @@ LIMITS_SCHEMA: dict[str, Any] = {
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     if name == "LimitsListResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**LIMITS_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**LIMITS_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
     else:
         return (None, None, False)

@@ -88,13 +88,12 @@ MESSAGE_CONTAINER_SCHEMA: dict[str, Any] = {
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
-    if operationId in [
-        "project_id/messages:get",
-        "messages:get",
-    ]:
+    if operationId in ["project_id/messages:get", "messages:get"]:
         for pname in [
             "sort",
             "sort_key",
@@ -109,16 +108,14 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     if name == "MessagesListResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**MESSAGES_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**MESSAGES_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
     if name == "MessageShowResponse":
         openapi_spec.components.schemas.setdefault(
