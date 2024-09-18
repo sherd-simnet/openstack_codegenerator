@@ -135,7 +135,7 @@ SNAPSHOTS_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": copy.deepcopy(SNAPSHOT_SCHEMA),
             "description": "A list of volume objects.",
-        },
+        }
     },
     "required": ["snapshots"],
     "additionalProperties": False,
@@ -149,14 +149,16 @@ SNAPSHOTS_DETAIL_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": copy.deepcopy(SNAPSHOT_DETAIL_SCHEMA),
             "description": "A list of snapshot objects.",
-        },
+        }
     },
     "required": ["snapshots"],
     "additionalProperties": False,
 }
 
 
-def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None = None):
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
     if operationId in [
@@ -182,17 +184,15 @@ def _post_process_operation_hook(openapi_spec, operation_spec, path: str | None 
 
 
 def _get_schema_ref(
-    openapi_spec,
-    name,
-    description=None,
-    schema_def=None,
-    action_name=None,
+    openapi_spec, name, description=None, schema_def=None, action_name=None
 ) -> tuple[str | None, str | None, bool]:
     mime_type: str = "application/json"
     ref: str
     # ### Snapshot
     if name == "SnapshotsListResponse":
-        openapi_spec.components.schemas.setdefault(name, TypeSchema(**SNAPSHOTS_SCHEMA))
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**SNAPSHOTS_SCHEMA)
+        )
         ref = f"#/components/schemas/{name}"
     if name == "SnapshotsDetailResponse":
         openapi_spec.components.schemas.setdefault(

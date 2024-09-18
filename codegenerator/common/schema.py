@@ -35,7 +35,9 @@ class TypeSchema(BaseModel):
     ref: Optional[str] = Field(alias="$ref", default=None)
     oneOf: Optional[List[Any]] = Field(default=None)
     anyOf: Optional[List[Any]] = Field(default=None)
-    openstack: Optional[Dict[str, Any]] = Field(alias="x-openstack", default=None)
+    openstack: Optional[Dict[str, Any]] = Field(
+        alias="x-openstack", default=None
+    )
     required: Optional[List[str]] = None
     pattern: Optional[str] = None
     maxLength: Optional[int] = None
@@ -103,7 +105,7 @@ class OperationSchema(BaseModel):
     operationId: str | None = None
     requestBody: dict = {}
     responses: Dict[str, dict] = {}
-    tags: List[str] = list()
+    tags: List[str] = []
     deprecated: bool | None = None
     openstack: dict = Field(alias="x-openstack", default={})
     security: List | None = None
@@ -113,7 +115,9 @@ class HeaderSchema(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     description: Optional[str] = None
-    openstack: Optional[Dict[str, Any]] = Field(alias="x-openstack", default=None)
+    openstack: Optional[Dict[str, Any]] = Field(
+        alias="x-openstack", default=None
+    )
     schema: Optional[TypeSchema] = Field(default=None)
 
 

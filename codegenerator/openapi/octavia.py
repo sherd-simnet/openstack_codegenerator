@@ -179,24 +179,24 @@ class OctaviaGenerator(OpenStackServerSourceBase):
         openapi_spec = self.load_openapi(Path(impl_path))
         if not openapi_spec:
             openapi_spec = SpecSchema(
-                info=dict(
-                    title="OpenStack Load Balancing API",
-                    description=LiteralScalarString(
+                info={
+                    "title": "OpenStack Load Balancing API",
+                    "description": LiteralScalarString(
                         "Load Balancing API provided by Octavia service"
                     ),
-                    version=self.api_version,
-                ),
+                    "version": self.api_version,
+                },
                 openapi="3.1.0",
                 security=[{"ApiKeyAuth": []}],
-                components=dict(
-                    securitySchemes={
+                components={
+                    "securitySchemes": {
                         "ApiKeyAuth": {
                             "type": "apiKey",
                             "in": "header",
                             "name": "X-Auth-Token",
                         }
-                    },
-                ),
+                    }
+                },
             )
         config.register_cli_opts()
 
@@ -385,7 +385,9 @@ class OctaviaGenerator(OpenStackServerSourceBase):
             self._process_route(route, openapi_spec, framework="pecan")
 
         if args.api_ref_src:
-            merge_api_ref_doc(openapi_spec, args.api_ref_src, allow_strip_version=False)
+            merge_api_ref_doc(
+                openapi_spec, args.api_ref_src, allow_strip_version=False
+            )
 
         self.dump_openapi(openapi_spec, Path(impl_path), args.validate)
 

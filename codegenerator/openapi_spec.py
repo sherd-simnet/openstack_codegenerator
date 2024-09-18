@@ -72,7 +72,7 @@ class OpenApiSchemaGenerator(BaseGenerator):
         self, res, target_dir, openapi_spec=None, operation_id=None, args=None
     ):
         """Generate Schema definition file for Resource"""
-        logging.debug("Generating OpenAPI schema data in %s" % target_dir)
+        logging.debug(f"Generating OpenAPI schema data in {target_dir}")
         # We do not import generators since due to the use of Singletons in the
         # code importing glance, nova, cinder at the same time crashes
         # dramatically
@@ -93,4 +93,6 @@ class OpenApiSchemaGenerator(BaseGenerator):
         elif args.service_type == "shared-file-system":
             self.generate_manila(target_dir, args)
         else:
-            raise RuntimeError("Service type %s is not supported", args.service_type)
+            raise RuntimeError(
+                "Service type %s is not supported", args.service_type
+            )
