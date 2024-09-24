@@ -423,7 +423,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 # Tenant and Project quota is the same
                 continue
 
-            self._process_route(route, openapi_spec, processed_routes)
+            self._process_route_neutron(route, openapi_spec, processed_routes)
 
     def _process_base_resource_routes(self, openapi_spec, processed_routes):
         """Process base resources exposed through Pecan"""
@@ -438,7 +438,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
             ("ports", "port"),
         ]:
             for method, action in [("GET", "index"), ("POST", "create")]:
-                self._process_route(
+                self._process_route_neutron(
                     Route(
                         coll,
                         f"/{coll}",
@@ -461,7 +461,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 ("DELETE", "delete"),
                 ("PUT", "update"),
             ]:
-                self._process_route(
+                self._process_route_neutron(
                     Route(
                         coll,
                         f"/{coll}/{{{res}_id}}",
@@ -474,7 +474,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
                     processed_routes,
                     controller=mgr.get_controller_for_resource(coll),
                 )
-        self._process_route(
+        self._process_route_neutron(
             Route(
                 "port_allowed_address_pair",
                 "/ports/{port_id}/add_allowed_address_pairs",
@@ -488,7 +488,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
             controller=mgr.get_controller_for_resource("ports"),
         )
 
-    def _process_route(
+    def _process_route_neutron(
         self,
         route,
         openapi_spec,
@@ -628,7 +628,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
             if tag not in [x["name"] for x in openapi_spec.tags]:
                 openapi_spec.tags.append({"name": tag})
 
-        self.process_operation(
+        self.process_operation_neutron(
             func,
             openapi_spec,
             operation_spec,
@@ -639,7 +639,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
             method=method,
         )
 
-    def process_operation(
+    def process_operation_neutron(
         self,
         func,
         openapi_spec,

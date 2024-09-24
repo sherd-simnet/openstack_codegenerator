@@ -24,12 +24,13 @@ from openstack import resource
 from sphinx import pycode
 import yaml
 
-from codegenerator.ansible import AnsibleGenerator
+# from codegenerator.ansible import AnsibleGenerator
 from codegenerator import common
 from codegenerator.jsonschema import JsonSchemaGenerator
 from codegenerator.metadata import MetadataGenerator
 from codegenerator.openapi_spec import OpenApiSchemaGenerator
-from codegenerator.osc import OSCGenerator
+
+# from codegenerator.osc import OSCGenerator
 from codegenerator.rust_cli import RustCliGenerator
 from codegenerator.rust_sdk import RustSdkGenerator
 from codegenerator.types import Metadata
@@ -193,8 +194,8 @@ def main():
     )
 
     generators = {
-        "osc": OSCGenerator(),
-        "ansible": AnsibleGenerator(),
+        # "osc": OSCGenerator(),
+        # "ansible": AnsibleGenerator(),
         "rust-sdk": RustSdkGenerator(),
         "rust-cli": RustCliGenerator(),
         "openapi-spec": OpenApiSchemaGenerator(),

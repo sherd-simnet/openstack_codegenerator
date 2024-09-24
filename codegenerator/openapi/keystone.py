@@ -153,7 +153,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             if route.rule.startswith("/static"):
                 continue
 
-            self._process_route(route, openapi_spec)
+            self._process_route_keystone(route, openapi_spec)
 
         self._sanitize_param_ver_info(openapi_spec, self.min_api_version)
 
@@ -170,7 +170,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
 
         return impl_path
 
-    def _process_route(self, route, openapi_spec):
+    def _process_route_keystone(self, route, openapi_spec):
         args = route.arguments
         # ep = route.endpoint
         view = self.app.view_functions[route.endpoint]
@@ -345,7 +345,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             operation_spec.tags.extend(operation_tags)
             operation_spec.tags = list(set(operation_spec.tags))
 
-            self.process_operation(
+            self.process_operation_keystone(
                 func,
                 path,
                 openapi_spec,
@@ -356,7 +356,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
 
         return operation_spec
 
-    def process_operation(
+    def process_operation_keystone(
         self,
         func,
         path,

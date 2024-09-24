@@ -42,7 +42,9 @@ class AnsibleGenerator(BaseGenerator):
 
         self._render(test_template, context, test_dest.parent, test_dest.name)
 
-    def generate(self, res, target_dir, args=None):
+    def generate(
+        self, res, target_dir, _openapi_spec=None, operation_id=None, args=None
+    ):
         """Generate code for the Ansible"""
         logging.debug(f"Generating Ansible code in {target_dir}")
         ansible_path = ["plugins", "modules"]

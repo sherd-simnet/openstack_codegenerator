@@ -40,7 +40,9 @@ class OSCGenerator(BaseGenerator):
 
         self._render(test_template, context, test_dest.parent, test_dest.name)
 
-    def generate(self, res, target_dir, args=None):
+    def generate(
+        self, res, target_dir, _openapi_spec=None, operation_id=None, args=None
+    ):
         """Generate code for the OpenStackClient"""
         logging.debug(f"Generating OpenStackClient code in {target_dir}")
         osc_path = res.mod_name.split(".")[1:]
